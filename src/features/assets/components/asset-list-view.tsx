@@ -3,9 +3,9 @@ import Link from "next/link";
 import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionWrapper } from "@/components/shared/section-wrapper";
+import { ModuleStatGrid } from "@/components/shared/module-stat-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
 import { AssetFilters } from "@/features/assets/components/asset-filters";
 import { AssetTable } from "@/features/assets/components/asset-table";
@@ -31,23 +31,13 @@ export function AssetListView() {
         }
       />
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
+      <ModuleStatGrid
+        items={[
           { label: "Operational", value: assetRecords.filter((asset) => asset.status === "Operational").length.toString(), hint: "Assets ready for active use" },
           { label: "Maintenance Due", value: assetRecords.filter((asset) => asset.status === "Maintenance Due").length.toString(), hint: "Scheduled attention this cycle" },
           { label: "Under Repair", value: assetRecords.filter((asset) => asset.status === "Under Repair").length.toString(), hint: "Repair queue currently active" },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardHeader>
-              <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-4xl">{item.value}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-muted-foreground">{item.hint}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+        ]}
+      />
 
       <SectionWrapper
         title="Filters"

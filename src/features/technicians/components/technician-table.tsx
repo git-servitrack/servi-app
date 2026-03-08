@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyTableState } from "@/components/shared/empty-table-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getTechnicianDetailRoute, getTechnicianEditRoute } from "@/features/technicians/lib/technicians";
@@ -21,7 +22,9 @@ export function TechnicianTable({ technicians }: { technicians: TechnicianRecord
         </TableRow>
       </TableHeader>
       <TableBody>
-        {technicians.map((technician) => (
+        {technicians.length === 0 ? (
+          <EmptyTableState colSpan={7} title="No technicians found" description="Add a technician profile to start building assignment coverage." />
+        ) : technicians.map((technician) => (
           <TableRow key={technician.id}>
             <TableCell>
               <div className="space-y-1">

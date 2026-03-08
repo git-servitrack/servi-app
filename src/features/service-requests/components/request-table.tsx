@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyTableState } from "@/components/shared/empty-table-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getServiceRequestDetailRoute, getServiceRequestEditRoute } from "@/features/service-requests/lib/service-requests";
@@ -21,7 +22,9 @@ export function RequestTable({ requests }: { requests: ServiceRequestRecord[] })
         </TableRow>
       </TableHeader>
       <TableBody>
-        {requests.map((request) => (
+        {requests.length === 0 ? (
+          <EmptyTableState colSpan={7} title="No requests found" description="Try a broader filter or create a new service request." />
+        ) : requests.map((request) => (
           <TableRow key={request.id}>
             <TableCell>
               <div className="space-y-1">

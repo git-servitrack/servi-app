@@ -3,9 +3,9 @@ import Link from "next/link";
 import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionWrapper } from "@/components/shared/section-wrapper";
+import { ModuleStatGrid } from "@/components/shared/module-stat-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
 import { defaultRequestFilters, requestFilterOptions, serviceRequestRecords } from "@/features/service-requests/data/service-requests";
 import { RequestFilters } from "@/features/service-requests/components/request-filters";
@@ -31,23 +31,13 @@ export function RequestListView() {
         }
       />
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
+      <ModuleStatGrid
+        items={[
           { label: "Open requests", value: serviceRequestRecords.filter((request) => request.status !== "Resolved" && request.status !== "Closed").length.toString(), hint: "Active issues still in queue" },
           { label: "Critical priority", value: serviceRequestRecords.filter((request) => request.priority === "Critical").length.toString(), hint: "Immediate attention required" },
           { label: "Scheduled today", value: serviceRequestRecords.filter((request) => request.status === "Scheduled").length.toString(), hint: "Ready for technician action" },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardHeader>
-              <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-4xl">{item.value}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-muted-foreground">{item.hint}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+        ]}
+      />
 
       <SectionWrapper title="Filters" description="Filter controls are in place now and can later map to URL state or backend query params.">
         <RequestFilters

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyTableState } from "@/components/shared/empty-table-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getMaintenanceDetailRoute, getMaintenanceWorkflowRoute } from "@/features/maintenance/lib/maintenance";
@@ -21,7 +22,9 @@ export function MaintenanceTable({ items }: { items: MaintenanceRecord[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map((item) => (
+        {items.length === 0 ? (
+          <EmptyTableState colSpan={7} title="No maintenance work orders" description="Work orders will appear here once requests are converted into maintenance activity." />
+        ) : items.map((item) => (
           <TableRow key={item.id}>
             <TableCell>
               <div className="space-y-1">

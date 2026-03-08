@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyTableState } from "@/components/shared/empty-table-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AssetStatusBadge } from "@/features/assets/components/asset-status-badge";
@@ -21,13 +22,15 @@ export function AssetTable({ assets }: { assets: AssetRecord[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {assets.map((asset) => (
+        {assets.length === 0 ? (
+          <EmptyTableState colSpan={7} title="No assets found" description="Adjust the current filters or create a new asset to populate this register." />
+        ) : assets.map((asset) => (
           <TableRow key={asset.id}>
             <TableCell>
               <div className="space-y-1">
                 <p className="font-semibold text-foreground">{asset.name}</p>
                 <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  {asset.id} · {asset.code}
+                  {asset.id} - {asset.code}
                 </p>
               </div>
             </TableCell>
@@ -54,3 +57,4 @@ export function AssetTable({ assets }: { assets: AssetRecord[] }) {
     </Table>
   );
 }
+

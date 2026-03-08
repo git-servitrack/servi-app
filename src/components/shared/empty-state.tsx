@@ -12,7 +12,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon: Icon = Inbox, title, description, action }: EmptyStateProps) {
   return (
-    <Card className="border-dashed bg-card/80">
+    <Card className="border-dashed bg-card/80" role="status" aria-live="polite">
       <CardHeader className="items-start gap-4">
         <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon className="size-6" />

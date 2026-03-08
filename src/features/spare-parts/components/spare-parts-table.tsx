@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyTableState } from "@/components/shared/empty-table-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSparePartDetailRoute, getSparePartEditRoute } from "@/features/spare-parts/lib/spare-parts";
@@ -23,7 +24,9 @@ export function SparePartsTable({ parts }: { parts: SparePartRecord[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {parts.map((part) => (
+        {parts.length === 0 ? (
+          <EmptyTableState colSpan={8} title="No spare parts found" description="Create a spare part record or broaden the current inventory scope." />
+        ) : parts.map((part) => (
           <TableRow key={part.id}>
             <TableCell>
               <div className="space-y-1">

@@ -9,7 +9,7 @@ interface LoadingSkeletonProps {
 
 export function LoadingSkeleton({ className, cardCount = 3, rowCount = 4 }: LoadingSkeletonProps) {
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-6", className)} role="status" aria-live="polite" aria-label="Loading content">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: cardCount }).map((_, index) => (
           <div key={index} className="rounded-[calc(var(--radius)+0.25rem)] border border-border/80 bg-card p-5 shadow-[var(--shadow-soft)]">

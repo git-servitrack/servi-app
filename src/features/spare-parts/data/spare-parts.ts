@@ -13,7 +13,7 @@ export const sparePartRecords: SparePartRecord[] = [
     reservedStock: 4,
     reorderPoint: 10,
     status: "In Stock",
-    binLocation: "Aisle A · Bin 12",
+    binLocation: "Aisle A - Bin 12",
     supplier: "Metro Controls Supply",
     notes: "Critical relay used in recurring HVAC corrective maintenance and preventive replacements.",
     movements: [
@@ -65,7 +65,7 @@ export const sparePartRecords: SparePartRecord[] = [
     reservedStock: 2,
     reorderPoint: 8,
     status: "Low Stock",
-    binLocation: "Aisle C · Rack 03",
+    binLocation: "Aisle C - Rack 03",
     supplier: "Prime Grid Components",
     notes: "Low-volume but high-impact spare used in switchgear corrective work.",
     movements: [
@@ -109,7 +109,7 @@ export const sparePartRecords: SparePartRecord[] = [
     reservedStock: 1,
     reorderPoint: 5,
     status: "Critical",
-    binLocation: "Aisle D · Locker 02",
+    binLocation: "Aisle D - Locker 02",
     supplier: "Vertical Motion Works",
     notes: "Lead time is longer than standard stock items. Keep procurement visibility high.",
     movements: [
@@ -158,3 +158,4 @@ export const emptySparePartFormValues: SparePartFormValues = {
   supplier: "",
   notes: "",
 };
+

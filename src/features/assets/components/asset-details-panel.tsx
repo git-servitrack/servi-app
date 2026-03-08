@@ -22,7 +22,7 @@ export function AssetDetailsPanel({ asset }: { asset: AssetRecord }) {
             <CardDescription>Asset record</CardDescription>
             <CardTitle className="text-3xl">{asset.name}</CardTitle>
             <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">
-              {asset.id} · {asset.code}
+              {asset.id} - {asset.code}
             </p>
           </div>
           <AssetStatusBadge status={asset.status} />
@@ -44,3 +44,4 @@ export function AssetDetailsPanel({ asset }: { asset: AssetRecord }) {
     </Card>
   );
 }
+

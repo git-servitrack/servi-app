@@ -13,7 +13,7 @@ interface ErrorStateProps {
 export function ErrorState({ icon: Icon = AlertTriangle, title, description, actions }: ErrorStateProps) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
-      <Card className="w-full max-w-xl">
+      <Card className="w-full max-w-xl" role="alert" aria-live="assertive">
         <CardHeader className="gap-4">
           <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
             <Icon className="size-6" />
