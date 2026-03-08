@@ -83,7 +83,6 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         href: ROUTES.reports,
         icon: BarChart3,
         description: "Operational reports and exports.",
-        upcoming: true,
       },
     ],
   },
