@@ -1,12 +1,5 @@
-import { ModulePlaceholderPage } from "@/components/shared/module-placeholder-page";
+import { MaintenanceListView } from "@/features/maintenance/components/maintenance-list-view";
 
 export default function MaintenancePage() {
-  return (
-    <ModulePlaceholderPage
-      eyebrow="Maintenance Module"
-      title="Maintenance"
-      description="Workflow progression, diagnosis notes, assignments, and completion flows will use this route once the module phase begins."
-      phase="Phase 6"
-    />
-  );
+  return <MaintenanceListView />;
 }

@@ -1,0 +1,182 @@
+import type { MaintenanceRecord } from "@/features/maintenance/types/maintenance";
+
+export const maintenanceRecords: MaintenanceRecord[] = [
+  {
+    id: "MW-204",
+    workOrder: "MW-204",
+    assetName: "Generator GEN-104",
+    site: "Central Office",
+    requestTicket: "SR-783",
+    status: "Repair In Progress",
+    priority: "Critical",
+    assignedTeam: "Electrical Response",
+    scheduledFor: "2026-03-08 13:30",
+    diagnosisNotes:
+      "Generator controller logs show intermittent voltage drops under load. Initial checks point to unstable relay behavior and degraded cabling near the transfer switch.",
+    assignment: {
+      technician: "R. Santos",
+      team: "Electrical Response",
+      shift: "Day Shift",
+      eta: "Onsite now",
+    },
+    repairActions: [
+      {
+        id: "RA-1",
+        title: "Inspect transfer switch cabling",
+        owner: "R. Santos",
+        status: "Done",
+        note: "Heat marks identified near relay terminal block.",
+      },
+      {
+        id: "RA-2",
+        title: "Replace unstable relay assembly",
+        owner: "R. Santos",
+        status: "In Progress",
+        note: "Replacement component prepared and isolation completed.",
+      },
+      {
+        id: "RA-3",
+        title: "Run post-repair load test",
+        owner: "QA Electrical",
+        status: "Pending",
+        note: "To begin after relay swap and recalibration.",
+      },
+    ],
+    timeline: [
+      {
+        id: "MT-1",
+        title: "Work order created",
+        description: "Service request SR-783 converted into a maintenance work order.",
+        createdAt: "Today, 9:15 AM",
+        actor: "Service Desk",
+      },
+      {
+        id: "MT-2",
+        title: "Technician assigned",
+        description: "Electrical response lead assigned for urgent onsite diagnosis.",
+        createdAt: "Today, 9:20 AM",
+        actor: "Dispatch Coordinator",
+      },
+      {
+        id: "MT-3",
+        title: "Repair in progress",
+        description: "Relay replacement and cable stability checks started.",
+        createdAt: "Today, 1:40 PM",
+        actor: "R. Santos",
+      },
+    ],
+    completion: {
+      resolution: "Relay assembly replacement pending final load test.",
+      partsUsed: "High-current relay, insulated terminal set",
+      verifiedBy: "",
+      completedAt: "",
+    },
+  },
+  {
+    id: "MW-198",
+    workOrder: "MW-198",
+    assetName: "Elevator ELV-14",
+    site: "Annex Building",
+    requestTicket: "SR-761",
+    status: "Awaiting Parts",
+    priority: "High",
+    assignedTeam: "Mechanical Systems",
+    scheduledFor: "2026-03-09 10:00",
+    diagnosisNotes:
+      "Lift control diagnostics indicate inconsistent response from door motor sensor. Replacement part is on order, current operation restricted to supervised mode.",
+    assignment: {
+      technician: "L. Ramos",
+      team: "Mechanical Systems",
+      shift: "Day Shift",
+      eta: "Part ETA 9:00 AM tomorrow",
+    },
+    repairActions: [
+      {
+        id: "RA-4",
+        title: "Confirm sensor fault",
+        owner: "L. Ramos",
+        status: "Done",
+        note: "Sensor drift confirmed during controlled door cycle test.",
+      },
+      {
+        id: "RA-5",
+        title: "Receive replacement sensor",
+        owner: "Procurement Desk",
+        status: "Pending",
+        note: "Awaiting supplier delivery window.",
+      },
+    ],
+    timeline: [
+      {
+        id: "MT-4",
+        title: "Diagnosis completed",
+        description: "Mechanical systems team confirmed failing door motor sensor.",
+        createdAt: "Today, 10:30 AM",
+        actor: "L. Ramos",
+      },
+      {
+        id: "MT-5",
+        title: "Parts request filed",
+        description: "Replacement component requested through procurement channel.",
+        createdAt: "Today, 11:05 AM",
+        actor: "Mechanical Systems",
+      },
+    ],
+    completion: {
+      resolution: "",
+      partsUsed: "",
+      verifiedBy: "",
+      completedAt: "",
+    },
+  },
+  {
+    id: "MW-191",
+    workOrder: "MW-191",
+    assetName: "HVAC AHU-08",
+    site: "North Warehouse",
+    requestTicket: "SR-754",
+    status: "Assigned",
+    priority: "Medium",
+    assignedTeam: "Facilities",
+    scheduledFor: "2026-03-10 08:00",
+    diagnosisNotes:
+      "Preventive inspection scheduled to address airflow variance and overdue filter replacement before escalation.",
+    assignment: {
+      technician: "J. Navarro",
+      team: "Facilities",
+      shift: "Morning Shift",
+      eta: "Tomorrow, 8:00 AM",
+    },
+    repairActions: [
+      {
+        id: "RA-6",
+        title: "Replace air filters",
+        owner: "J. Navarro",
+        status: "Pending",
+        note: "Parts reserved in facilities stock.",
+      },
+      {
+        id: "RA-7",
+        title: "Measure post-service airflow",
+        owner: "J. Navarro",
+        status: "Pending",
+        note: "Required before work order closure.",
+      },
+    ],
+    timeline: [
+      {
+        id: "MT-6",
+        title: "Work order scheduled",
+        description: "Maintenance slot reserved for preventive service visit.",
+        createdAt: "Today, 8:50 AM",
+        actor: "Facilities Coordinator",
+      },
+    ],
+    completion: {
+      resolution: "",
+      partsUsed: "",
+      verifiedBy: "",
+      completedAt: "",
+    },
+  },
+];
