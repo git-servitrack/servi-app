@@ -56,7 +56,7 @@ export function MaintenanceWorkflowView({ item }: { item: MaintenanceRecord }) {
 
         <SectionWrapper title="Assignment and diagnosis" description="Current ownership and diagnosis notes stay close to the workflow so blockers are visible in one pass.">
           <div className="space-y-6">
-            <MaintenanceAssignmentUi assignment={item.assignment} />
+            <MaintenanceAssignmentUi maintenanceId={item.id} assignment={item.assignment} />
             <DiagnosisNotesPanel notes={item.diagnosisNotes} />
           </div>
         </SectionWrapper>
@@ -68,7 +68,7 @@ export function MaintenanceWorkflowView({ item }: { item: MaintenanceRecord }) {
         </SectionWrapper>
 
         <SectionWrapper title="Completion handoff" description="The completion form is ready for later validation and mutation wiring.">
-          <MaintenanceCompletionForm values={item.completion} />
+          <MaintenanceCompletionForm maintenanceId={item.id} values={item.completion} />
           <Card>
             <CardHeader>
               <CardDescription>Scalability note</CardDescription>

@@ -16,5 +16,5 @@ export default async function SparePartEditPage({
     notFound();
   }
 
-  return <SparePartFormView mode="edit" values={mapSparePartToFormValues(part)} />;
+  return <SparePartFormView mode="edit" values={mapSparePartToFormValues(part)} partId={part.id} />;
 }

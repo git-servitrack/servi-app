@@ -13,9 +13,10 @@ import type { SparePartFormValues } from "@/features/spare-parts/types/spare-par
 interface SparePartFormViewProps {
   mode: "create" | "edit";
   values: SparePartFormValues;
+  partId?: string;
 }
 
-export function SparePartFormView({ mode, values }: SparePartFormViewProps) {
+export function SparePartFormView({ mode, values, partId }: SparePartFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
@@ -45,6 +46,7 @@ export function SparePartFormView({ mode, values }: SparePartFormViewProps) {
             description="This form covers the stable record shape for spare parts before real stock adjustments become transactional."
             submitLabel={isEdit ? "Save changes" : "Create spare part"}
             values={values}
+            partId={partId}
           />
         </SectionWrapper>
 

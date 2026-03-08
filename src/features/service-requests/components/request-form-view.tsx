@@ -13,9 +13,10 @@ import type { ServiceRequestFormValues } from "@/features/service-requests/types
 interface RequestFormViewProps {
   mode: "create" | "edit";
   values: ServiceRequestFormValues;
+  requestId?: string;
 }
 
-export function RequestFormView({ mode, values }: RequestFormViewProps) {
+export function RequestFormView({ mode, values, requestId }: RequestFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
@@ -45,6 +46,7 @@ export function RequestFormView({ mode, values }: RequestFormViewProps) {
             description="Field ownership mirrors the expected shape of future service request DTOs."
             submitLabel={isEdit ? "Save update" : "Create request"}
             values={values}
+            requestId={requestId}
           />
         </SectionWrapper>
 
@@ -55,7 +57,7 @@ export function RequestFormView({ mode, values }: RequestFormViewProps) {
               <CardTitle>Future API notes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-              <p>Wire the request form with `react-hook-form` and `zod` in Phase 11 so create and edit can share one schema.</p>
+              <p>The request form now uses `react-hook-form` and `zod`, so create and edit already share one schema and submit flow.</p>
               <p>Keep timeline events and remarks as separate API resources or embedded collections depending on backend pagination needs.</p>
               <p>Status transitions should remain explicit and auditable, ideally with server-side rules around closure and reassignment.</p>
             </CardContent>

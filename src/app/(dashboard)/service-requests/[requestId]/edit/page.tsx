@@ -16,5 +16,5 @@ export default async function ServiceRequestEditPage({
     notFound();
   }
 
-  return <RequestFormView mode="edit" values={mapServiceRequestToFormValues(request)} />;
+  return <RequestFormView mode="edit" values={mapServiceRequestToFormValues(request)} requestId={request.id} />;
 }

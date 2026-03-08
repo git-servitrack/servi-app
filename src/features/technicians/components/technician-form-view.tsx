@@ -13,9 +13,10 @@ import type { TechnicianFormValues } from "@/features/technicians/types/technici
 interface TechnicianFormViewProps {
   mode: "create" | "edit";
   values: TechnicianFormValues;
+  technicianId?: string;
 }
 
-export function TechnicianFormView({ mode, values }: TechnicianFormViewProps) {
+export function TechnicianFormView({ mode, values, technicianId }: TechnicianFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
@@ -45,6 +46,7 @@ export function TechnicianFormView({ mode, values }: TechnicianFormViewProps) {
             description="Field names mirror the expected workforce profile payload for later API integration."
             submitLabel={isEdit ? "Save changes" : "Create technician"}
             values={values}
+            technicianId={technicianId}
           />
         </SectionWrapper>
 

@@ -16,5 +16,5 @@ export default async function TechnicianEditPage({
     notFound();
   }
 
-  return <TechnicianFormView mode="edit" values={mapTechnicianToFormValues(technician)} />;
+  return <TechnicianFormView mode="edit" values={mapTechnicianToFormValues(technician)} technicianId={technician.id} />;
 }

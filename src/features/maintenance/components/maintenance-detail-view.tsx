@@ -51,7 +51,7 @@ export function MaintenanceDetailView({ item }: { item: MaintenanceRecord }) {
         </SectionWrapper>
 
         <SectionWrapper title="Assignment" description="Assignment metadata should remain stable so scheduling or dispatch updates can evolve independently later.">
-          <MaintenanceAssignmentUi assignment={item.assignment} />
+          <MaintenanceAssignmentUi maintenanceId={item.id} assignment={item.assignment} />
         </SectionWrapper>
       </div>
 
