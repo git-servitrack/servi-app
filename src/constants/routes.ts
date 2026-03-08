@@ -77,7 +77,6 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         href: ROUTES.documentation,
         icon: FileStack,
         description: "Uploads, previews, and linked references.",
-        upcoming: true,
       },
       {
         title: "Reports",

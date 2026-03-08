@@ -164,12 +164,12 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ### Documentation UI
 
-- [ ] Create upload UI
-- [ ] Create media preview cards
-- [ ] Create linked-documentation section
-- [ ] Create image/file metadata display
-- [ ] Create upload validation feedback
-- [ ] Create file gallery/grid view
+- [x] Create upload UI
+- [x] Create media preview cards
+- [x] Create linked-documentation section
+- [x] Create image/file metadata display
+- [x] Create upload validation feedback
+- [x] Create file gallery/grid view
 
 ---
 
