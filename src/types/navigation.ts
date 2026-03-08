@@ -12,3 +12,9 @@ export interface NavigationGroup {
   title: string;
   items: NavigationItem[];
 }
+
+export interface NavigationBreadcrumb {
+  label: string;
+  href: string;
+  current: boolean;
+}

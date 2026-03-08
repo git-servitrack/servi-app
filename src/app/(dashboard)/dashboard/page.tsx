@@ -1,5 +1,5 @@
-import { DashboardFoundationView } from "@/features/dashboard/components/dashboard-foundation-view";
+import { DashboardOverviewView } from "@/features/dashboard/components/dashboard-overview-view";
 
 export default function DashboardPage() {
-  return <DashboardFoundationView />;
+  return <DashboardOverviewView />;
 }
