@@ -71,7 +71,6 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         href: ROUTES.spareParts,
         icon: Package,
         description: "Stock visibility and movement history.",
-        upcoming: true,
       },
       {
         title: "Documentation",

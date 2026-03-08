@@ -1,12 +1,5 @@
-import { ModulePlaceholderPage } from "@/components/shared/module-placeholder-page";
+import { SparePartsListView } from "@/features/spare-parts/components/spare-parts-list-view";
 
 export default function SparePartsPage() {
-  return (
-    <ModulePlaceholderPage
-      eyebrow="Spare Parts Module"
-      title="Spare Parts"
-      description="Stock visibility, usage history, and adjustment flows will be layered onto this route in the spare parts phase."
-      phase="Phase 8"
-    />
-  );
+  return <SparePartsListView />;
 }
