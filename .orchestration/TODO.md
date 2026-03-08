@@ -197,18 +197,18 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ### Integration
 
-- [ ] Create API service layer structure
-- [ ] Create typed service contracts
-- [ ] Add request helpers
-- [ ] Add standardized error handling in UI
-- [ ] Add loading and mutation feedback patterns
+- [x] Create API service layer structure
+- [x] Create typed service contracts
+- [x] Add request helpers
+- [x] Add standardized error handling in UI
+- [x] Add loading and mutation feedback patterns
 
 ### Forms
 
-- [ ] Add react-hook-form
-- [ ] Add zod schemas
-- [ ] Standardize submit behavior
-- [ ] Standardize validation messages
+- [x] Add react-hook-form
+- [x] Add zod schemas
+- [x] Standardize submit behavior
+- [x] Standardize validation messages
 
 ---
 

@@ -13,9 +13,10 @@ import type { AssetFormValues } from "@/features/assets/types/assets";
 interface AssetFormViewProps {
   mode: "create" | "edit";
   values: AssetFormValues;
+  assetId?: string;
 }
 
-export function AssetFormView({ mode, values }: AssetFormViewProps) {
+export function AssetFormView({ mode, values, assetId }: AssetFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
@@ -45,6 +46,7 @@ export function AssetFormView({ mode, values }: AssetFormViewProps) {
             description="Form field strategy mirrors the expected shape of future service contracts."
             submitLabel={isEdit ? "Save changes" : "Create asset"}
             values={values}
+            assetId={assetId}
           />
         </SectionWrapper>
 

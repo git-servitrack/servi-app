@@ -16,5 +16,5 @@ export default async function AssetEditPage({
     notFound();
   }
 
-  return <AssetFormView mode="edit" values={mapAssetToFormValues(asset)} />;
+  return <AssetFormView mode="edit" values={mapAssetToFormValues(asset)} assetId={asset.id} />;
 }
