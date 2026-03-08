@@ -248,6 +248,45 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ---
 
+## PHASE 14 - Authentication and Role Access
+
+### Authentication Pages
+
+- [x] Create sign in page
+- [x] Remove public create-account flow from auth entry
+- [x] Create auth-only layout shell
+- [x] Keep public auth routes limited to sign in and recover-account
+- [x] Add forgot-password or account recovery entry point placeholder
+
+### Role-Aware Access
+
+- [x] Move account creation and role assignment into dashboard user management
+- [x] Create admin-only user management page for account provisioning
+- [x] Add role descriptions to support correct user selection in admin provisioning
+- [x] Define role-aware redirect placeholders after authentication
+- [x] Define auth service structure for future backend integration
+- [x] Define auth schemas and validation strategy
+- [x] Define shared auth components and feedback states
+
+### User Management Direction
+
+- [x] Add user management module to dashboard navigation
+- [x] Create user listing page for admins
+- [x] Create create-user form for admins
+- [x] Create edit-user / role-assignment flow for admins
+- [ ] Restrict account provisioning to Admin / System Operator role
+
+### Supported Roles
+
+- [x] Warehouse Staff / Requesting Personnel
+- [x] Admin / System Operator
+- [x] Technicians / Maintenance Staff
+- [x] Head Technicians / Supervisors
+- [x] Project Site Staff / Leadmen
+- [x] Management / Company
+
+---
+
 ## Priority Recommendation
 
 ### Highest Priority
@@ -265,7 +304,9 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 8. Spare parts module
 9. Documentation module
 10. Reports module
-11. Hardening and documentation
+11. Hardening
+12. Frontend documentation
+13. Authentication and role access
 
 ---
 

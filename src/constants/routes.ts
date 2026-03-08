@@ -6,6 +6,7 @@ import {
   Package,
   ShieldCheck,
   SquareKanban,
+  UsersRound,
   Wrench,
 } from "lucide-react";
 
@@ -13,11 +14,14 @@ import type { NavigationGroup } from "@/types/navigation";
 
 export const ROUTES = {
   home: "/",
+  signIn: "/sign-in",
+  recoverAccount: "/recover-account",
   dashboard: "/dashboard",
   assets: "/assets",
   serviceRequests: "/service-requests",
   maintenance: "/maintenance",
   technicians: "/technicians",
+  userManagement: "/user-management",
   spareParts: "/spare-parts",
   documentation: "/documentation",
   reports: "/reports",
@@ -62,6 +66,12 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         href: ROUTES.technicians,
         icon: ShieldCheck,
         description: "Profiles, workload, and performance summaries.",
+      },
+      {
+        title: "User Management",
+        href: ROUTES.userManagement,
+        icon: UsersRound,
+        description: "Admin-only user provisioning and role assignment.",
       },
       {
         title: "Spare Parts",
