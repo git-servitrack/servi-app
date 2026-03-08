@@ -65,7 +65,6 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         href: ROUTES.technicians,
         icon: ShieldCheck,
         description: "Profiles, workload, and performance summaries.",
-        upcoming: true,
       },
       {
         title: "Spare Parts",

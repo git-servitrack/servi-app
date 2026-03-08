@@ -127,17 +127,17 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ### Technician Pages
 
-- [ ] Create technician listing page
-- [ ] Create technician details page
-- [ ] Create technician create/edit pages
+- [x] Create technician listing page
+- [x] Create technician details page
+- [x] Create technician create/edit pages
 
 ### Technician Components
 
-- [ ] Create technician table
-- [ ] Create technician profile card
-- [ ] Create workload summary section
-- [ ] Create technician scorecard view
-- [ ] Create technician history table
+- [x] Create technician table
+- [x] Create technician profile card
+- [x] Create workload summary section
+- [x] Create technician scorecard view
+- [x] Create technician history table
 
 ---
 
