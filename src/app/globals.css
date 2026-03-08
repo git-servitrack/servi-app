@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f1e8;
+  --foreground: #1f2937;
+  --card: rgba(255, 252, 245, 0.92);
+  --card-foreground: #142033;
+  --popover: #fffdf8;
+  --popover-foreground: #142033;
+  --primary: #174e4f;
+  --primary-foreground: #f7faf8;
+  --secondary: #d7c7a8;
+  --secondary-foreground: #1f2937;
+  --muted: #ece3d1;
+  --muted-foreground: #5b6678;
+  --accent: #b87432;
+  --accent-foreground: #fffaf2;
+  --destructive: #b93829;
+  --destructive-foreground: #fff7f5;
+  --border: rgba(31, 41, 55, 0.12);
+  --input: rgba(23, 78, 79, 0.12);
+  --ring: rgba(184, 116, 50, 0.36);
+  --radius: 1.25rem;
+  --shadow-soft: 0 18px 50px rgba(19, 31, 47, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 0.5rem);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(184, 116, 50, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(23, 78, 79, 0.12), transparent 22%),
+    linear-gradient(180deg, #f8f4ec 0%, #f3efe6 48%, #f7f3ea 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
+
+::selection {
+  background: rgba(23, 78, 79, 0.18);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply min-h-screen;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), serif;
+    letter-spacing: -0.03em;
+  }
+}
