@@ -87,19 +87,19 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ### Service Request Pages
 
-- [ ] Create request listing page
-- [ ] Create request details page
-- [ ] Create request creation page
-- [ ] Create request update flow
+- [x] Create request listing page
+- [x] Create request details page
+- [x] Create request creation page
+- [x] Create request update flow
 
 ### Service Request Components
 
-- [ ] Create request table
-- [ ] Create request filters
-- [ ] Create request form
-- [ ] Create request status badge
-- [ ] Create request history/timeline view
-- [ ] Create request remarks section
+- [x] Create request table
+- [x] Create request filters
+- [x] Create request form
+- [x] Create request status badge
+- [x] Create request history/timeline view
+- [x] Create request remarks section
 
 ---
 
