@@ -19,9 +19,9 @@ export function DashboardHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/85 backdrop-blur-xl">
-      <div className="flex h-20 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/85 backdrop-blur-xl lg:fixed lg:left-[20rem] lg:right-0">
+      <div className="flex h-20 min-w-0 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="lg:hidden">
@@ -51,7 +51,7 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        <div className="hidden items-center gap-3 sm:flex">
+        <div className="hidden shrink-0 items-center gap-3 sm:flex">
           <div className="rounded-full border border-border/80 bg-card px-4 py-2 text-right shadow-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Foundation build</p>
             <p className="text-sm font-semibold text-foreground">{formatShortDate(new Date())}</p>

@@ -58,6 +58,7 @@
 
 html {
   color-scheme: light;
+  overflow-x: clip;
 }
 
 body {
@@ -67,6 +68,7 @@ body {
     linear-gradient(180deg, #f8f4ec 0%, #f3efe6 48%, #f7f3ea 100%);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
+  overflow-x: clip;
 }
 
 ::selection {

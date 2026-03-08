@@ -16,7 +16,7 @@ export function DashboardNav({ groups, onNavigate }: DashboardNavProps) {
   const pathname = usePathname();
 
   return (
-    <div className="space-y-6">
+    <nav className="space-y-6" aria-label="Dashboard navigation">
       {groups.map((group) => (
         <div key={group.title} className="space-y-2">
           <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -32,14 +32,17 @@ export function DashboardNav({ groups, onNavigate }: DashboardNavProps) {
                   key={item.href}
                   href={item.href}
                   onClick={onNavigate}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "group flex items-start gap-3 rounded-[calc(var(--radius)-0.25rem)] px-3 py-3 transition-colors",
-                    isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted/60"
+                    "group flex items-start gap-3 rounded-[calc(var(--radius)-0.25rem)] border px-3 py-3 transition-colors",
+                    isActive
+                      ? "border-primary/20 bg-primary text-primary-foreground shadow-[var(--shadow-soft)]"
+                      : "border-transparent text-foreground hover:border-border/70 hover:bg-muted/60"
                   )}
                 >
                   <span
                     className={cn(
-                      "mt-0.5 flex size-9 items-center justify-center rounded-2xl border transition-colors",
+                      "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-2xl border transition-colors",
                       isActive
                         ? "border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground"
                         : "border-border bg-background/70 text-muted-foreground group-hover:text-foreground"
@@ -57,7 +60,7 @@ export function DashboardNav({ groups, onNavigate }: DashboardNavProps) {
                       ) : null}
                     </span>
                     {item.description ? (
-                      <span className={cn("block text-xs leading-5", isActive ? "text-primary-foreground/75" : "text-muted-foreground")}>
+                      <span className={cn("block text-xs leading-6", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
                         {item.description}
                       </span>
                     ) : null}
@@ -68,6 +71,6 @@ export function DashboardNav({ groups, onNavigate }: DashboardNavProps) {
           </div>
         </div>
       ))}
-    </div>
+    </nav>
   );
 }

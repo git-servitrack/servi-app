@@ -5,11 +5,11 @@ import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div className="min-h-screen">
       <DashboardSidebar />
-      <div className="flex min-h-screen min-w-0 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-col lg:pl-[20rem]">
         <DashboardHeader />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 min-w-0 lg:pt-20">{children}</main>
       </div>
     </div>
   );
