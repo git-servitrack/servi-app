@@ -1,5 +1,26 @@
-export type DocumentationFileType = "Image" | "PDF" | "Manual" | "Checklist";
-export type UploadValidationLevel = "success" | "warning" | "error";
+/** Gallery accepts equipment photos only (PNG / JPEG in production). */
+export type DocumentationFileType = "Image";
+
+export type VisionSeverity = "Minor" | "Moderate" | "Critical";
+
+export interface VisionFinding {
+  label: string;
+  confidence: number;
+  detail: string;
+}
+
+/** Stored snapshot from a vision pass (simulated in UI until a model is wired). */
+export interface DocumentationVisionAnalysis {
+  applicable: boolean;
+  severity?: VisionSeverity;
+  modelProfile?: string;
+  analyzedAt?: string;
+  summary?: string;
+  findings?: VisionFinding[];
+  actions?: string[];
+  /** When applicable is false — e.g. queued, model not run */
+  skipReason?: string;
+}
 
 export interface DocumentationLink {
   label: string;
@@ -19,20 +40,5 @@ export interface DocumentationFile {
   previewLabel: string;
   tags: string[];
   links: DocumentationLink[];
-}
-
-export interface UploadValidationItem {
-  id: string;
-  label: string;
-  message: string;
-  level: UploadValidationLevel;
-}
-
-export interface UploadQueueItem {
-  id: string;
-  name: string;
-  type: DocumentationFileType;
-  size: string;
-  progress: number;
-  status: "Ready" | "Processing" | "Blocked";
+  visionAnalysis: DocumentationVisionAnalysis;
 }

@@ -1,79 +1,102 @@
 import Link from "next/link";
+import { ClipboardList, ShieldCheck, Wrench } from "lucide-react";
 import type { ReactNode } from "react";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ROUTES } from "@/constants/routes";
-import { authRoles } from "@/features/auth/data/auth-roles";
 
 interface AuthShellProps {
   children: ReactNode;
 }
 
+const FEATURES = [
+  {
+    icon: ClipboardList,
+    title: "Service-first operations",
+    description: "One workspace for service requests, maintenance tracking, and asset management.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Role-aware access",
+    description: "Routing adapts to operators, technicians, supervisors, and management.",
+  },
+  {
+    icon: Wrench,
+    title: "Maintenance pipeline",
+    description: "Track work orders from request through completion with full audit trail.",
+  },
+];
+
 export function AuthShell({ children }: AuthShellProps) {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,_rgba(19,94,93,0.14),_transparent_28%),linear-gradient(180deg,_#f7f3ea_0%,_#f1ede4_100%)] text-foreground lg:h-screen lg:overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-px bg-border/70" />
-      <div className="mx-auto grid min-h-screen w-full max-w-[1440px] gap-10 px-6 py-8 lg:h-screen lg:grid-cols-[minmax(0,0.96fr)_minmax(420px,520px)] lg:gap-6 lg:px-7 lg:py-5">
-        <aside className="hidden flex-col justify-between rounded-[2rem] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(248,244,236,0.88))] p-8 shadow-[0_28px_80px_-40px_rgba(34,47,61,0.4)] lg:flex lg:h-full lg:min-h-0 lg:overflow-hidden lg:p-8">
-          <div className="space-y-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-2">
-            <div className="flex items-center gap-4">
-              <div className="grid size-14 place-items-center rounded-[1.4rem] bg-primary text-lg font-bold text-primary-foreground shadow-[0_18px_32px_-22px_rgba(19,94,93,0.85)]">
-                SW
-              </div>
+    <main className="min-h-screen bg-slate-50 text-slate-900 lg:grid lg:grid-cols-[1fr_1fr] xl:grid-cols-[1.1fr_0.9fr]">
+      <section className="relative hidden overflow-hidden bg-[#11120f] lg:flex lg:flex-col lg:justify-between">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-0 top-0 h-[480px] w-[480px] -translate-x-1/4 -translate-y-1/4 rounded-full bg-[#145d66]/20 blur-[120px]" />
+          <div className="absolute bottom-0 right-0 h-[300px] w-[300px] translate-x-1/4 translate-y-1/4 rounded-full bg-[#145d66]/10 blur-[100px]" />
+        </div>
+
+        <div className="relative px-10 pt-12">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#145d66] font-display text-sm font-bold text-white shadow-sm">
+              SW
+            </span>
+            <div>
+              <p className="text-[11px] tracking-[0.2em] text-[#86d0d8] uppercase">SERVI-WEB</p>
+              <p className="text-sm font-semibold text-stone-100">Operations Workspace</p>
+            </div>
+          </Link>
+        </div>
+
+        <div className="relative px-10 py-12">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#86d0d8]">
+            Secure access
+          </p>
+          <h1 className="mt-5 font-display text-4xl font-bold leading-[1.08] text-stone-100 xl:text-5xl">
+            Role-aware access for every operational lane.
+          </h1>
+          <p className="mt-5 max-w-md text-sm leading-7 text-stone-400">
+            Keep sign-in and onboarding clean while preserving the structure needed for system
+            operators, technicians, requestors, supervisors, and management.
+          </p>
+        </div>
+
+        <div className="relative border-t border-white/8 px-10 pb-12">
+          {FEATURES.map((feature) => (
+            <div
+              key={feature.title}
+              className="flex items-start gap-4 border-b border-white/8 py-5 last:border-b-0"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/6">
+                <feature.icon className="h-4 w-4 text-[#86d0d8]" />
+              </span>
               <div>
-                <p className="font-display text-3xl leading-none text-slate-800">SERVI-WEB</p>
-                <p className="text-xs uppercase tracking-[0.38em] text-slate-500">Operations Workspace</p>
+                <p className="text-sm font-semibold text-stone-100">{feature.title}</p>
+                <p className="mt-0.5 text-sm leading-6 text-stone-400">{feature.description}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="space-y-4">
-              <Badge variant="outline" className="rounded-full px-4 py-1 uppercase tracking-[0.24em]">
-                Secure access
-              </Badge>
-              <div className="space-y-2.5">
-                <h1 className="max-w-3xl font-display text-4xl leading-[0.94] text-slate-900 lg:text-[3.5rem] xl:text-[4rem]">
-                  Role-aware access for every operational lane.
-                </h1>
-                <p className="max-w-xl text-base leading-7 text-slate-600 lg:text-[0.98rem]">
-                  Keep sign-in and onboarding clean while preserving the structure needed for system operators, technicians, requestors, supervisors, and management.
-                </p>
-              </div>
+      <section className="flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-8 lg:px-10">
+        <div className="w-full max-w-[420px]">
+          <Link href="/" className="mb-8 inline-flex items-center gap-3 lg:hidden">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#145d66] font-display text-sm font-bold text-white">
+              SW
+            </span>
+            <div>
+              <p className="text-[11px] tracking-[0.2em] text-[#145d66] uppercase">SERVI-WEB</p>
+              <p className="text-sm font-semibold text-slate-900">Operations Workspace</p>
             </div>
+          </Link>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {authRoles.map((role) => (
-                <Card key={role.id} className="border-white/70 bg-white/75 shadow-none backdrop-blur">
-                  <CardContent className="space-y-2 p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{role.shortLabel}</p>
-                    <p className="text-sm leading-6 text-slate-700">{role.audience}</p>
-                    <p className="text-xs leading-5 text-slate-500">Landing: {role.defaultRoute}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+          {children}
 
-          <div className="mt-6 rounded-[1.6rem] border border-dashed border-border/70 bg-white/55 p-5 lg:shrink-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <Button asChild size="sm">
-                <Link href={ROUTES.signIn}>Sign in</Link>
-              </Button>
-              <Button asChild size="sm" variant="ghost">
-                <Link href={ROUTES.recoverAccount}>Recover access</Link>
-              </Button>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-slate-600">
-              Accounts are provisioned by Admin / System Operator users inside dashboard user management. Public self-service sign-up is intentionally disabled.
-            </p>
-          </div>
-        </aside>
-
-        <section className="flex items-center justify-center lg:h-full lg:min-h-0 lg:justify-end">
-          <div className="w-full max-w-[540px] lg:max-h-full lg:overflow-y-auto lg:pr-2">{children}</div>
-        </section>
-      </div>
-    </div>
+          <p className="mt-6 text-center text-xs text-slate-400">
+            By continuing, you agree to our{" "}
+            <span className="font-medium text-slate-500">Terms of Service</span> and{" "}
+            <span className="font-medium text-slate-500">Privacy Policy</span>.
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }

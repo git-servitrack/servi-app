@@ -1,10 +1,5 @@
 import { BarChart3 } from "lucide-react";
 
-import { PageContainer } from "@/components/shared/page-container";
-import { PageHeader } from "@/components/shared/page-header";
-import { SectionWrapper } from "@/components/shared/section-wrapper";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   completionRateReport,
   defaultReportFilters,
@@ -19,69 +14,88 @@ import { ExportLayoutPlaceholder } from "@/features/reports/components/export-la
 import { MaintenanceHistoryReportUi } from "@/features/reports/components/maintenance-history-report-ui";
 import { ReportFilterToolbar } from "@/features/reports/components/report-filter-toolbar";
 import { ReportMetricCard } from "@/features/reports/components/report-metric-card";
+import { ReportSectionCard } from "@/features/reports/components/report-section-card";
 import { RequestVolumeReportUi } from "@/features/reports/components/request-volume-report-ui";
 import { SparePartsUsageReportUi } from "@/features/reports/components/spare-parts-usage-report-ui";
 import { TechnicianPerformanceReportUi } from "@/features/reports/components/technician-performance-report-ui";
 
 export function ReportsOverviewView() {
   return (
-    <PageContainer>
-      <PageHeader
-        eyebrow="Reports Module"
-        title="Operational reporting"
-        description="Review maintenance throughput, technician performance, inventory usage, request volume, and completion efficiency from a structured reporting workspace."
-        actions={
-          <>
-            <Badge variant="accent">Analytics-ready structure</Badge>
-            <Button type="button" variant="outline">
-              <BarChart3 className="size-4" />
-              Generate summary
-            </Button>
-          </>
-        }
-      />
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">Reports</h1>
+            <p className="mt-1.5 max-w-2xl text-sm text-slate-500 dark:text-stone-400">
+              Maintenance throughput, technician performance, parts usage, request volume, and completion efficiency — structured for future API-backed analytics and exports.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="flex w-fit items-center gap-1.5 rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+          >
+            <BarChart3 className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />
+            Generate summary
+          </button>
+        </div>
 
-      <SectionWrapper
-        title="Report filters"
-        description="Keep filters centralized so later server-side analytics queries and export payloads can reuse the same request state."
-      >
-        <ReportFilterToolbar filters={defaultReportFilters} />
-      </SectionWrapper>
+        <div className="mt-6 space-y-2">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-stone-100">Report filters</h2>
+          <p className="text-sm text-slate-400 dark:text-stone-500">
+            Centralized filters for reuse with server queries and export payloads.
+          </p>
+          <ReportFilterToolbar filters={defaultReportFilters} />
+        </div>
 
-      <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-        {reportMetrics.map((metric) => (
-          <ReportMetricCard key={metric.label} metric={metric} />
-        ))}
-      </section>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          {reportMetrics.map((metric) => (
+            <ReportMetricCard key={metric.label} metric={metric} />
+          ))}
+        </div>
 
-      <div className="grid gap-6">
-        <SectionWrapper title="Maintenance history report" description="Tabular maintenance history keeps asset-level work progression readable and export friendly.">
-          <MaintenanceHistoryReportUi items={maintenanceHistoryReport} />
-        </SectionWrapper>
+        <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:gap-6">
+          <ReportSectionCard
+            title="Maintenance history"
+            description="Work order progression by asset and site, export-friendly."
+          >
+            <MaintenanceHistoryReportUi items={maintenanceHistoryReport} />
+          </ReportSectionCard>
 
-        <SectionWrapper title="Technician performance report" description="A compact performance table is the right baseline before adding trend lines or team-comparison visuals later.">
-          <TechnicianPerformanceReportUi items={technicianPerformanceReport} />
-        </SectionWrapper>
+          <ReportSectionCard
+            title="Technician performance"
+            description="Completed jobs, response time, and SLA rate by technician."
+          >
+            <TechnicianPerformanceReportUi items={technicianPerformanceReport} />
+          </ReportSectionCard>
 
-        <SectionWrapper title="Spare parts usage report" description="Inventory issue volume is presented alongside linked work-order counts so consumption patterns stay operationally useful.">
-          <SparePartsUsageReportUi items={sparePartsUsageReport} />
-        </SectionWrapper>
+          <ReportSectionCard
+            title="Spare parts usage"
+            description="Issue volume with linked work orders and site context."
+          >
+            <SparePartsUsageReportUi items={sparePartsUsageReport} />
+          </ReportSectionCard>
 
-        <SectionWrapper title="Request volume report" description="Service request flow is grouped by category and site to support intake planning and triage reviews.">
-          <RequestVolumeReportUi items={requestVolumeReport} />
-        </SectionWrapper>
+          <ReportSectionCard
+            title="Request volume"
+            description="Intake flow by category and site for triage planning."
+          >
+            <RequestVolumeReportUi items={requestVolumeReport} />
+          </ReportSectionCard>
 
-        <SectionWrapper title="Completion rate report" description="Completion efficiency stays isolated from raw volume so team-level delivery quality is easier to compare.">
-          <CompletionRateReportUi items={completionRateReport} />
-        </SectionWrapper>
+          <ReportSectionCard
+            title="Completion rate"
+            description="Team delivery quality separate from raw volume."
+          >
+            <CompletionRateReportUi items={completionRateReport} />
+          </ReportSectionCard>
+
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-stone-100">Export preparation</h2>
+            <p className="text-sm text-slate-400 dark:text-stone-500">Dedicated print and spreadsheet layouts vs. interactive view.</p>
+            <ExportLayoutPlaceholder />
+          </div>
+        </div>
       </div>
-
-      <SectionWrapper
-        title="Export preparation"
-        description="Report exports should eventually use dedicated print and spreadsheet layouts rather than reusing the interactive dashboard view."
-      >
-        <ExportLayoutPlaceholder />
-      </SectionWrapper>
-    </PageContainer>
+    </div>
   );
 }

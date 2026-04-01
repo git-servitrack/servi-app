@@ -8,6 +8,8 @@ export interface ReportMetric {
   label: string;
   value: string;
   hint: string;
+  /** Accent bar color (hex) for KPI card */
+  color?: string;
 }
 
 export interface MaintenanceHistoryReportRow {

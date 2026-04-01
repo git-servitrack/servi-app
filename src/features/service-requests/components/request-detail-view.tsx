@@ -1,85 +1,121 @@
-import Link from "next/link";
+"use client";
 
-import { PageContainer } from "@/components/shared/page-container";
-import { PageHeader } from "@/components/shared/page-header";
-import { SectionWrapper } from "@/components/shared/section-wrapper";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+
+import { RequestFormModal } from "@/features/service-requests/components/request-form-modal";
 import { RequestRemarksSection } from "@/features/service-requests/components/request-remarks-section";
 import { RequestStatusBadge } from "@/features/service-requests/components/request-status-badge";
 import { RequestTimeline } from "@/features/service-requests/components/request-timeline";
-import { getServiceRequestEditRoute } from "@/features/service-requests/lib/service-requests";
+import { mapServiceRequestToFormValues } from "@/features/service-requests/lib/service-requests";
 import type { ServiceRequestRecord } from "@/features/service-requests/types/service-requests";
 
+const PRIORITY_COLORS: Record<string, string> = {
+  Critical: "#dc2626",
+  High: "#d97706",
+  Medium: "#145d66",
+  Low: "#64748b",
+};
+
 export function RequestDetailView({ request }: { request: ServiceRequestRecord }) {
+  const [editOpen, setEditOpen] = useState(false);
+
   return (
-    <PageContainer>
-      <PageHeader
-        eyebrow="Request Details"
-        title={request.title}
-        description="Track ticket context, asset linkage, timeline progression, and dispatcher or technician remarks from a single detail surface."
-        actions={
-          <>
-            <RequestStatusBadge status={request.status} />
-            <Button asChild>
-              <Link href={getServiceRequestEditRoute(request.id)}>Update request</Link>
-            </Button>
-          </>
-        }
-      />
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href="/service-requests"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to requests
+        </Link>
 
-      <section className="grid gap-4 lg:grid-cols-4">
-        {[
-          { label: "Ticket", value: request.ticketNumber },
-          { label: "Requester", value: request.requester },
-          { label: "Site", value: request.site },
-          { label: "Priority", value: request.priority },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardHeader>
-              <CardDescription>{item.label}</CardDescription>
-              <CardTitle className="text-2xl">{item.value}</CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-sm"
+              style={{ backgroundColor: PRIORITY_COLORS[request.priority] ?? "#64748b" }}
+            >
+              {request.ticketNumber.slice(-2)}
+            </div>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
+                  {request.title}
+                </h1>
+                <RequestStatusBadge status={request.status} />
+              </div>
+              <p className="mt-1 text-sm text-slate-500 dark:text-stone-400">
+                {request.ticketNumber} · {request.requester} · {request.site}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setEditOpen(true)}
+            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] dark:hover:bg-[#1a7a86]"
+          >
+            Update request
+          </button>
+        </div>
 
-      <SectionWrapper title="Request summary" description="Core issue details and service context for the selected request.">
-        <Card>
-          <CardContent className="grid gap-4 p-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Category</p>
-              <p className="text-sm font-medium text-foreground">{request.category}</p>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          {[
+            { label: "Ticket", value: request.ticketNumber },
+            { label: "Priority", value: request.priority },
+            { label: "Submitted", value: request.submittedAt },
+            { label: "Scheduled", value: request.scheduledFor },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:rounded-[24px] sm:px-5 sm:py-5 dark:border-white/10 dark:bg-[#171815]"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">{item.label}</p>
+              <p className="mt-1.5 text-lg font-bold text-slate-900 dark:text-stone-100">{item.value}</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Related Asset</p>
-              <p className="text-sm font-medium text-foreground">{request.assetName}</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Submitted At</p>
-              <p className="text-sm font-medium text-foreground">{request.submittedAt}</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Scheduled For</p>
-              <p className="text-sm font-medium text-foreground">{request.scheduledFor}</p>
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Summary</p>
-              <p className="text-sm leading-6 text-foreground">{request.summary}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </SectionWrapper>
+          ))}
+        </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionWrapper title="Timeline" description="Use the timeline to visualize request progress and intervention checkpoints.">
+        <div className="mt-4 sm:mt-6">
+          <div className="rounded-[20px] border border-slate-200 bg-white shadow-sm sm:rounded-[24px] dark:border-white/10 dark:bg-[#171815]">
+            <div className="border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">Request summary</h2>
+              <p className="mt-0.5 text-sm text-slate-400 dark:text-stone-500">Core issue details and service context</p>
+            </div>
+            <div className="grid gap-px bg-slate-100 sm:grid-cols-2 dark:bg-white/6">
+              {[
+                { label: "Category", value: request.category },
+                { label: "Related Asset", value: request.assetName },
+                { label: "Submitted At", value: request.submittedAt },
+                { label: "Scheduled For", value: request.scheduledFor },
+              ].map((item) => (
+                <div key={item.label} className="bg-white px-4 py-4 sm:px-6 sm:py-5 dark:bg-[#171815]">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">{item.label}</p>
+                  <p className="mt-1.5 text-sm font-medium text-slate-900 dark:text-stone-100">{item.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">Summary</p>
+              <p className="mt-1.5 text-sm leading-6 text-slate-700 dark:text-stone-300">{request.summary}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 pb-6 sm:mt-6 sm:gap-6 sm:pb-8 xl:grid-cols-[1.05fr_0.95fr]">
           <RequestTimeline events={request.timeline} />
-        </SectionWrapper>
-
-        <SectionWrapper title="Remarks" description="Dispatcher, technician, and requester notes stay separate from the timeline for easier scanning.">
           <RequestRemarksSection remarks={request.remarks} />
-        </SectionWrapper>
+        </div>
       </div>
-    </PageContainer>
+
+      <RequestFormModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        mode="edit"
+        values={mapServiceRequestToFormValues(request)}
+        requestId={request.id}
+      />
+    </div>
   );
 }

@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Plus_Jakarta_Sans, IBM_Plex_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 
-const display = Fraunces({
-  variable: "--font-display",
+const sans = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const sans = Manrope({
-  variable: "--font-sans",
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+});
+
+const display = Fraunces({
+  variable: "--font-display",
   subsets: ["latin"],
 });
 
@@ -29,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${display.variable} ${sans.variable} min-h-screen bg-background font-sans text-foreground antialiased`}>
+      <body className={`${sans.variable} ${mono.variable} ${display.variable} min-h-screen bg-background font-sans text-foreground antialiased`}>
         {children}
       </body>
     </html>

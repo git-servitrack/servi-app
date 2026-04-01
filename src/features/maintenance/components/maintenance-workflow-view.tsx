@@ -1,7 +1,7 @@
-import { PageContainer } from "@/components/shared/page-container";
-import { PageHeader } from "@/components/shared/page-header";
-import { SectionWrapper } from "@/components/shared/section-wrapper";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { ArrowLeft, Check } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { DiagnosisNotesPanel } from "@/features/maintenance/components/diagnosis-notes-panel";
 import { MaintenanceAssignmentUi } from "@/features/maintenance/components/maintenance-assignment-ui";
 import { MaintenanceCompletionForm } from "@/features/maintenance/components/maintenance-completion-form";
@@ -23,64 +23,85 @@ export function MaintenanceWorkflowView({ item }: { item: MaintenanceRecord }) {
   const currentStepIndex = workflowSteps.findIndex((step) => step === item.status);
 
   return (
-    <PageContainer>
-      <PageHeader
-        eyebrow="Maintenance Workflow"
-        title={`Workflow for ${item.workOrder}`}
-        description="This view emphasizes progression, blockers, assignment, and completion readiness so maintenance work remains operationally clear."
-        actions={<MaintenanceStatusBadge status={item.status} />}
-      />
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href="/maintenance"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to maintenance
+        </Link>
 
-      <SectionWrapper title="Workflow stage" description="Use clear step visibility so the team can quickly understand whether the job is blocked, active, or ready for close-out.">
-        <div className="grid gap-3 lg:grid-cols-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#145d66]">Maintenance Workflow</p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
+              {item.workOrder}
+            </h1>
+            <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
+              {item.assetName} · {item.site}
+            </p>
+          </div>
+          <MaintenanceStatusBadge status={item.status} />
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-6">
           {workflowSteps.map((step, index) => {
             const isActive = index === currentStepIndex;
             const isComplete = index < currentStepIndex;
 
             return (
-              <Card key={step} className={isActive ? "border-primary bg-primary/5" : isComplete ? "border-accent/30 bg-accent/5" : ""}>
-                <CardHeader className="gap-2 p-4">
-                  <CardDescription>{isComplete ? "Completed" : isActive ? "Current" : "Upcoming"}</CardDescription>
-                  <CardTitle className="text-lg">{step}</CardTitle>
-                </CardHeader>
-              </Card>
+              <div
+                key={step}
+                className={cn(
+                  "rounded-2xl border px-3 py-3 text-center sm:px-4 sm:py-4",
+                  isActive
+                    ? "border-[#145d66] bg-[#145d66]/5 dark:border-[#86d0d8]/40 dark:bg-[#145d66]/10"
+                    : isComplete
+                      ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/40 dark:bg-emerald-950/20"
+                      : "border-slate-200 bg-white dark:border-white/10 dark:bg-[#171815]",
+                )}
+              >
+                <div className="flex items-center justify-center gap-1.5">
+                  {isComplete ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  ) : null}
+                  <p className={cn(
+                    "text-[10px] font-semibold uppercase tracking-wider",
+                    isActive ? "text-[#145d66] dark:text-[#86d0d8]"
+                    : isComplete ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-slate-400 dark:text-stone-500",
+                  )}>
+                    {isComplete ? "Done" : isActive ? "Current" : "Upcoming"}
+                  </p>
+                </div>
+                <p className={cn(
+                  "mt-1 text-sm font-semibold",
+                  isActive ? "text-slate-900 dark:text-stone-100"
+                  : isComplete ? "text-emerald-700 dark:text-emerald-300"
+                  : "text-slate-500 dark:text-stone-400",
+                )}>
+                  {step}
+                </p>
+              </div>
             );
           })}
         </div>
-      </SectionWrapper>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionWrapper title="Timeline" description="Timeline events show how the work order moved between dispatch, diagnosis, and repair.">
+        <div className="mt-4 grid gap-4 sm:mt-6 sm:gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <MaintenanceTimeline events={item.timeline} />
-        </SectionWrapper>
-
-        <SectionWrapper title="Assignment and diagnosis" description="Current ownership and diagnosis notes stay close to the workflow so blockers are visible in one pass.">
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <MaintenanceAssignmentUi maintenanceId={item.id} assignment={item.assignment} />
             <DiagnosisNotesPanel notes={item.diagnosisNotes} />
           </div>
-        </SectionWrapper>
-      </div>
+        </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionWrapper title="Repair actions" description="Break the repair into explicit steps to keep accountability and progress visible.">
+        <div className="mt-4 grid gap-4 pb-6 sm:mt-6 sm:gap-6 sm:pb-8 xl:grid-cols-[1.05fr_0.95fr]">
           <RepairActionList actions={item.repairActions} />
-        </SectionWrapper>
-
-        <SectionWrapper title="Completion handoff" description="The completion form is ready for later validation and mutation wiring.">
           <MaintenanceCompletionForm maintenanceId={item.id} values={item.completion} />
-          <Card>
-            <CardHeader>
-              <CardDescription>Scalability note</CardDescription>
-              <CardTitle>Future detail-page expansion</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-              <p>Keep workflow, diagnostic history, and completion records separable so larger work orders do not overload the core detail route.</p>
-              <p>Recommended later API split: work order detail, task actions, timeline audit log, and completion payload.</p>
-            </CardContent>
-          </Card>
-        </SectionWrapper>
+        </div>
       </div>
-    </PageContainer>
+    </div>
   );
 }

@@ -15,6 +15,7 @@ import type { NavigationGroup } from "@/types/navigation";
 export const ROUTES = {
   home: "/",
   signIn: "/sign-in",
+  signUp: "/sign-up",
   recoverAccount: "/recover-account",
   dashboard: "/dashboard",
   assets: "/assets",

@@ -19,21 +19,25 @@ export const reportMetrics: ReportMetric[] = [
     label: "Maintenance completed",
     value: "42",
     hint: "Closed work orders in the current reporting window",
+    color: "#145d66",
   },
   {
     label: "Average SLA rate",
     value: "94%",
     hint: "Combined technician and maintenance completion target adherence",
+    color: "#059669",
   },
   {
     label: "Parts issued",
     value: "67",
     hint: "Spare-part issue transactions tied to maintenance work",
+    color: "#d97706",
   },
   {
     label: "Request intake",
     value: "58",
     hint: "New service requests logged during the active period",
+    color: "#1e293b",
   },
 ];
 

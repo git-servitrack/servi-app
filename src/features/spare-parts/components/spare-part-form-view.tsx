@@ -1,4 +1,6 @@
-import { FormPageLayout } from "@/components/shared/form-page-layout";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 import { ROUTES } from "@/constants/routes";
 import { StockAdjustmentForm } from "@/features/spare-parts/components/stock-adjustment-form";
 import type { SparePartFormValues } from "@/features/spare-parts/types/spare-parts";
@@ -13,39 +15,38 @@ export function SparePartFormView({ mode, values, partId }: SparePartFormViewPro
   const isEdit = mode === "edit";
 
   return (
-    <FormPageLayout
-        eyebrow={isEdit ? "Edit Spare Part" : "Create Spare Part"}
-        title={isEdit ? "Update spare part record" : "Create spare part record"}
-        description={
-          isEdit
-            ? "Keep part metadata, storage details, and stock thresholds aligned so later inventory actions can stay predictable."
-            : "Set up a reusable inventory record shape that can later support procurement, stock issue, and reconciliation flows."
-        }
-        flowLabel={isEdit ? "Edit flow" : "Create flow"}
-        backHref={ROUTES.spareParts}
-        backLabel="Back to spare parts"
-        formTitle="Inventory form"
-        formDescription="Create and edit share one contract so stock fields and thresholds behave consistently across routes."
-        formContent={
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href={ROUTES.spareParts}
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to spare parts
+        </Link>
+
+        <div className="mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#145d66]">
+            {isEdit ? "Edit spare part" : "Create spare part"}
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
+            {isEdit ? "Update spare part record" : "Create spare part record"}
+          </h1>
+          <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
+            {isEdit
+              ? "Keep part metadata, storage details, and stock thresholds aligned."
+              : "Set up a new inventory record for tracking and procurement."}
+          </p>
+        </div>
+
+        <div className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm sm:rounded-[24px] sm:p-8 dark:border-white/10 dark:bg-[#171815]">
           <StockAdjustmentForm
-            title={isEdit ? "Edit inventory details" : "New inventory details"}
-            description="This form covers the stable record shape for spare parts before real stock adjustments become transactional."
             submitLabel={isEdit ? "Save changes" : "Create spare part"}
             values={values}
             partId={partId}
           />
-        }
-        guidanceTitle="Inventory guidance"
-        guidanceDescription="Keep the base record lean now so later transaction workflows can extend without reworking the form surface."
-        guidanceEyebrow="Recommended integration approach"
-        guidanceCardTitle="Future API notes"
-        guidanceContent={
-          <>
-            <p>Use one part master DTO for this form, and handle stock issues, receipts, and adjustments as separate inventory transaction endpoints.</p>
-            <p>Hydrate edit defaults from the part detail payload so create and edit can share the same validation schema later.</p>
-            <p>When procurement arrives, add supplier lead time, purchase order references, and restock ETA as adjacent views rather than inflating the base record form.</p>
-          </>
-        }
-      />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,6 @@
-import { FormPageLayout } from "@/components/shared/form-page-layout";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 import { ROUTES } from "@/constants/routes";
 import { UserForm } from "@/features/user-management/components/user-form";
 import type { UserManagementFormValues } from "@/features/user-management/types/user-management";
@@ -13,39 +15,38 @@ export function UserFormView({ mode, values, userId }: UserFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
-    <FormPageLayout
-      eyebrow={isEdit ? "Edit User" : "Create User"}
-      title={isEdit ? "Update user access" : "Provision workspace user"}
-      description={
-        isEdit
-          ? "Adjust account status, role assignment, and provisioning details using the shared admin form."
-          : "Create user accounts inside the dashboard instead of exposing a public self-service sign-up flow."
-      }
-      flowLabel={isEdit ? "Admin edit" : "Admin create"}
-      backHref={ROUTES.userManagement}
-      backLabel="Back to users"
-      formTitle="User provisioning form"
-      formDescription="Account creation and access edits share one form contract so admin provisioning stays consistent."
-      formContent={
-        <UserForm
-          title={isEdit ? "Edit user account" : "New user account"}
-          description="The form captures identity, role assignment, temporary password, and account state in one controlled admin flow."
-          submitLabel={isEdit ? "Save user changes" : "Create user account"}
-          values={values}
-          userId={userId}
-        />
-      }
-      guidanceTitle="Provisioning notes"
-      guidanceDescription="Keep access control centralized and explicit as backend auth matures."
-      guidanceEyebrow="Admin-only direction"
-      guidanceCardTitle="User management guidance"
-      guidanceContent={
-        <>
-          <p>Public self-service registration is intentionally removed. This dashboard module becomes the single UI for workspace account provisioning.</p>
-          <p>Restrict access server-side to Admin / System Operator sessions once route protection and session claims are available.</p>
-          <p>Track invitation state, role changes, and suspensions as audit events when the backend auth provider is integrated.</p>
-        </>
-      }
-    />
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href={ROUTES.userManagement}
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to users
+        </Link>
+
+        <div className="mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#145d66]">
+            {isEdit ? "Edit user" : "Create user"}
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
+            {isEdit ? "Update user access" : "Provision workspace user"}
+          </h1>
+          <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
+            {isEdit
+              ? "Adjust account status, role assignment, and provisioning details."
+              : "Create user accounts inside the dashboard with admin-controlled provisioning."}
+          </p>
+        </div>
+
+        <div className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm sm:rounded-[24px] sm:p-8 dark:border-white/10 dark:bg-[#171815]">
+          <UserForm
+            submitLabel={isEdit ? "Save user changes" : "Create user account"}
+            values={values}
+            userId={userId}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

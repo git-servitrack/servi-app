@@ -1,4 +1,6 @@
-import { FormPageLayout } from "@/components/shared/form-page-layout";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 import { ROUTES } from "@/constants/routes";
 import { RequestForm } from "@/features/service-requests/components/request-form";
 import type { ServiceRequestFormValues } from "@/features/service-requests/types/service-requests";
@@ -13,39 +15,38 @@ export function RequestFormView({ mode, values, requestId }: RequestFormViewProp
   const isEdit = mode === "edit";
 
   return (
-    <FormPageLayout
-        eyebrow={isEdit ? "Update Request" : "Create Request"}
-        title={isEdit ? "Update service request" : "Create service request"}
-        description={
-          isEdit
-            ? "Adjust triage state, scheduling, and request context using the same shared form contract."
-            : "Capture request context in a reusable structure that can later map to typed backend mutations."
-        }
-        flowLabel={isEdit ? "Update flow" : "Create flow"}
-        backHref={ROUTES.serviceRequests}
-        backLabel="Back to requests"
-        formTitle="Request form"
-        formDescription="Create and update routes share one request form to avoid duplication and drift."
-        formContent={
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href={ROUTES.serviceRequests}
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to requests
+        </Link>
+
+        <div className="mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#145d66]">
+            {isEdit ? "Update request" : "Create request"}
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
+            {isEdit ? "Update service request" : "Create service request"}
+          </h1>
+          <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
+            {isEdit
+              ? "Adjust triage state, scheduling, and request context."
+              : "Capture request context in a reusable structure for backend submission."}
+          </p>
+        </div>
+
+        <div className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm sm:rounded-[24px] sm:p-8 dark:border-white/10 dark:bg-[#171815]">
           <RequestForm
-            title={isEdit ? "Edit request details" : "New request details"}
-            description="Field ownership mirrors the expected shape of future service request DTOs."
             submitLabel={isEdit ? "Save update" : "Create request"}
             values={values}
             requestId={requestId}
           />
-        }
-        guidanceTitle="Module notes"
-        guidanceDescription="These notes keep the request flow ready for later API and validation work."
-        guidanceEyebrow="Recommended next integration step"
-        guidanceCardTitle="Future API notes"
-        guidanceContent={
-          <>
-            <p>The request form now uses `react-hook-form` and `zod`, so create and edit already share one schema and submit flow.</p>
-            <p>Keep timeline events and remarks as separate API resources or embedded collections depending on backend pagination needs.</p>
-            <p>Status transitions should remain explicit and auditable, ideally with server-side rules around closure and reassignment.</p>
-          </>
-        }
-      />
+        </div>
+      </div>
+    </div>
   );
 }

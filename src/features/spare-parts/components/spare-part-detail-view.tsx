@@ -1,54 +1,82 @@
-import Link from "next/link";
+"use client";
 
-import { PageContainer } from "@/components/shared/page-container";
-import { PageHeader } from "@/components/shared/page-header";
-import { SectionWrapper } from "@/components/shared/section-wrapper";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getSparePartEditRoute } from "@/features/spare-parts/lib/spare-parts";
-import type { SparePartRecord } from "@/features/spare-parts/types/spare-parts";
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowLeft, Cog } from "lucide-react";
+
+import { ROUTES } from "@/constants/routes";
 import { LowStockIndicator } from "@/features/spare-parts/components/low-stock-indicator";
 import { PartUsageSection } from "@/features/spare-parts/components/part-usage-section";
+import { SparePartFormModal } from "@/features/spare-parts/components/spare-part-form-modal";
 import { StockBadge } from "@/features/spare-parts/components/stock-badge";
 import { StockMovementHistoryView } from "@/features/spare-parts/components/stock-movement-history-view";
+import { mapSparePartToFormValues } from "@/features/spare-parts/lib/spare-parts";
+import type { SparePartRecord } from "@/features/spare-parts/types/spare-parts";
 
 export function SparePartDetailView({ part }: { part: SparePartRecord }) {
+  const [editOpen, setEditOpen] = useState(false);
+
   return (
-    <PageContainer>
-      <PageHeader
-        eyebrow="Spare Part Details"
-        title={part.name}
-        description="Inventory detail focused on stock position, issue history, and operational consumption so procurement and maintenance teams read the same source of truth."
-        actions={
-          <>
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href={ROUTES.spareParts}
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to spare parts
+        </Link>
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#145d66]/10 dark:bg-[#145d66]/20">
+              <Cog className="h-6 w-6 text-[#145d66] dark:text-[#86d0d8]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-stone-100">
+                {part.name}
+              </h1>
+              <p className="mt-0.5 text-sm text-slate-500 dark:text-stone-400">
+                {part.partNumber} · {part.category}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
             <StockBadge status={part.status} />
-            <Button asChild>
-              <Link href={getSparePartEditRoute(part.id)}>Edit part</Link>
-            </Button>
-          </>
-        }
-      />
+            <button
+              onClick={() => setEditOpen(true)}
+              className="rounded-full bg-[#145d66] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55]"
+            >
+              Edit part
+            </button>
+          </div>
+        </div>
 
-      <section className="grid gap-4 lg:grid-cols-4">
-        {[
-          { label: "Part Number", value: part.partNumber },
-          { label: "Stock On Hand", value: `${part.stockOnHand} ${part.unit}` },
-          { label: "Reserved", value: `${part.reservedStock} ${part.unit}` },
-          { label: "Reorder Point", value: `${part.reorderPoint} ${part.unit}` },
-        ].map((detail) => (
-          <Card key={detail.label}>
-            <CardHeader>
-              <CardDescription>{detail.label}</CardDescription>
-              <CardTitle className="text-2xl">{detail.value}</CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          {[
+            { label: "Part Number", value: part.partNumber },
+            { label: "Stock On Hand", value: `${part.stockOnHand} ${part.unit}` },
+            { label: "Reserved", value: `${part.reservedStock} ${part.unit}` },
+            { label: "Reorder Point", value: `${part.reorderPoint} ${part.unit}` },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:rounded-[24px] sm:px-5 sm:py-5 dark:border-white/10 dark:bg-[#171815]"
+            >
+              <p className="text-sm font-medium text-slate-500 dark:text-stone-400">{item.label}</p>
+              <p className="mt-2 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-stone-100">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionWrapper title="Inventory profile" description="Storage, compatibility, and supply details remain together so the part record can scale without fragmenting the core inventory view.">
-          <Card>
-            <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:mt-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-[20px] border border-slate-200 bg-white shadow-sm sm:rounded-[24px] dark:border-white/10 dark:bg-[#171815]">
+            <div className="border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-white/8">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">Inventory profile</h2>
+            </div>
+            <div className="grid gap-px bg-slate-100 p-px md:grid-cols-2 dark:bg-white/6">
               {[
                 { label: "Category", value: part.category },
                 { label: "Site", value: part.site },
@@ -56,42 +84,50 @@ export function SparePartDetailView({ part }: { part: SparePartRecord }) {
                 { label: "Bin Location", value: part.binLocation },
                 { label: "Supplier", value: part.supplier },
               ].map((item) => (
-                <div key={item.label} className="rounded-[calc(var(--radius)-0.15rem)] border border-border/70 bg-background/65 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
-                  <p className="mt-2 text-sm font-medium text-foreground">{item.value}</p>
+                <div key={item.label} className="bg-white p-4 dark:bg-[#171815]">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">{item.label}</p>
+                  <p className="mt-1.5 text-sm font-medium text-slate-900 dark:text-stone-100">{item.value}</p>
                 </div>
               ))}
-              <div className="rounded-[calc(var(--radius)-0.15rem)] border border-border/70 bg-background/65 p-4 md:col-span-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Operational Notes</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{part.notes}</p>
+            </div>
+            {part.notes ? (
+              <div className="border-t border-slate-100 px-5 py-4 sm:px-6 dark:border-white/8">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">Operational Notes</p>
+                <p className="mt-1.5 text-sm leading-6 text-slate-600 dark:text-stone-400">{part.notes}</p>
               </div>
-            </CardContent>
-          </Card>
-        </SectionWrapper>
+            ) : null}
+          </div>
 
-        <SectionWrapper title="Stock signal" description="Keep low-stock visibility separate from raw counts so decision pressure stays obvious on mobile and desktop.">
-          <Card>
-            <CardHeader>
-              <CardDescription>Inventory health</CardDescription>
-              <CardTitle>Replenishment state</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="rounded-[20px] border border-slate-200 bg-white shadow-sm sm:rounded-[24px] dark:border-white/10 dark:bg-[#171815]">
+            <div className="border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-white/8">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">Stock signal</h2>
+              <p className="mt-0.5 text-sm text-slate-400 dark:text-stone-500">Replenishment state</p>
+            </div>
+            <div className="space-y-4 px-5 py-5 sm:px-6">
               <LowStockIndicator stockOnHand={part.stockOnHand} reorderPoint={part.reorderPoint} />
-              <p className="text-sm leading-6 text-muted-foreground">
-                Available stock after reservations: {part.stockOnHand - part.reservedStock} {part.unit}. Use this panel later for supplier lead time, reorder ETA, and procurement status.
+              <p className="text-sm leading-6 text-slate-500 dark:text-stone-400">
+                Available stock after reservations: <span className="font-semibold text-slate-900 dark:text-stone-100">{part.stockOnHand - part.reservedStock} {part.unit}</span>
               </p>
-            </CardContent>
-          </Card>
-        </SectionWrapper>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 sm:mt-6">
+          <StockMovementHistoryView items={part.movements} />
+        </div>
+
+        <div className="mt-4 sm:mt-6">
+          <PartUsageSection items={part.usage} />
+        </div>
       </div>
 
-      <SectionWrapper title="Stock movement history" description="Movement records should remain audit-focused so inventory variance and replenishment events are easy to review later.">
-        <StockMovementHistoryView items={part.movements} />
-      </SectionWrapper>
-
-      <SectionWrapper title="Part usage" description="Usage records show how the part is consumed in actual maintenance work without mixing those events into stock adjustment history.">
-        <PartUsageSection items={part.usage} />
-      </SectionWrapper>
-    </PageContainer>
+      <SparePartFormModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        mode="edit"
+        values={mapSparePartToFormValues(part)}
+        partId={part.id}
+      />
+    </div>
   );
 }

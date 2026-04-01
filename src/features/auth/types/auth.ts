@@ -20,6 +20,12 @@ export interface SignInFormValues {
   password: string;
 }
 
+export interface SignUpFormValues {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
 export interface RecoverAccountFormValues {
   email: string;
 }

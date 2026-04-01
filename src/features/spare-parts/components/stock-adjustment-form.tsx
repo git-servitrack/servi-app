@@ -1,16 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-import { FormFieldShell } from "@/components/forms/form-field-shell";
-import { FormSubmitBar } from "@/components/forms/form-submit-bar";
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { MutationFeedback } from "@/components/feedback/mutation-feedback";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { sparePartFormSchema, type SparePartFormSchemaValues } from "@/features/spare-parts/schemas/spare-part-schema";
 import type { SparePartFormValues, StockStatus } from "@/features/spare-parts/types/spare-parts";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
@@ -18,16 +14,20 @@ import { cn } from "@/lib/utils";
 import { sparePartsService } from "@/services";
 
 interface StockAdjustmentFormProps {
-  title: string;
-  description: string;
   submitLabel: string;
   values: SparePartFormValues;
   partId?: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
 const statusOptions: StockStatus[] = ["In Stock", "Low Stock", "Critical", "Out of Stock"];
 
-export function StockAdjustmentForm({ title, description, submitLabel, values, partId }: StockAdjustmentFormProps) {
+const inputClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
+const selectClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-900 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100";
+const textareaClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
+
+export function StockAdjustmentForm({ submitLabel, values, partId, onSuccess, onCancel }: StockAdjustmentFormProps) {
   const {
     register,
     handleSubmit,
@@ -58,83 +58,99 @@ export function StockAdjustmentForm({ title, description, submitLabel, values, p
         });
       });
     }
+
+    if (!result.error) {
+      onSuccess?.();
+    }
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {error ? <ApiErrorAlert message={error.message} /> : null}
-          {successMessage ? <MutationFeedback message={successMessage} /> : null}
+    <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+      {error ? <ApiErrorAlert message={error.message} /> : null}
+      {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormFieldShell label="Part Name" error={errors.name?.message}>
-              <Input {...register("name", { onChange: clearFeedback })} placeholder="Compressor Relay" aria-invalid={Boolean(errors.name)} />
-            </FormFieldShell>
-            <FormFieldShell label="Part Number" error={errors.partNumber?.message}>
-              <Input {...register("partNumber", { onChange: clearFeedback })} placeholder="SP-AC-2201" aria-invalid={Boolean(errors.partNumber)} />
-            </FormFieldShell>
-            <FormFieldShell label="Category" error={errors.category?.message}>
-              <Input {...register("category", { onChange: clearFeedback })} placeholder="HVAC Electrical" aria-invalid={Boolean(errors.category)} />
-            </FormFieldShell>
-            <FormFieldShell label="Site" error={errors.site?.message}>
-              <Input {...register("site", { onChange: clearFeedback })} placeholder="Central Office" aria-invalid={Boolean(errors.site)} />
-            </FormFieldShell>
-            <FormFieldShell label="Compatible Assets" error={errors.compatibleAssets?.message}>
-              <Input {...register("compatibleAssets", { onChange: clearFeedback })} placeholder="AHU-08, CU-12, CU-15" aria-invalid={Boolean(errors.compatibleAssets)} />
-            </FormFieldShell>
-            <FormFieldShell label="Unit" error={errors.unit?.message}>
-              <Input {...register("unit", { onChange: clearFeedback })} placeholder="pcs" aria-invalid={Boolean(errors.unit)} />
-            </FormFieldShell>
-            <FormFieldShell label="Stock On Hand" error={errors.stockOnHand?.message}>
-              <Input {...register("stockOnHand", { onChange: clearFeedback })} placeholder="18" aria-invalid={Boolean(errors.stockOnHand)} />
-            </FormFieldShell>
-            <FormFieldShell label="Reserved Stock" error={errors.reservedStock?.message}>
-              <Input {...register("reservedStock", { onChange: clearFeedback })} placeholder="4" aria-invalid={Boolean(errors.reservedStock)} />
-            </FormFieldShell>
-            <FormFieldShell label="Reorder Point" error={errors.reorderPoint?.message}>
-              <Input {...register("reorderPoint", { onChange: clearFeedback })} placeholder="10" aria-invalid={Boolean(errors.reorderPoint)} />
-            </FormFieldShell>
-            <FormFieldShell label="Bin Location" error={errors.binLocation?.message}>
-              <Input {...register("binLocation", { onChange: clearFeedback })} placeholder="Aisle A - Bin 12" aria-invalid={Boolean(errors.binLocation)} />
-            </FormFieldShell>
-            <FormFieldShell label="Supplier" error={errors.supplier?.message}>
-              <Input {...register("supplier", { onChange: clearFeedback })} placeholder="Metro Controls Supply" aria-invalid={Boolean(errors.supplier)} />
-            </FormFieldShell>
-            <FormFieldShell label="Status" error={errors.status?.message}>
-              <select
-                {...register("status", { onChange: clearFeedback })}
-                className={cn(
-                  "flex h-11 w-full rounded-full border border-input bg-background px-4 text-sm text-foreground shadow-sm outline-none",
-                  errors.status ? "border-destructive ring-1 ring-destructive/30" : "",
-                )}
-              >
-                {statusOptions.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </select>
-            </FormFieldShell>
-          </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <FieldShell label="Part name" error={errors.name?.message}>
+          <input {...register("name", { onChange: clearFeedback })} placeholder="Compressor Relay" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Part number" error={errors.partNumber?.message}>
+          <input {...register("partNumber", { onChange: clearFeedback })} placeholder="SP-AC-2201" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Category" error={errors.category?.message}>
+          <input {...register("category", { onChange: clearFeedback })} placeholder="HVAC Electrical" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Site" error={errors.site?.message}>
+          <input {...register("site", { onChange: clearFeedback })} placeholder="Central Office" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Compatible assets" error={errors.compatibleAssets?.message}>
+          <input {...register("compatibleAssets", { onChange: clearFeedback })} placeholder="AHU-08, CU-12, CU-15" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Unit" error={errors.unit?.message}>
+          <input {...register("unit", { onChange: clearFeedback })} placeholder="pcs" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Stock on hand" error={errors.stockOnHand?.message}>
+          <input {...register("stockOnHand", { onChange: clearFeedback })} placeholder="18" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Reserved stock" error={errors.reservedStock?.message}>
+          <input {...register("reservedStock", { onChange: clearFeedback })} placeholder="4" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Reorder point" error={errors.reorderPoint?.message}>
+          <input {...register("reorderPoint", { onChange: clearFeedback })} placeholder="10" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Bin location" error={errors.binLocation?.message}>
+          <input {...register("binLocation", { onChange: clearFeedback })} placeholder="Aisle A - Bin 12" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Supplier" error={errors.supplier?.message}>
+          <input {...register("supplier", { onChange: clearFeedback })} placeholder="Metro Controls Supply" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Status" error={errors.status?.message}>
+          <select {...register("status", { onChange: clearFeedback })} className={cn(selectClass, errors.status && "border-destructive")}>
+            {statusOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+          </select>
+        </FieldShell>
+      </div>
 
-          <FormFieldShell label="Inventory Notes" error={errors.notes?.message}>
-            <Textarea
-              {...register("notes", { onChange: clearFeedback })}
-              placeholder="Capture storage conditions, procurement notes, or operational handling constraints."
-              aria-invalid={Boolean(errors.notes)}
-            />
-          </FormFieldShell>
+      <FieldShell label="Inventory notes" error={errors.notes?.message}>
+        <textarea
+          {...register("notes", { onChange: clearFeedback })}
+          placeholder="Capture storage conditions, procurement notes, or operational handling constraints."
+          rows={3}
+          className={textareaClass}
+        />
+      </FieldShell>
 
-          <FormSubmitBar
-            isSubmitting={isSubmitting}
-            submitLabel={submitLabel}
-            helpText="This inventory form now uses the shared submit pattern with schema validation, typed mutation services, and reusable feedback components."
-          />
-        </form>
-      </CardContent>
-    </Card>
+      <div className="flex items-center justify-end gap-3 pt-2">
+        {onCancel ? (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex h-12 flex-1 items-center justify-center rounded-full border border-slate-200 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6 sm:flex-none sm:px-8"
+          >
+            Cancel
+          </button>
+        ) : null}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#145d66] text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50 sm:flex-none sm:px-8"
+        >
+          {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          {isSubmitting ? "Saving..." : submitLabel}
+          {!isSubmitting ? <ArrowRight className="h-4 w-4" /> : null}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function FieldShell({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <label className="space-y-1.5">
+      <span className="text-sm font-medium text-slate-700 dark:text-stone-300">{label}</span>
+      {children}
+      {error ? <p className="text-xs font-medium text-destructive">{error}</p> : null}
+    </label>
   );
 }

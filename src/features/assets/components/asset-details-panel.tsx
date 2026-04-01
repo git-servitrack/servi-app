@@ -1,5 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AssetStatusBadge } from "@/features/assets/components/asset-status-badge";
 import type { AssetRecord } from "@/features/assets/types/assets";
 
 const detailSections = [
@@ -15,33 +13,37 @@ const detailSections = [
 
 export function AssetDetailsPanel({ asset }: { asset: AssetRecord }) {
   return (
-    <Card>
-      <CardHeader className="gap-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-2">
-            <CardDescription>Asset record</CardDescription>
-            <CardTitle className="text-3xl">{asset.name}</CardTitle>
-            <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">
-              {asset.id} - {asset.code}
+    <div className="rounded-[20px] border border-slate-200 bg-white shadow-sm sm:rounded-[24px] dark:border-white/10 dark:bg-[#171815]">
+      <div className="border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
+        <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">
+          Asset profile
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-stone-400">
+          {asset.condition}
+        </p>
+      </div>
+
+      <div className="grid gap-px bg-slate-100 sm:grid-cols-2 xl:grid-cols-4 dark:bg-white/6">
+        {detailSections.map((detail) => (
+          <div key={detail.key} className="bg-white px-4 py-4 sm:px-6 sm:py-5 dark:bg-[#171815]">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">
+              {detail.label}
+            </p>
+            <p className="mt-1.5 text-sm font-medium text-slate-900 dark:text-stone-100">
+              {asset[detail.key]}
             </p>
           </div>
-          <AssetStatusBadge status={asset.status} />
-        </div>
-        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{asset.condition}</p>
-      </CardHeader>
-      <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {detailSections.map((detail) => (
-          <div key={detail.key} className="rounded-[calc(var(--radius)-0.15rem)] border border-border/70 bg-background/65 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{detail.label}</p>
-            <p className="mt-2 text-sm font-medium text-foreground">{asset[detail.key]}</p>
-          </div>
         ))}
-        <div className="rounded-[calc(var(--radius)-0.15rem)] border border-border/70 bg-background/65 p-4 md:col-span-2 xl:col-span-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Notes</p>
-          <p className="mt-2 text-sm leading-6 text-foreground">{asset.notes}</p>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div className="border-t border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">
+          Notes
+        </p>
+        <p className="mt-1.5 text-sm leading-6 text-slate-700 dark:text-stone-300">
+          {asset.notes}
+        </p>
+      </div>
+    </div>
   );
 }
-

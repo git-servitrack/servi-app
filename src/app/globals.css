@@ -1,27 +1,51 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #f5f1e8;
-  --foreground: #1f2937;
-  --card: rgba(255, 252, 245, 0.92);
-  --card-foreground: #142033;
-  --popover: #fffdf8;
-  --popover-foreground: #142033;
-  --primary: #174e4f;
-  --primary-foreground: #f7faf8;
-  --secondary: #d7c7a8;
-  --secondary-foreground: #1f2937;
-  --muted: #ece3d1;
-  --muted-foreground: #5b6678;
-  --accent: #b87432;
-  --accent-foreground: #fffaf2;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #145d66;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #86d0d8;
+  --accent-foreground: #0f172a;
   --destructive: #b93829;
   --destructive-foreground: #fff7f5;
-  --border: rgba(31, 41, 55, 0.12);
-  --input: rgba(23, 78, 79, 0.12);
-  --ring: rgba(184, 116, 50, 0.36);
+  --border: #e2e8f0;
+  --input: rgba(20, 93, 102, 0.12);
+  --ring: rgba(20, 93, 102, 0.36);
   --radius: 1.25rem;
   --shadow-soft: 0 18px 50px rgba(19, 31, 47, 0.08);
+}
+
+.dark {
+  --background: #11120f;
+  --foreground: #f5f5f4;
+  --card: #171815;
+  --card-foreground: #f5f5f4;
+  --popover: #171815;
+  --popover-foreground: #f5f5f4;
+  --primary: #145d66;
+  --primary-foreground: #ffffff;
+  --secondary: #252926;
+  --secondary-foreground: #f5f5f4;
+  --muted: #1a1d1b;
+  --muted-foreground: #78716c;
+  --accent: #86d0d8;
+  --accent-foreground: #0f172a;
+  --destructive: #b93829;
+  --destructive-foreground: #fff7f5;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(20, 93, 102, 0.2);
+  --ring: rgba(20, 93, 102, 0.4);
 }
 
 @theme inline {
@@ -49,6 +73,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 0.5rem);
   --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
   --font-display: var(--font-display);
 }
 
@@ -57,22 +82,19 @@
 }
 
 html {
-  color-scheme: light;
   overflow-x: clip;
+  scroll-behavior: smooth;
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(184, 116, 50, 0.16), transparent 28%),
-    radial-gradient(circle at top right, rgba(23, 78, 79, 0.12), transparent 22%),
-    linear-gradient(180deg, #f8f4ec 0%, #f3efe6 48%, #f7f3ea 100%);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
   overflow-x: clip;
 }
 
 ::selection {
-  background: rgba(23, 78, 79, 0.18);
+  background: rgba(20, 93, 102, 0.18);
 }
 
 @layer base {

@@ -2,17 +2,12 @@
 
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { KeyRound } from "lucide-react";
+import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-import { FormFieldShell } from "@/components/forms/form-field-shell";
-import { PasswordInput } from "@/components/forms/password-input";
-import { FormSubmitBar } from "@/components/forms/form-submit-bar";
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { MutationFeedback } from "@/components/feedback/mutation-feedback";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
 import { signInSchema, type SignInSchemaValues } from "@/features/auth/schemas/sign-in-schema";
@@ -60,69 +55,87 @@ export function SignInForm() {
   }
 
   return (
-    <Card className="border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,247,241,0.95))] shadow-[0_28px_80px_-42px_rgba(34,47,61,0.45)]">
-      <CardHeader className="space-y-4 p-7 sm:p-8">
-        <div className="flex items-center gap-3 text-primary">
-          <div className="grid size-11 place-items-center rounded-full bg-primary/12">
-            <KeyRound className="size-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-              Authentication
-            </p>
-            <CardTitle className="font-display text-4xl text-slate-900">Sign in</CardTitle>
-          </div>
-        </div>
-        <CardDescription className="text-base leading-7 text-slate-600">
-          Enter your workspace credentials. Role-aware routing stays mock-based for now and is ready
-          to connect to a real session API later.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6 p-7 pt-0 sm:p-8 sm:pt-0">
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {error ? <ApiErrorAlert message={error.message} /> : null}
-          {successMessage ? <MutationFeedback message={successMessage} /> : null}
+    <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#145d66]">
+        Sign in
+      </p>
+      <h2 className="mt-3 font-display text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
+        Return to your operations console.
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-slate-500">
+        Enter your workspace credentials. Role-aware routing stays mock-based for now and is ready
+        to connect to a real session API later.
+      </p>
 
-          <FormFieldShell label="Email or username" error={errors.identifier?.message}>
-            <Input
-              {...register("identifier", { onChange: clearFeedback })}
-              placeholder="ops.admin@servi-web.local"
-              aria-invalid={Boolean(errors.identifier)}
-            />
-          </FormFieldShell>
+      <form className="mt-7 space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        {error ? <ApiErrorAlert message={error.message} /> : null}
+        {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
-          <FormFieldShell
-            label="Password"
-            error={errors.password?.message}
-            description="Use any valid mock credential for now. Identifiers containing 'tech' or 'manage' demonstrate role-based redirects."
-          >
-            <PasswordInput
-              {...register("password", { onChange: clearFeedback })}
-              placeholder="Enter your password"
-              aria-invalid={Boolean(errors.password)}
-            />
-          </FormFieldShell>
-
-          <FormSubmitBar
-            isSubmitting={isSubmitting}
-            submitLabel="Sign in"
-            helpText=""
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-700">Email or username</label>
+          <Input
+            {...register("identifier", { onChange: clearFeedback })}
+            placeholder="ops.admin@servi-web.local"
+            aria-invalid={Boolean(errors.identifier)}
+            className="h-11 rounded-xl border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:ring-[#145d66]/20"
           />
-        </form>
-
-        <div className="space-y-3 border-t border-border/70 pt-4 text-sm text-slate-600">
-          <Button
-            asChild
-            variant="ghost"
-            className="justify-start px-0 text-primary hover:bg-transparent"
-          >
-            <Link href={ROUTES.recoverAccount}>Forgot password or lost access?</Link>
-          </Button>
-          <p className="text-sm leading-6 text-muted-foreground">
-            Need an account? Contact your Admin / System Operator for provisioning.
-          </p>
+          {errors.identifier?.message ? (
+            <p className="text-xs font-medium text-destructive">{errors.identifier.message}</p>
+          ) : null}
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-700">Password</label>
+          <Input
+            {...register("password", { onChange: clearFeedback })}
+            type="password"
+            placeholder="Enter your password"
+            aria-invalid={Boolean(errors.password)}
+            className="h-11 rounded-xl border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:ring-[#145d66]/20"
+          />
+          <p className="text-xs leading-5 text-slate-400">
+            Identifiers containing &apos;tech&apos; or &apos;manage&apos; demonstrate role-based redirects.
+          </p>
+          {errors.password?.message ? (
+            <p className="text-xs font-medium text-destructive">{errors.password.message}</p>
+          ) : null}
+        </div>
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#145d66] text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
+          >
+            {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+            {isSubmitting ? "Signing in..." : "Enter dashboard"}
+            {!isSubmitting ? <ArrowRight className="h-4 w-4" /> : null}
+          </button>
+        </div>
+      </form>
+
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-100" />
+        <span className="text-xs text-slate-400">or</span>
+        <div className="h-px flex-1 bg-slate-100" />
+      </div>
+
+      <Link
+        href={ROUTES.recoverAccount}
+        className="flex h-11 w-full items-center justify-center rounded-full border border-slate-200 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+      >
+        Recover access
+      </Link>
+
+      <p className="mt-5 text-center text-sm text-slate-500">
+        Need a workspace?{" "}
+        <Link
+          href={ROUTES.signUp}
+          className="font-semibold text-[#145d66] transition-colors hover:text-[#0e4d55]"
+        >
+          Create account
+        </Link>
+      </p>
+    </div>
   );
 }

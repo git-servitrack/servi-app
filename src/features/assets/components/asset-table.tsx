@@ -1,60 +1,76 @@
 import Link from "next/link";
 
-import { EmptyTableState } from "@/components/shared/empty-table-state";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AssetStatusBadge } from "@/features/assets/components/asset-status-badge";
-import { getAssetDetailRoute, getAssetEditRoute } from "@/features/assets/lib/assets";
+import { getAssetDetailRoute } from "@/features/assets/lib/assets";
 import type { AssetRecord } from "@/features/assets/types/assets";
 
-export function AssetTable({ assets }: { assets: AssetRecord[] }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Asset</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Site</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Team</TableHead>
-          <TableHead>Next Service</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {assets.length === 0 ? (
-          <EmptyTableState colSpan={7} title="No assets found" description="Adjust the current filters or create a new asset to populate this register." />
-        ) : assets.map((asset) => (
-          <TableRow key={asset.id}>
-            <TableCell>
-              <div className="space-y-1">
-                <p className="font-semibold text-foreground">{asset.name}</p>
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  {asset.id} - {asset.code}
-                </p>
-              </div>
-            </TableCell>
-            <TableCell className="text-muted-foreground">{asset.category}</TableCell>
-            <TableCell className="text-muted-foreground">{asset.site}</TableCell>
-            <TableCell>
-              <AssetStatusBadge status={asset.status} />
-            </TableCell>
-            <TableCell className="text-muted-foreground">{asset.assignedTeam}</TableCell>
-            <TableCell className="text-muted-foreground">{asset.nextServiceDate}</TableCell>
-            <TableCell>
-              <div className="flex justify-end gap-2">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={getAssetDetailRoute(asset.id)}>View</Link>
-                </Button>
-                <Button asChild size="sm">
-                  <Link href={getAssetEditRoute(asset.id)}>Edit</Link>
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+interface AssetTableProps {
+  assets: AssetRecord[];
+  onEdit?: (assetId: string) => void;
 }
 
+export function AssetTable({ assets, onEdit }: AssetTableProps) {
+  if (assets.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+        <p className="font-medium text-slate-900 dark:text-stone-100">No assets found</p>
+        <p className="text-sm text-slate-400 dark:text-stone-500">
+          Adjust the current filters or create a new asset to populate this register.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-slate-100 dark:divide-white/6">
+      {assets.map((asset) => (
+        <div
+          key={asset.id}
+          className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/50 sm:gap-4 sm:px-6 sm:py-4 dark:hover:bg-white/3"
+        >
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+            style={{
+              backgroundColor:
+                asset.status === "Operational" ? "#145d66"
+                : asset.status === "Maintenance Due" ? "#d97706"
+                : asset.status === "Under Repair" ? "#7c3aed"
+                : "#64748b",
+            }}
+          >
+            {asset.code.slice(0, 2)}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <p className="text-sm font-semibold text-slate-900 dark:text-stone-100">
+                {asset.name}
+              </p>
+              <AssetStatusBadge status={asset.status} />
+            </div>
+            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
+              <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{asset.id}</span>
+              {" — "}
+              {asset.category} · {asset.site} · Next service: {asset.nextServiceDate}
+            </p>
+          </div>
+
+          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+            <Link
+              href={getAssetDetailRoute(asset.id)}
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+            >
+              View
+            </Link>
+            <button
+              onClick={() => onEdit?.(asset.id)}
+              className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

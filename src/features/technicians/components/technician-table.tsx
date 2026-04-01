@@ -1,57 +1,77 @@
 import Link from "next/link";
 
-import { EmptyTableState } from "@/components/shared/empty-table-state";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getTechnicianDetailRoute, getTechnicianEditRoute } from "@/features/technicians/lib/technicians";
-import type { TechnicianRecord } from "@/features/technicians/types/technicians";
 import { TechnicianStatusBadge } from "@/features/technicians/components/technician-status-badge";
+import { getTechnicianDetailRoute } from "@/features/technicians/lib/technicians";
+import type { TechnicianRecord } from "@/features/technicians/types/technicians";
 
-export function TechnicianTable({ technicians }: { technicians: TechnicianRecord[] }) {
+const STATUS_COLORS: Record<string, string> = {
+  Available: "#059669",
+  "On Assignment": "#7c3aed",
+  "Off Shift": "#64748b",
+  Leave: "#d97706",
+};
+
+interface TechnicianTableProps {
+  technicians: TechnicianRecord[];
+  onEdit?: (technicianId: string) => void;
+}
+
+export function TechnicianTable({ technicians, onEdit }: TechnicianTableProps) {
+  if (technicians.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+        <p className="font-medium text-slate-900 dark:text-stone-100">No technicians found</p>
+        <p className="text-sm text-slate-400 dark:text-stone-500">
+          Add a technician profile to start building assignment coverage.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Technician</TableHead>
-          <TableHead>Team</TableHead>
-          <TableHead>Primary Skill</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Coverage</TableHead>
-          <TableHead>Active Assignments</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {technicians.length === 0 ? (
-          <EmptyTableState colSpan={7} title="No technicians found" description="Add a technician profile to start building assignment coverage." />
-        ) : technicians.map((technician) => (
-          <TableRow key={technician.id}>
-            <TableCell>
-              <div className="space-y-1">
-                <p className="font-semibold text-foreground">{technician.name}</p>
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{technician.employeeId}</p>
-              </div>
-            </TableCell>
-            <TableCell className="text-muted-foreground">{technician.team}</TableCell>
-            <TableCell className="text-muted-foreground">{technician.primarySkill}</TableCell>
-            <TableCell>
-              <TechnicianStatusBadge status={technician.status} />
-            </TableCell>
-            <TableCell className="text-muted-foreground">{technician.siteCoverage}</TableCell>
-            <TableCell className="text-muted-foreground">{technician.workload.activeAssignments}</TableCell>
-            <TableCell>
-              <div className="flex justify-end gap-2">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={getTechnicianDetailRoute(technician.id)}>View</Link>
-                </Button>
-                <Button asChild size="sm">
-                  <Link href={getTechnicianEditRoute(technician.id)}>Edit</Link>
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="divide-y divide-slate-100 dark:divide-white/6">
+      {technicians.map((tech) => (
+        <div
+          key={tech.id}
+          className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/50 sm:gap-4 sm:px-6 sm:py-4 dark:hover:bg-white/3"
+        >
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+            style={{ backgroundColor: STATUS_COLORS[tech.status] ?? "#64748b" }}
+          >
+            {tech.name.split(" ").map((n) => n[0]).join("")}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <p className="text-sm font-semibold text-slate-900 dark:text-stone-100">
+                {tech.name}
+              </p>
+              <TechnicianStatusBadge status={tech.status} />
+            </div>
+            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
+              <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{tech.employeeId}</span>
+              {" — "}
+              {tech.team} · {tech.primarySkill} · {tech.workload.activeAssignments} active
+            </p>
+          </div>
+
+          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+            <Link
+              href={getTechnicianDetailRoute(tech.id)}
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+            >
+              View
+            </Link>
+            <button
+              onClick={() => onEdit?.(tech.id)}
+              className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

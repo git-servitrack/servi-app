@@ -1,28 +1,29 @@
 import { FileSpreadsheet, Printer } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
 export function ExportLayoutPlaceholder() {
   return (
-    <Card className="bg-[linear-gradient(160deg,rgba(23,78,79,0.96),rgba(20,32,51,0.96))] text-primary-foreground">
-      <CardHeader>
-        <CardDescription className="text-primary-foreground/70">Export-ready layout</CardDescription>
-        <CardTitle className="text-2xl text-primary-foreground">Reporting output placeholder</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 text-sm leading-6 text-primary-foreground/80">
-        <p>Reserve this surface for PDF, spreadsheet, and print-specific report compositions once server-generated exports are introduced.</p>
-        <div className="flex flex-wrap gap-3">
-          <Button type="button" variant="secondary" size="sm">
-            <FileSpreadsheet className="size-4" />
-            Spreadsheet export
-          </Button>
-          <Button type="button" variant="secondary" size="sm">
-            <Printer className="size-4" />
-            Print layout
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="rounded-[20px] border border-[#145d66]/30 bg-linear-to-br from-[#145d66] to-[#0e3d44] p-5 text-white shadow-sm sm:rounded-[24px] sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">Export-ready layout</p>
+      <h3 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">Reporting output</h3>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85">
+        Reserve this surface for PDF, spreadsheet, and print-specific compositions once server-generated exports are available.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2 sm:gap-3">
+        <button
+          type="button"
+          className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+        >
+          <FileSpreadsheet className="h-4 w-4" />
+          Spreadsheet export
+        </button>
+        <button
+          type="button"
+          className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+        >
+          <Printer className="h-4 w-4" />
+          Print layout
+        </button>
+      </div>
+    </div>
   );
 }
