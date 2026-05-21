@@ -193,7 +193,32 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ---
 
-## PHASE 11 - Forms, Validation, and API Integration
+## PHASE 11 - Intelligence and Predictive Maintenance
+
+### Predictive Maintenance UI
+
+- [ ] Create asset details predictive maintenance card
+- [ ] Show asset risk level: Low, Medium, High, or Critical
+- [ ] Show failure likelihood and predicted failure type if available
+- [ ] Show recommended maintenance window
+- [ ] Show suggested maintenance action
+- [ ] Show prediction confidence or model status when available
+- [ ] Add high-risk assets section to dashboard
+- [ ] Add predictive maintenance planning view for assets that need preventive maintenance
+- [ ] Add predicted risk indicator in service request creation when an asset is selected
+- [ ] Add predicted risk context in maintenance assignment workflow
+- [ ] Add predictive maintenance report view for high-risk equipment
+- [ ] Add filters for risk level, failure type, asset type, and maintenance window
+- [ ] Add empty/loading/error states for prediction API results
+
+### Future Alerts
+
+- [ ] Create placeholder notification pattern for high-risk or critical assets
+- [ ] Create placeholder notification pattern for assets nearing recommended maintenance window
+
+---
+
+## PHASE 12 - Forms, Validation, and API Integration
 
 ### Integration
 
@@ -212,7 +237,7 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ---
 
-## PHASE 12 - Frontend Hardening
+## PHASE 13 - Frontend Hardening
 
 ### Quality
 
@@ -234,7 +259,7 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ---
 
-## PHASE 13 - Frontend Documentation
+## PHASE 14 - Frontend Documentation
 
 ### Documentation
 
@@ -248,7 +273,7 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 
 ---
 
-## PHASE 14 - Authentication and Role Access
+## PHASE 15 - Authentication and Role Access
 
 ### Authentication Pages
 
@@ -307,6 +332,7 @@ This file tracks the recommended implementation sequence for SERVI-WEB.
 11. Hardening
 12. Frontend documentation
 13. Authentication and role access
+14. Intelligence and predictive maintenance
 
 ---
 
