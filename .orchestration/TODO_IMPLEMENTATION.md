@@ -23,28 +23,28 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Environment and HTTP Client
 
-- [ ] Document and add `NEXT_PUBLIC_API_BASE_URL`, expected to point at the API version root such as `http://localhost:5000/api/v1`
-- [ ] Define an `ApiEnvelope<T>` type matching `{ success, message, data, meta? }`
-- [ ] Update `requestJson` to call API-relative paths through the configured base URL
-- [ ] Update `requestJson` to unwrap `data` while preserving `message` and `meta` when the UI needs mutation feedback or pagination context
-- [ ] Normalize API error responses into the existing `ApiResult<T>` and `AppRequestError` pattern
-- [ ] Add query serialization support for API query params: `fields`, `limit`, `sort`, `order`, `filter`, and `populate`
-- [ ] Add multipart request support for documentation uploads without forcing `Content-Type: application/json`
-- [ ] Keep all API calls inside `src/services`; pages and components should call service methods only
+- [x] Document and add `NEXT_PUBLIC_API_BASE_URL`, expected to point at the API version root such as `http://localhost:5000/api/v1`
+- [x] Define an `ApiEnvelope<T>` type matching `{ success, message, data, meta? }`
+- [x] Update `requestJson` to call API-relative paths through the configured base URL
+- [x] Update `requestJson` to unwrap `data` while preserving `message` and `meta` when the UI needs mutation feedback or pagination context
+- [x] Normalize API error responses into the existing `ApiResult<T>` and `AppRequestError` pattern
+- [x] Add query serialization support for API query params: `fields`, `limit`, `sort`, `order`, `filter`, and `populate`
+- [x] Add multipart request support for documentation uploads without forcing `Content-Type: application/json`
+- [x] Keep all API calls inside `src/services`; pages and components should call service methods only
 
 ### Authentication and Authorization
 
-- [ ] Store access token after successful sign-in
-- [ ] Attach `Authorization: Bearer <token>` to protected API requests
-- [ ] Add a shared session helper for retrieving the current user from `GET /auth/me`
-- [ ] Define frontend-to-API role mapping:
+- [x] Store access token after successful sign-in
+- [x] Attach `Authorization: Bearer <token>` to protected API requests
+- [x] Add a shared session helper for retrieving the current user from `GET /auth/me`
+- [x] Define frontend-to-API role mapping:
   - `warehouse-staff` -> `warehouse_staff`
   - `admin-operator` -> `admin`
   - `technician` -> `technician`
   - `head-technician` -> `head_technician`
   - `project-site` -> `project_site_staff`
   - `management` -> `management`
-- [ ] Apply role-aware UI gating after real session data is available
+- [x] Add role-aware access helper functions for future UI gating after real session data is available
 
 ### Mock Replacement Rules
 

@@ -4,6 +4,7 @@ export class AppRequestError extends Error {
   code: ApiErrorShape["code"];
   status?: number;
   fieldErrors?: Record<string, string>;
+  meta?: ApiErrorShape["meta"];
 
   constructor(error: ApiErrorShape) {
     super(error.message);
@@ -11,6 +12,7 @@ export class AppRequestError extends Error {
     this.code = error.code;
     this.status = error.status;
     this.fieldErrors = error.fieldErrors;
+    this.meta = error.meta;
   }
 }
 
@@ -21,6 +23,7 @@ export function normalizeUnknownError(error: unknown): ApiErrorShape {
       message: error.message,
       status: error.status,
       fieldErrors: error.fieldErrors,
+      meta: error.meta,
     };
   }
 
