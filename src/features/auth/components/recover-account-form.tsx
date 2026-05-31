@@ -2,18 +2,17 @@
 
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftRight } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { FormFieldShell } from "@/components/forms/form-field-shell";
-import { FormSubmitBar } from "@/components/forms/form-submit-bar";
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { MutationFeedback } from "@/components/feedback/mutation-feedback";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
-import { recoverAccountSchema, type RecoverAccountSchemaValues } from "@/features/auth/schemas/recover-account-schema";
+import {
+  recoverAccountSchema,
+  type RecoverAccountSchemaValues,
+} from "@/features/auth/schemas/recover-account-schema";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { authService } from "@/services";
 
@@ -34,7 +33,10 @@ export function RecoverAccountForm() {
   const { isSubmitting, error, successMessage, run, clearFeedback } = useStandardFormSubmit();
 
   async function onSubmit(values: RecoverAccountSchemaValues) {
-    const result = await run(() => authService.recoverAccount(values), (response) => response.message);
+    const result = await run(
+      () => authService.recoverAccount(values),
+      (response) => response.message,
+    );
 
     if (result.error?.fieldErrors) {
       Object.entries(result.error.fieldErrors).forEach(([field, message]) => {
@@ -47,48 +49,47 @@ export function RecoverAccountForm() {
   }
 
   return (
-    <Card className="border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,247,241,0.95))] shadow-[0_28px_80px_-42px_rgba(34,47,61,0.45)]">
-      <CardHeader className="space-y-4 p-7 sm:p-8">
-        <div className="flex items-center gap-3 text-primary">
-          <div className="grid size-11 place-items-center rounded-full bg-primary/12">
-            <ArrowLeftRight className="size-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Recovery</p>
-            <CardTitle className="font-display text-4xl text-slate-900">Recover account</CardTitle>
-          </div>
-        </div>
-        <CardDescription className="text-base leading-7 text-slate-600">
-          This placeholder page establishes the frontend entry point for password reset or account recovery before the backend recovery flow exists.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6 p-7 pt-0 sm:p-8 sm:pt-0">
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {error ? <ApiErrorAlert message={error.message} /> : null}
-          {successMessage ? <MutationFeedback message={successMessage} /> : null}
+    <div>
+      <div className="mb-8 text-center">
+        <h1 className="mt-3 font-display text-4xl font-semibold text-slate-900">Recover account</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-500">
+          Enter your work email and we&apos;ll send recovery instructions.
+        </p>
+      </div>
 
-          <FormFieldShell
-            label="Work email"
-            error={errors.email?.message}
-            description="Recovery messages are simulated in this phase. Replace this with your actual email or OTP flow later."
-          >
-            <Input {...register("email", { onChange: clearFeedback })} placeholder="alex@servi-web.local" aria-invalid={Boolean(errors.email)} />
-          </FormFieldShell>
+      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+        {error ? <ApiErrorAlert message={error.message} /> : null}
+        {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
-          <FormSubmitBar
-            isSubmitting={isSubmitting}
-            submitLabel="Send recovery instructions"
-            helpText=""
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-600">Email</label>
+          <Input
+            {...register("email", { onChange: clearFeedback })}
+            placeholder="alex@servi-web.local"
+            aria-invalid={Boolean(errors.email)}
+            className="h-12 rounded-md border-slate-200 bg-white text-slate-900 shadow-sm placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:ring-[#145d66]/20"
           />
-        </form>
-
-        <div className="space-y-3 border-t border-border/70 pt-4 text-sm text-slate-600">
-          <Button asChild variant="ghost" className="justify-start px-0 text-primary hover:bg-transparent">
-            <Link href={ROUTES.signIn}>Back to sign in</Link>
-          </Button>
-          <p className="text-sm leading-6 text-muted-foreground">If your access was never provisioned, request account setup from your admin.</p>
+          {errors.email?.message ? (
+            <p className="text-xs font-medium text-destructive">{errors.email.message}</p>
+          ) : null}
         </div>
-      </CardContent>
-    </Card>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#145d66] text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
+        >
+          {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          {isSubmitting ? "Sending..." : "Send recovery instructions"}
+        </button>
+      </form>
+
+      <Link
+        href={ROUTES.signIn}
+        className="mt-7 flex justify-center text-sm font-medium text-[#145d66] underline-offset-4 transition-colors hover:text-[#0e4d55] hover:underline"
+      >
+        Back to sign in
+      </Link>
+    </div>
   );
 }

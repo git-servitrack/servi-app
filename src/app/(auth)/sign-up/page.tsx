@@ -1,5 +1,5 @@
-import { SignUpView } from "@/features/auth/components/sign-up-view";
+import { notFound } from "next/navigation";
 
 export default function SignUpPage() {
-  return <SignUpView />;
+  notFound();
 }

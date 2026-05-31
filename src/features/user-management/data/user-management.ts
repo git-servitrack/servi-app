@@ -3,9 +3,12 @@ import type { UserManagementFormValues, UserManagementRecord } from "@/features/
 export const userRecords: UserManagementRecord[] = [
   {
     id: "USR-101",
+    username: "alex",
+    firstName: "Alex",
+    lastName: "Montemayor",
+    middleName: "",
     fullName: "Alex Montemayor",
     email: "alex@servi-web.local",
-    department: "Operations Control",
     roleId: "admin-operator",
     status: "Active",
     invitedBy: "System Owner",
@@ -13,9 +16,12 @@ export const userRecords: UserManagementRecord[] = [
   },
   {
     id: "USR-102",
+    username: "r.santos",
+    firstName: "R.",
+    lastName: "Santos",
+    middleName: "",
     fullName: "R. Santos",
     email: "r.santos@servi-web.local",
-    department: "Maintenance Response",
     roleId: "technician",
     status: "Active",
     invitedBy: "Alex Montemayor",
@@ -23,9 +29,12 @@ export const userRecords: UserManagementRecord[] = [
   },
   {
     id: "USR-103",
+    username: "mae.torres",
+    firstName: "Mae",
+    lastName: "Torres",
+    middleName: "",
     fullName: "Mae Torres",
     email: "mae.torres@servi-web.local",
-    department: "Warehouse Operations",
     roleId: "warehouse-staff",
     status: "Pending Activation",
     invitedBy: "Alex Montemayor",
@@ -33,9 +42,12 @@ export const userRecords: UserManagementRecord[] = [
   },
   {
     id: "USR-104",
+    username: "joel.dc",
+    firstName: "Joel",
+    lastName: "Dela Cruz",
+    middleName: "",
     fullName: "Joel Dela Cruz",
     email: "joel.dc@servi-web.local",
-    department: "Executive Reporting",
     roleId: "management",
     status: "Suspended",
     invitedBy: "System Owner",
@@ -44,11 +56,12 @@ export const userRecords: UserManagementRecord[] = [
 ];
 
 export const defaultUserFormValues: UserManagementFormValues = {
-  fullName: "",
+  username: "",
+  firstName: "",
+  lastName: "",
+  middleName: "",
   email: "",
   password: "",
   confirmPassword: "",
-  department: "",
   roleId: "warehouse-staff",
-  status: "Pending Activation",
 };

@@ -8,6 +8,7 @@ import { Bell, LogOut, Mail, Menu, User } from "lucide-react";
 
 import { useSidebar } from "@/components/providers/sidebar-provider";
 import { ROUTES } from "@/constants/routes";
+import { clearAuthTokens } from "@/services";
 
 export function DashboardHeader() {
   const router = useRouter();
@@ -27,8 +28,9 @@ export function DashboardHeader() {
   }, []);
 
   function handleSignOut() {
+    clearAuthTokens();
     setSignOutModal(false);
-    router.push(ROUTES.signIn);
+    router.replace(ROUTES.signIn);
   }
 
   return (

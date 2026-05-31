@@ -23,28 +23,28 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Environment and HTTP Client
 
-- [ ] Document and add `NEXT_PUBLIC_API_BASE_URL`, expected to point at the API version root such as `http://localhost:5000/api/v1`
-- [ ] Define an `ApiEnvelope<T>` type matching `{ success, message, data, meta? }`
-- [ ] Update `requestJson` to call API-relative paths through the configured base URL
-- [ ] Update `requestJson` to unwrap `data` while preserving `message` and `meta` when the UI needs mutation feedback or pagination context
-- [ ] Normalize API error responses into the existing `ApiResult<T>` and `AppRequestError` pattern
-- [ ] Add query serialization support for API query params: `fields`, `limit`, `sort`, `order`, `filter`, and `populate`
-- [ ] Add multipart request support for documentation uploads without forcing `Content-Type: application/json`
-- [ ] Keep all API calls inside `src/services`; pages and components should call service methods only
+- [x] Document and add `NEXT_PUBLIC_API_BASE_URL`, expected to point at the API version root such as `http://localhost:5000/api/v1`
+- [x] Define an `ApiEnvelope<T>` type matching `{ success, message, data, meta? }`
+- [x] Update `requestJson` to call API-relative paths through the configured base URL
+- [x] Update `requestJson` to unwrap `data` while preserving `message` and `meta` when the UI needs mutation feedback or pagination context
+- [x] Normalize API error responses into the existing `ApiResult<T>` and `AppRequestError` pattern
+- [x] Add query serialization support for API query params: `fields`, `limit`, `sort`, `order`, `filter`, and `populate`
+- [x] Add multipart request support for documentation uploads without forcing `Content-Type: application/json`
+- [x] Keep all API calls inside `src/services`; pages and components should call service methods only
 
 ### Authentication and Authorization
 
-- [ ] Store access token after successful sign-in
-- [ ] Attach `Authorization: Bearer <token>` to protected API requests
-- [ ] Add a shared session helper for retrieving the current user from `GET /auth/me`
-- [ ] Define frontend-to-API role mapping:
+- [x] Store access token after successful sign-in
+- [x] Attach `Authorization: Bearer <token>` to protected API requests
+- [x] Add a shared session helper for retrieving the current user from `GET /auth/me`
+- [x] Define frontend-to-API role mapping:
   - `warehouse-staff` -> `warehouse_staff`
   - `admin-operator` -> `admin`
   - `technician` -> `technician`
   - `head-technician` -> `head_technician`
   - `project-site` -> `project_site_staff`
   - `management` -> `management`
-- [ ] Apply role-aware UI gating after real session data is available
+- [x] Add role-aware access helper functions for future UI gating after real session data is available
 
 ### Mock Replacement Rules
 
@@ -60,16 +60,17 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Auth and User Management
 
-- [ ] Wire sign-in to `POST /auth/login`
-- [ ] Wire current-user session loading to `GET /auth/me`
-- [ ] Decide whether account recovery remains frontend-only until the API adds a recovery endpoint
-- [ ] Wire admin user listing to `GET /user`
-- [ ] Wire user detail/edit pages to `GET /user/:id`
-- [ ] Wire dashboard-only user provisioning to `POST /user`
-- [ ] Wire user updates to `PUT /user`
-- [ ] Wire user deletion to `DELETE /user/:id`
-- [ ] Keep public self-service sign-up disabled in the app shell
-- [ ] Restrict account provisioning UI to Admin / System Operator users after role-aware session wiring
+- [x] Wire sign-in to `POST /auth/login`
+- [x] Wire current-user session loading to `GET /auth/me`
+- [x] Decide whether account recovery remains frontend-only until the API adds a recovery endpoint
+- [x] Wire admin user listing to `GET /user`
+- [x] Wire user detail/edit pages to `GET /user/:id`
+- [x] Wire dashboard-only user provisioning to `POST /user`
+- [x] Wire user updates to `PUT /user`
+- [x] Wire user deletion to `DELETE /user/:id`
+- [x] Keep public self-service sign-up disabled in the app shell
+- [x] Restrict account provisioning UI to Admin / System Operator users after role-aware session wiring
+- [x] Add protected dashboard route guard and redirect signed-in users away from auth pages
 
 ### Assets and Categories
 

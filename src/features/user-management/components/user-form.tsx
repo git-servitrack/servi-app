@@ -4,14 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { sileo } from "sileo";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
-import { MutationFeedback } from "@/components/feedback/mutation-feedback";
 import { authRoles } from "@/features/auth/data/auth-roles";
 import { userManagementFormSchema, type UserManagementFormSchemaValues } from "@/features/user-management/schemas/user-management-schema";
-import type { UserAccountStatus, UserManagementFormValues } from "@/features/user-management/types/user-management";
+import type { UserManagementFormValues } from "@/features/user-management/types/user-management";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { cn } from "@/lib/utils";
+import type { ApiErrorShape } from "@/services/http/types";
 import { userManagementService } from "@/services/user-management/user-management.service";
 
 interface UserFormProps {
@@ -22,10 +23,12 @@ interface UserFormProps {
   onCancel?: () => void;
 }
 
-const statusOptions: UserAccountStatus[] = ["Active", "Pending Activation", "Suspended"];
-
 const inputClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
 const selectClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-900 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100";
+
+function getDisplayName(values: Pick<UserManagementFormSchemaValues, "firstName" | "lastName" | "username">) {
+  return [values.firstName, values.lastName].filter(Boolean).join(" ") || values.username;
+}
 
 export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: UserFormProps) {
   const {
@@ -39,9 +42,10 @@ export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: U
     resolver: zodResolver(userManagementFormSchema),
     defaultValues: values,
   });
-  const { isSubmitting, error, successMessage, run, clearFeedback } = useStandardFormSubmit();
+  const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
   const selectedRoleId = useWatch({ control, name: "roleId" });
   const selectedRole = authRoles.find((role) => role.id === selectedRoleId);
+  const isEditMode = Boolean(userId);
 
   useEffect(() => {
     reset(values);
@@ -51,36 +55,83 @@ export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: U
     const { confirmPassword, ...payload } = formValues;
     void confirmPassword;
 
-    const result = await run(() => userManagementService.save(payload, userId), (response) => response.message);
+    const result = await sileo
+      .promise(
+        async () => {
+          const submission = await run(
+            () => userManagementService.save(payload, userId),
+            (response) => response.message,
+          );
 
-    if (result.error?.fieldErrors) {
-      Object.entries(result.error.fieldErrors).forEach(([field, message]) => {
-        setError(field as keyof UserManagementFormSchemaValues, {
-          type: "server",
-          message,
-        });
+          if (submission.error) {
+            throw submission.error;
+          }
+
+          if (!submission.data) {
+            throw new Error("User response did not include account data.");
+          }
+
+          return submission.data;
+        },
+        {
+          loading: {
+            title: isEditMode ? "Updating user..." : "Creating user...",
+            description: isEditMode
+              ? `Saving access changes for ${getDisplayName(payload)}.`
+              : `Provisioning ${getDisplayName(payload)} in Servi.`,
+          },
+          success: (response) => ({
+            title: isEditMode ? "User updated" : "User created",
+            description: response.message,
+          }),
+          error: (errorValue) => ({
+            title: isEditMode ? "Update failed" : "Create failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The user account could not be saved.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        if (errorValue.fieldErrors) {
+          Object.entries(errorValue.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof UserManagementFormSchemaValues, {
+              type: "server",
+              message,
+            });
+          });
+        }
+
+        return null;
       });
+
+    if (!result) {
+      return;
     }
 
-    if (!result.error) {
-      onSuccess?.();
-    }
+    onSuccess?.();
   }
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       {error ? <ApiErrorAlert message={error.message} /> : null}
-      {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FieldShell label="Full name" error={errors.fullName?.message}>
-          <input {...register("fullName", { onChange: clearFeedback })} placeholder="Alex Montemayor" className={inputClass} />
-        </FieldShell>
-        <FieldShell label="Department" error={errors.department?.message}>
-          <input {...register("department", { onChange: clearFeedback })} placeholder="Operations Control" className={inputClass} />
+        <FieldShell label="Username" error={errors.username?.message}>
+          <input {...register("username", { onChange: clearFeedback })} placeholder="alex.montemayor" className={inputClass} />
         </FieldShell>
         <FieldShell label="Work email" error={errors.email?.message}>
           <input {...register("email", { onChange: clearFeedback })} placeholder="alex@servi-web.local" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="First name" error={errors.firstName?.message}>
+          <input {...register("firstName", { onChange: clearFeedback })} placeholder="Alex" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Middle name" error={errors.middleName?.message}>
+          <input {...register("middleName", { onChange: clearFeedback })} placeholder="Optional" className={inputClass} />
+        </FieldShell>
+        <FieldShell label="Last name" error={errors.lastName?.message}>
+          <input {...register("lastName", { onChange: clearFeedback })} placeholder="Montemayor" className={inputClass} />
         </FieldShell>
         <FieldShell label="Assigned role" error={errors.roleId?.message}>
           <select {...register("roleId", { onChange: clearFeedback })} className={cn(selectClass, errors.roleId && "border-destructive")}>
@@ -94,13 +145,6 @@ export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: U
         </FieldShell>
         <FieldShell label="Confirm password" error={errors.confirmPassword?.message}>
           <PasswordField register={register} name="confirmPassword" placeholder="Repeat password" clearFeedback={clearFeedback} />
-        </FieldShell>
-        <FieldShell label="Account status" error={errors.status?.message}>
-          <select {...register("status", { onChange: clearFeedback })} className={cn(selectClass, errors.status && "border-destructive")}>
-            {statusOptions.map((status) => (
-              <option key={status}>{status}</option>
-            ))}
-          </select>
         </FieldShell>
       </div>
 

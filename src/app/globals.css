@@ -114,3 +114,17 @@ body {
     letter-spacing: -0.03em;
   }
 }
+
+@keyframes servi-loader {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(70%);
+  }
+
+  100% {
+    transform: translateX(240%);
+  }
+}
