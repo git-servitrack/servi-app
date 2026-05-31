@@ -1,5 +1,6 @@
 import { authRoles } from "@/features/auth/data/auth-roles";
 import type { AuthSessionPreview, UserRoleId } from "@/features/auth/types/auth";
+import type { ApiErrorShape } from "@/services/http/types";
 
 export type ApiUserRole =
   | "warehouse_staff"
@@ -32,6 +33,7 @@ export interface CurrentSession {
 
 const ACCESS_TOKEN_KEY = "servi.accessToken";
 const REFRESH_TOKEN_KEY = "servi.refreshToken";
+export const SESSION_EXPIRED_EVENT = "servi:session-expired";
 
 export const frontendToApiRoleMap = {
   "warehouse-staff": "warehouse_staff",
@@ -82,6 +84,20 @@ export function clearAuthTokens() {
 
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+export function isSessionExpiredError(error: Pick<ApiErrorShape, "code" | "message" | "status" | "meta">) {
+  return (
+    error.code === "INVALID_TOKEN" ||
+    (error.status === 401 && error.meta?.code === "INVALID_TOKEN") ||
+    (error.status === 401 && error.message.toLowerCase().includes("invalid or expired token"))
+  );
+}
+
+export function notifySessionExpired() {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
 }
 
 export function mapApiRoleToFrontendRole(role: ApiUserRole): UserRoleId {

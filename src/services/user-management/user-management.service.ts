@@ -1,43 +1,118 @@
-import { userRecords } from "@/features/user-management/data/user-management";
 import type { UserManagementRecord } from "@/features/user-management/types/user-management";
-import { AppRequestError } from "@/services/http/errors";
-import { createApiResult, simulateNetwork } from "@/services/http/client";
+import {
+  mapApiRoleToFrontendRole,
+  mapFrontendRoleToApiRole,
+  type ApiAuthUser,
+} from "@/services/auth/session";
+import { createApiResult, requestEnvelope, requestJson } from "@/services/http/client";
 import type { ApiResult } from "@/services/http/types";
-import type { UserManagementMutationResponse, UserManagementUpsertPayload } from "@/services/user-management/contracts";
+import type {
+  ApiUserPayload,
+  UserManagementApiRecord,
+  UserManagementMutationResponse,
+  UserManagementUpsertPayload,
+} from "@/services/user-management/contracts";
 
-function buildUser(payload: UserManagementUpsertPayload, userId?: string): UserManagementRecord {
-  const existing = userId ? userRecords.find((item) => item.id === userId) : undefined;
+const EDIT_PASSWORD_PLACEHOLDER = "temporary123";
+const USER_FIELDS = "_id,username,firstName,lastName,middleName,email,avatar,role";
 
+function getFullName(user: Pick<UserManagementApiRecord, "firstName" | "lastName" | "username">) {
+  return [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username;
+}
+
+function mapApiUserToRecord(user: UserManagementApiRecord): UserManagementRecord {
   return {
-    id: userId ?? `USR-${userRecords.length + 101}`,
-    invitedBy: existing?.invitedBy ?? "Alex Montemayor",
-    lastSignIn: existing?.lastSignIn ?? "Invitation pending",
-    ...payload,
+    id: user._id,
+    username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    middleName: user.middleName ?? "",
+    fullName: getFullName(user),
+    email: user.email,
+    roleId: mapApiRoleToFrontendRole(user.role),
+    status: "Active",
+    invitedBy: "API",
+    lastSignIn: "Available after audit logging is connected",
   };
 }
 
+function mapPayloadToApiUser(payload: UserManagementUpsertPayload, userId?: string): ApiUserPayload {
+  const apiPayload: ApiUserPayload = {
+    username: payload.username,
+    firstName: payload.firstName,
+    lastName: payload.lastName,
+    middleName: payload.middleName || undefined,
+    email: payload.email,
+    role: mapFrontendRoleToApiRole(payload.roleId),
+  };
+
+  if (userId) {
+    apiPayload._id = userId;
+  }
+
+  if (!userId || payload.password !== EDIT_PASSWORD_PLACEHOLDER) {
+    apiPayload.password = payload.password;
+  }
+
+  return apiPayload;
+}
+
 export const userManagementService = {
+  async list(): Promise<ApiResult<UserManagementRecord[]>> {
+    return createApiResult(async () => {
+      const users = await requestJson<ApiAuthUser[]>("/user", {
+        query: {
+          fields: USER_FIELDS,
+          limit: 100,
+          sort: "createdAt",
+          order: "desc",
+        },
+      });
+
+      return users.map(mapApiUserToRecord);
+    });
+  },
+
+  async getById(userId: string): Promise<ApiResult<UserManagementRecord>> {
+    return createApiResult(async () => {
+      const user = await requestJson<ApiAuthUser>(`/user/${userId}`, {
+        query: {
+          fields: USER_FIELDS,
+        },
+      });
+
+      return mapApiUserToRecord(user);
+    });
+  },
+
   async save(payload: UserManagementUpsertPayload, userId?: string): Promise<ApiResult<UserManagementMutationResponse>> {
     return createApiResult(async () => {
-      const duplicateEmail = userRecords.find((user) => user.email.toLowerCase() === payload.email.toLowerCase() && user.id !== userId);
+      const result = await requestEnvelope<ApiAuthUser, ApiUserPayload>("/user", {
+        method: userId ? "PUT" : "POST",
+        body: mapPayloadToApiUser(payload, userId),
+      });
 
-      if (duplicateEmail) {
-        throw new AppRequestError({
-          code: "VALIDATION_ERROR",
-          message: "A user with this work email already exists.",
-          status: 409,
-          fieldErrors: {
-            email: "Use a unique work email for each account.",
-          },
-        });
+      if (!result.data) {
+        throw new Error("User response did not include account data.");
       }
 
-      const user = buildUser(payload, userId);
+      return {
+        user: mapApiUserToRecord(result.data),
+        message: result.message,
+      };
+    });
+  },
 
-      return simulateNetwork({
-        user,
-        message: userId ? "User account updated successfully." : "User account provisioned successfully.",
+  async delete(userId: string): Promise<ApiResult<{ id: string; message: string }>> {
+    return createApiResult(async () => {
+      const result = await requestEnvelope<null>(`/user/${userId}`, {
+        method: "DELETE",
       });
+
+      return {
+        id: userId,
+        message: result.message,
+      };
     });
   },
 };

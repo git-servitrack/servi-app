@@ -4,7 +4,14 @@ import type { ApiAuthUser } from "@/services/auth/session";
 export type SignInPayload = SignInFormValues;
 export type RecoverAccountPayload = RecoverAccountFormValues;
 
+export interface ApiAuthResponse {
+  user: ApiAuthUser;
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface AuthSuccessResponse {
+  user?: ApiAuthUser;
   session: AuthSessionPreview;
   message: string;
   accessToken?: string;

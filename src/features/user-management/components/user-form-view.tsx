@@ -34,7 +34,7 @@ export function UserFormView({ mode, values, userId }: UserFormViewProps) {
           </h1>
           <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
             {isEdit
-              ? "Adjust account status, role assignment, and provisioning details."
+              ? "Update model-backed account fields and role assignment."
               : "Create user accounts inside the dashboard with admin-controlled provisioning."}
           </p>
         </div>

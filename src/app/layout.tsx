@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, IBM_Plex_Mono, Fraunces } from "next/font/google";
+import { SileoProvider } from "@/components/providers/sileo-provider";
+import { SessionExpiredDialog } from "@/features/auth/components/session-expired-dialog";
 import "./globals.css";
 
 const sans = Plus_Jakarta_Sans({
@@ -37,6 +39,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${sans.variable} ${mono.variable} ${display.variable} min-h-screen bg-background font-sans text-foreground antialiased`}>
         {children}
+        <SessionExpiredDialog />
+        <SileoProvider />
       </body>
     </html>
   );

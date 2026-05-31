@@ -1,6 +1,6 @@
 import { AppRequestError, normalizeUnknownError } from "@/services/http/errors";
 import { API_CONFIG } from "@/config/api";
-import { getAccessToken } from "@/services/auth/session";
+import { getAccessToken, isSessionExpiredError, notifySessionExpired } from "@/services/auth/session";
 import type {
   ApiEnvelope,
   ApiEnvelopeData,
@@ -81,6 +81,12 @@ function mapStatusToErrorCode(status: number): ApiErrorCode {
   return "UNKNOWN_ERROR";
 }
 
+function getEnvelopeErrorCode(status: number, meta?: ApiEnvelope<unknown>["meta"]): ApiErrorCode {
+  if (meta?.code === "INVALID_TOKEN") return "INVALID_TOKEN";
+
+  return mapStatusToErrorCode(status);
+}
+
 function isFormDataBody(body: unknown): body is FormData {
   return typeof FormData !== "undefined" && body instanceof FormData;
 }
@@ -141,11 +147,19 @@ export async function requestEnvelope<TResponse, TBody = unknown>(
       };
 
   if (!response.ok || !envelope.success) {
-    throw new AppRequestError({
-      code: mapStatusToErrorCode(response.status),
+    const error = {
+      code: getEnvelopeErrorCode(response.status, envelope.meta),
       message: envelope.message || "Request failed.",
       status: response.status,
       meta: envelope.meta,
+    };
+
+    if (config.includeAuth !== false && isSessionExpiredError(error)) {
+      notifySessionExpired();
+    }
+
+    throw new AppRequestError({
+      ...error,
     });
   }
 

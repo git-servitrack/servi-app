@@ -3,6 +3,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export type ApiErrorCode =
   | "BAD_REQUEST"
   | "VALIDATION_ERROR"
+  | "INVALID_TOKEN"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
   | "NOT_FOUND"

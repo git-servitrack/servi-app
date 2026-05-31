@@ -12,10 +12,16 @@ interface UserFormModalProps {
   mode: "create" | "edit";
   values: UserManagementFormValues;
   userId?: string;
+  onSaved?: () => void | Promise<void>;
 }
 
-export function UserFormModal({ open, onClose, mode, values, userId }: UserFormModalProps) {
+export function UserFormModal({ open, onClose, mode, values, userId, onSaved }: UserFormModalProps) {
   const isEdit = mode === "edit";
+
+  async function handleSuccess() {
+    await onSaved?.();
+    onClose();
+  }
 
   return (
     <AnimatePresence>
@@ -63,7 +69,7 @@ export function UserFormModal({ open, onClose, mode, values, userId }: UserFormM
                 submitLabel={isEdit ? "Save user changes" : "Create user account"}
                 values={values}
                 userId={userId}
-                onSuccess={onClose}
+                onSuccess={handleSuccess}
                 onCancel={onClose}
               />
             </div>

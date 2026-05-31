@@ -60,16 +60,17 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Auth and User Management
 
-- [ ] Wire sign-in to `POST /auth/login`
-- [ ] Wire current-user session loading to `GET /auth/me`
-- [ ] Decide whether account recovery remains frontend-only until the API adds a recovery endpoint
-- [ ] Wire admin user listing to `GET /user`
-- [ ] Wire user detail/edit pages to `GET /user/:id`
-- [ ] Wire dashboard-only user provisioning to `POST /user`
-- [ ] Wire user updates to `PUT /user`
-- [ ] Wire user deletion to `DELETE /user/:id`
-- [ ] Keep public self-service sign-up disabled in the app shell
-- [ ] Restrict account provisioning UI to Admin / System Operator users after role-aware session wiring
+- [x] Wire sign-in to `POST /auth/login`
+- [x] Wire current-user session loading to `GET /auth/me`
+- [x] Decide whether account recovery remains frontend-only until the API adds a recovery endpoint
+- [x] Wire admin user listing to `GET /user`
+- [x] Wire user detail/edit pages to `GET /user/:id`
+- [x] Wire dashboard-only user provisioning to `POST /user`
+- [x] Wire user updates to `PUT /user`
+- [x] Wire user deletion to `DELETE /user/:id`
+- [x] Keep public self-service sign-up disabled in the app shell
+- [x] Restrict account provisioning UI to Admin / System Operator users after role-aware session wiring
+- [x] Add protected dashboard route guard and redirect signed-in users away from auth pages
 
 ### Assets and Categories
 
