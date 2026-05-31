@@ -5,6 +5,7 @@ export interface AssetRecord {
   id: string;
   name: string;
   code: string;
+  categoryId: string;
   category: string;
   site: string;
   assignedTeam: string;
@@ -41,4 +42,12 @@ export interface AssetFormValues {
   lastServiceDate: string;
   nextServiceDate: string;
   notes: string;
+}
+
+export interface AssetCategoryOption {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  isActive: boolean;
 }

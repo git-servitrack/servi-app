@@ -4,14 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { sileo } from "sileo";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
-import { MutationFeedback } from "@/components/feedback/mutation-feedback";
 import {
   assetFormSchema,
   type AssetFormSchemaValues,
 } from "@/features/assets/schemas/asset-schema";
 import type {
+  AssetCategoryOption,
   AssetCriticality,
   AssetFormValues,
   AssetStatus,
@@ -19,11 +20,13 @@ import type {
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { cn } from "@/lib/utils";
 import { assetsService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
 interface AssetFormProps {
   submitLabel: string;
   values: AssetFormValues;
   assetId?: string;
+  categoryOptions: AssetCategoryOption[];
   onSuccess?: () => void;
   onCancel?: () => void;
 }
@@ -43,7 +46,14 @@ const selectClass =
 const textareaClass =
   "flex min-h-[100px] w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
 
-export function AssetForm({ submitLabel, values, assetId, onSuccess, onCancel }: AssetFormProps) {
+export function AssetForm({
+  submitLabel,
+  values,
+  assetId,
+  categoryOptions,
+  onSuccess,
+  onCancel,
+}: AssetFormProps) {
   const {
     register,
     handleSubmit,
@@ -54,36 +64,75 @@ export function AssetForm({ submitLabel, values, assetId, onSuccess, onCancel }:
     resolver: zodResolver(assetFormSchema),
     defaultValues: values,
   });
-  const { isSubmitting, error, successMessage, run, clearFeedback } = useStandardFormSubmit();
+  const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
+  const isEditMode = Boolean(assetId);
 
   useEffect(() => {
     reset(values);
   }, [reset, values]);
 
   async function onSubmit(formValues: AssetFormSchemaValues) {
-    const result = await run(
-      () => assetsService.save(formValues, assetId),
-      (response) => response.message,
-    );
+    const result = await sileo
+      .promise(
+        async () => {
+          const submission = await run(
+            () => assetsService.save(formValues, assetId),
+            (response) => response.message,
+          );
 
-    if (result.error?.fieldErrors) {
-      Object.entries(result.error.fieldErrors).forEach(([field, message]) => {
-        setError(field as keyof AssetFormSchemaValues, {
-          type: "server",
-          message,
-        });
+          if (submission.error) {
+            throw submission.error;
+          }
+
+          if (!submission.data) {
+            throw new Error("Asset response did not include record data.");
+          }
+
+          return submission.data;
+        },
+        {
+          loading: {
+            title: isEditMode ? "Updating asset..." : "Creating asset...",
+            description: isEditMode
+              ? `Saving changes for ${formValues.name}.`
+              : `Adding ${formValues.name} to the asset register.`,
+          },
+          success: (response) => ({
+            title: isEditMode ? "Asset updated" : "Asset created",
+            description: response.message,
+          }),
+          error: (errorValue) => ({
+            title: isEditMode ? "Update failed" : "Create failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The asset record could not be saved.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        if (errorValue.fieldErrors) {
+          Object.entries(errorValue.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof AssetFormSchemaValues, {
+              type: "server",
+              message,
+            });
+          });
+        }
+
+        return null;
       });
+
+    if (!result) {
+      return;
     }
 
-    if (!result.error) {
-      onSuccess?.();
-    }
+    onSuccess?.();
   }
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       {error ? <ApiErrorAlert message={error.message} /> : null}
-      {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         <FieldShell label="Asset Name" error={errors.name?.message}>
@@ -101,11 +150,17 @@ export function AssetForm({ submitLabel, values, assetId, onSuccess, onCancel }:
           />
         </FieldShell>
         <FieldShell label="Category" error={errors.category?.message}>
-          <input
+          <select
             {...register("category", { onChange: clearFeedback })}
-            placeholder="Power Systems"
-            className={inputClass}
-          />
+            className={cn(selectClass, errors.category && "border-destructive")}
+          >
+            <option value="">Select category</option>
+            {categoryOptions.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </FieldShell>
         <FieldShell label="Site" error={errors.site?.message}>
           <input

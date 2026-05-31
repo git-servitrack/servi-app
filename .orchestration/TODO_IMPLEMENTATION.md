@@ -74,14 +74,14 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Assets and Categories
 
-- [ ] Wire asset listing to `GET /asset`
-- [ ] Wire asset detail pages to `GET /asset/:id`
-- [ ] Wire asset create form to `POST /asset`
-- [ ] Wire asset edit form to `PUT /asset`
-- [ ] Wire asset deletion, if exposed in the UI, to `DELETE /asset/:id`
-- [ ] Wire asset search/filter behavior to `POST /asset/search` or query params on `GET /asset`
-- [ ] Wire category selectors to `GET /category`
-- [ ] Map frontend asset payloads to API fields, especially category ObjectId, dates, status, and criticality
+- [x] Wire asset listing to `GET /asset`
+- [x] Wire asset detail pages to `GET /asset/:id`
+- [x] Wire asset create form to `POST /asset`
+- [x] Wire asset edit form to `PUT /asset`
+- [x] Wire asset deletion, if exposed in the UI, to `DELETE /asset/:id`
+- [x] Wire asset search/filter behavior to `POST /asset/search` or query params on `GET /asset`
+- [x] Wire category selectors to `GET /category`
+- [x] Map frontend asset payloads to API fields, especially category ObjectId, dates, status, and criticality
 
 ### Service Requests
 

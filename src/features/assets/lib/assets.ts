@@ -34,7 +34,7 @@ export function mapAssetToFormValues(asset: AssetRecord): AssetFormValues {
   return {
     name: asset.name,
     code: asset.code,
-    category: asset.category,
+    category: asset.categoryId,
     site: asset.site,
     assignedTeam: asset.assignedTeam,
     status: asset.status,

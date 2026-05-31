@@ -1,8 +1,4 @@
-import { notFound } from "next/navigation";
-
-import { AssetFormView } from "@/features/assets/components/asset-form-view";
-import { assetRecords } from "@/features/assets/data/assets";
-import { getAssetById, mapAssetToFormValues } from "@/features/assets/lib/assets";
+import { AssetFormPageView } from "@/features/assets/components/asset-form-page-view";
 
 export default async function AssetEditPage({
   params,
@@ -10,11 +6,6 @@ export default async function AssetEditPage({
   params: Promise<{ assetId: string }>;
 }) {
   const { assetId } = await params;
-  const asset = getAssetById(assetId, assetRecords);
 
-  if (!asset) {
-    notFound();
-  }
-
-  return <AssetFormView mode="edit" values={mapAssetToFormValues(asset)} assetId={asset.id} />;
+  return <AssetFormPageView mode="edit" assetId={assetId} />;
 }

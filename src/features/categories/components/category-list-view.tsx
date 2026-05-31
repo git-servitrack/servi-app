@@ -13,91 +13,60 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AssetFilters } from "@/features/assets/components/asset-filters";
-import { AssetFormModal } from "@/features/assets/components/asset-form-modal";
-import { AssetTable } from "@/features/assets/components/asset-table";
-import { defaultAssetFilters, emptyAssetFormValues } from "@/features/assets/data/assets";
-import { filterAssets, mapAssetToFormValues } from "@/features/assets/lib/assets";
-import type {
-  AssetCategoryOption,
-  AssetFilterState,
-  AssetFormValues,
-  AssetRecord,
-} from "@/features/assets/types/assets";
-import { assetsService } from "@/services";
+import { CategoryFormModal } from "@/features/categories/components/category-form-modal";
+import { CategoryTable } from "@/features/categories/components/category-table";
+import { emptyCategoryFormValues } from "@/features/categories/data/categories";
+import type { CategoryFormValues, CategoryRecord } from "@/features/categories/types/categories";
+import { categoriesService } from "@/services";
 import type { ApiErrorShape } from "@/services/http/types";
 
-const STATUS_OPTIONS = ["All", "Operational", "Maintenance Due", "Under Repair", "Decommissioned"] as const;
-
-function buildEmptyAssetValues(categories: AssetCategoryOption[]): AssetFormValues {
+function mapCategoryToFormValues(category: CategoryRecord): CategoryFormValues {
   return {
-    ...emptyAssetFormValues,
-    category: categories.find((category) => category.isActive)?.id ?? categories[0]?.id ?? "",
+    name: category.name,
+    code: category.code,
+    description: category.description === "No description provided." ? "" : category.description,
+    isActive: category.isActive,
   };
 }
 
-export function AssetListView() {
-  const [assets, setAssets] = useState<AssetRecord[]>([]);
-  const [categories, setCategories] = useState<AssetCategoryOption[]>([]);
-  const [filters, setFilters] = useState<AssetFilterState>(defaultAssetFilters);
+export function CategoryListView() {
+  const [categories, setCategories] = useState<CategoryRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiErrorShape | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [modalValues, setModalValues] = useState<AssetFormValues>(emptyAssetFormValues);
-  const [modalAssetId, setModalAssetId] = useState<string | undefined>();
-  const [deleteTarget, setDeleteTarget] = useState<AssetRecord | null>(null);
+  const [modalValues, setModalValues] = useState<CategoryFormValues>(emptyCategoryFormValues);
+  const [modalCategoryId, setModalCategoryId] = useState<string | undefined>();
+  const [deleteTarget, setDeleteTarget] = useState<CategoryRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const filteredAssets = useMemo(() => filterAssets(assets, filters), [assets, filters]);
-  const categoryOptions = useMemo(
-    () => ["All", ...categories.map((category) => category.name)],
-    [categories],
-  );
-  const siteOptions = useMemo(
-    () => ["All", ...Array.from(new Set(assets.map((asset) => asset.site))).sort()],
-    [assets],
-  );
   const statItems = useMemo(
     () => [
-      { label: "Operational", value: assets.filter((a) => a.status === "Operational").length.toString(), color: "#145d66" },
-      { label: "Maintenance Due", value: assets.filter((a) => a.status === "Maintenance Due").length.toString(), color: "#d97706" },
-      { label: "Under Repair", value: assets.filter((a) => a.status === "Under Repair").length.toString(), color: "#7c3aed" },
-      { label: "Total Tracked", value: assets.length.toString(), color: "#1e293b" },
+      { label: "Active", value: categories.filter((category) => category.isActive).length.toString(), color: "#145d66" },
+      { label: "Inactive", value: categories.filter((category) => !category.isActive).length.toString(), color: "#64748b" },
+      { label: "Total Categories", value: categories.length.toString(), color: "#1e293b" },
     ],
-    [assets],
+    [categories],
   );
 
-  async function loadAssets() {
-    const [assetResult, categoryResult] = await Promise.all([
-      assetsService.list(),
-      assetsService.categories(),
-    ]);
+  async function loadCategories() {
+    const result = await categoriesService.list();
 
-    if (assetResult.error) {
-      setError(assetResult.error);
-      setAssets([]);
-    } else {
-      setAssets(assetResult.data);
-    }
-
-    if (categoryResult.error) {
-      setError(categoryResult.error);
+    if (result.error) {
+      setError(result.error);
       setCategories([]);
-    } else {
-      setCategories(categoryResult.data);
+      return;
     }
 
-    if (!assetResult.error && !categoryResult.error) {
-      setError(null);
-    }
+    setError(null);
+    setCategories(result.data);
   }
 
   useEffect(() => {
     let active = true;
 
     async function loadInitialData() {
-      await loadAssets();
+      await loadCategories();
 
       if (active) {
         setIsLoading(false);
@@ -113,26 +82,16 @@ export function AssetListView() {
 
   function handleCreate() {
     setModalMode("create");
-    setModalValues(buildEmptyAssetValues(categories));
-    setModalAssetId(undefined);
+    setModalValues(emptyCategoryFormValues);
+    setModalCategoryId(undefined);
     setModalOpen(true);
   }
 
-  function handleEdit(assetId: string) {
-    const asset = assets.find((a) => a.id === assetId);
-    if (!asset) return;
-
+  function handleEdit(category: CategoryRecord) {
     setModalMode("edit");
-    setModalValues(mapAssetToFormValues(asset));
-    setModalAssetId(asset.id);
+    setModalValues(mapCategoryToFormValues(category));
+    setModalCategoryId(category.id);
     setModalOpen(true);
-  }
-
-  function handleDelete(assetId: string) {
-    const asset = assets.find((item) => item.id === assetId);
-    if (!asset) return;
-
-    setDeleteTarget(asset);
   }
 
   async function confirmDelete() {
@@ -140,10 +99,10 @@ export function AssetListView() {
 
     setIsDeleting(true);
 
-    const deletedAsset = await sileo
+    const deletedCategory = await sileo
       .promise(
         async () => {
-          const result = await assetsService.delete(deleteTarget.id);
+          const result = await categoriesService.delete(deleteTarget.id);
 
           if (result.error) {
             throw result.error;
@@ -153,11 +112,11 @@ export function AssetListView() {
         },
         {
           loading: {
-            title: "Deleting asset...",
-            description: `Removing ${deleteTarget.name} from the register.`,
+            title: "Deleting category...",
+            description: `Removing ${deleteTarget.name} from category records.`,
           },
           success: {
-            title: "Asset deleted",
+            title: "Category deleted",
             description: `${deleteTarget.name} was removed successfully.`,
           },
           error: (errorValue) => ({
@@ -165,7 +124,7 @@ export function AssetListView() {
             description:
               typeof errorValue === "object" && errorValue !== null && "message" in errorValue
                 ? String((errorValue as { message?: unknown }).message)
-                : "The asset could not be deleted.",
+                : "The category could not be deleted.",
           }),
         },
       )
@@ -176,15 +135,11 @@ export function AssetListView() {
 
     setIsDeleting(false);
 
-    if (!deletedAsset) return;
+    if (!deletedCategory) return;
 
-    setAssets((current) => current.filter((asset) => asset.id !== deleteTarget.id));
+    setCategories((current) => current.filter((category) => category.id !== deleteTarget.id));
     setError(null);
     setDeleteTarget(null);
-  }
-
-  async function handleModalSaved() {
-    await loadAssets();
   }
 
   return (
@@ -193,23 +148,22 @@ export function AssetListView() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
-              Assets
+              Category
             </h1>
             <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
-              Manage operational assets, service schedules, and site ownership.
+              Manage reusable categories for assets, spare parts, and operational records.
             </p>
           </div>
           <button
             onClick={handleCreate}
-            disabled={categories.length === 0}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-[#1a7a86]"
+            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] dark:hover:bg-[#1a7a86]"
           >
             <Plus className="h-4 w-4" />
-            Create asset
+            Create category
           </button>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           {statItems.map((stat) => (
             <div
               key={stat.label}
@@ -224,21 +178,8 @@ export function AssetListView() {
           ))}
         </div>
 
-        <div className="mt-4 sm:mt-6">
-          <AssetFilters
-            filters={filters}
-            categoryOptions={categoryOptions}
-            siteOptions={siteOptions}
-            statusOptions={STATUS_OPTIONS}
-            onChange={setFilters}
-          />
-        </div>
-
         <div className="mt-4 space-y-3 sm:mt-6">
           {error ? <ApiErrorAlert message={error.message} /> : null}
-          {!isLoading && categories.length === 0 ? (
-            <ApiErrorAlert message="Create an active category in the API before adding assets." />
-          ) : null}
         </div>
 
         <div className="mt-4 sm:mt-6">
@@ -246,33 +187,32 @@ export function AssetListView() {
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
               <div>
                 <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">
-                  Asset register
+                  Category records
                 </h2>
                 <p className="mt-0.5 text-sm text-slate-400 dark:text-stone-500">
-                  {filteredAssets.length} assets matching current filters
+                  {categories.length} reusable categories
                 </p>
               </div>
             </div>
             {isLoading ? (
               <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-slate-500 dark:text-stone-400">
                 <LoaderCircle className="h-4 w-4 animate-spin" />
-                Loading assets...
+                Loading categories...
               </div>
             ) : (
-              <AssetTable assets={filteredAssets} onEdit={handleEdit} onDelete={handleDelete} />
+              <CategoryTable categories={categories} onEdit={handleEdit} onDelete={setDeleteTarget} />
             )}
           </div>
         </div>
       </div>
 
-      <AssetFormModal
+      <CategoryFormModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         mode={modalMode}
         values={modalValues}
-        assetId={modalAssetId}
-        categoryOptions={categories}
-        onSaved={handleModalSaved}
+        categoryId={modalCategoryId}
+        onSaved={loadCategories}
       />
 
       <Dialog
@@ -285,10 +225,10 @@ export function AssetListView() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete asset?</DialogTitle>
+            <DialogTitle>Delete category?</DialogTitle>
             <DialogDescription>
               {deleteTarget
-                ? `This will remove ${deleteTarget.name} from the asset register. This action cannot be undone.`
+                ? `This will remove ${deleteTarget.name}. Assets or spare parts using this category may need reassignment.`
                 : "This action cannot be undone."}
             </DialogDescription>
           </DialogHeader>
@@ -308,7 +248,7 @@ export function AssetListView() {
               className="flex h-11 items-center justify-center gap-2 rounded-full bg-rose-500 px-5 text-sm font-semibold text-white transition-colors hover:bg-rose-600 disabled:pointer-events-none disabled:opacity-50"
             >
               {isDeleting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              {isDeleting ? "Deleting..." : "Delete asset"}
+              {isDeleting ? "Deleting..." : "Delete category"}
             </button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,5 @@
-import { AssetFormView } from "@/features/assets/components/asset-form-view";
-import { emptyAssetFormValues } from "@/features/assets/data/assets";
+import { AssetFormPageView } from "@/features/assets/components/asset-form-page-view";
 
 export default function AssetCreatePage() {
-  return <AssetFormView mode="create" values={emptyAssetFormValues} />;
+  return <AssetFormPageView mode="create" />;
 }
