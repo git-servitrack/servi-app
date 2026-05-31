@@ -13,7 +13,6 @@ import type {
   UserManagementUpsertPayload,
 } from "@/services/user-management/contracts";
 
-const EDIT_PASSWORD_PLACEHOLDER = "temporary123";
 const USER_FIELDS = "_id,username,firstName,lastName,middleName,email,avatar,role";
 
 function getFullName(user: Pick<UserManagementApiRecord, "firstName" | "lastName" | "username">) {
@@ -50,8 +49,10 @@ function mapPayloadToApiUser(payload: UserManagementUpsertPayload, userId?: stri
     apiPayload._id = userId;
   }
 
-  if (!userId || payload.password !== EDIT_PASSWORD_PLACEHOLDER) {
-    apiPayload.password = payload.password;
+  const password = payload.password.trim();
+
+  if (!userId || password.length > 0) {
+    apiPayload.password = password;
   }
 
   return apiPayload;

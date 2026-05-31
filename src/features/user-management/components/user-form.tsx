@@ -8,7 +8,11 @@ import { sileo } from "sileo";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { authRoles } from "@/features/auth/data/auth-roles";
-import { userManagementFormSchema, type UserManagementFormSchemaValues } from "@/features/user-management/schemas/user-management-schema";
+import {
+  userManagementEditFormSchema,
+  userManagementFormSchema,
+  type UserManagementFormSchemaValues,
+} from "@/features/user-management/schemas/user-management-schema";
 import type { UserManagementFormValues } from "@/features/user-management/types/user-management";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { cn } from "@/lib/utils";
@@ -31,6 +35,7 @@ function getDisplayName(values: Pick<UserManagementFormSchemaValues, "firstName"
 }
 
 export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: UserFormProps) {
+  const isEditMode = Boolean(userId);
   const {
     register,
     handleSubmit,
@@ -39,13 +44,12 @@ export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: U
     setError,
     control,
   } = useForm<UserManagementFormSchemaValues>({
-    resolver: zodResolver(userManagementFormSchema),
+    resolver: zodResolver(isEditMode ? userManagementEditFormSchema : userManagementFormSchema),
     defaultValues: values,
   });
   const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
   const selectedRoleId = useWatch({ control, name: "roleId" });
   const selectedRole = authRoles.find((role) => role.id === selectedRoleId);
-  const isEditMode = Boolean(userId);
 
   useEffect(() => {
     reset(values);
@@ -140,12 +144,27 @@ export function UserForm({ submitLabel, values, userId, onSuccess, onCancel }: U
             ))}
           </select>
         </FieldShell>
-        <FieldShell label="Temporary password" error={errors.password?.message}>
-          <PasswordField register={register} name="password" placeholder="Temporary password" clearFeedback={clearFeedback} />
+        <FieldShell label={isEditMode ? "New password" : "Temporary password"} error={errors.password?.message}>
+          <PasswordField
+            register={register}
+            name="password"
+            placeholder={isEditMode ? "Enter a new password" : "Temporary password"}
+            clearFeedback={clearFeedback}
+          />
         </FieldShell>
-        <FieldShell label="Confirm password" error={errors.confirmPassword?.message}>
-          <PasswordField register={register} name="confirmPassword" placeholder="Repeat password" clearFeedback={clearFeedback} />
+        <FieldShell label={isEditMode ? "Confirm new password" : "Confirm password"} error={errors.confirmPassword?.message}>
+          <PasswordField
+            register={register}
+            name="confirmPassword"
+            placeholder={isEditMode ? "Repeat the new password" : "Repeat password"}
+            clearFeedback={clearFeedback}
+          />
         </FieldShell>
+        {isEditMode ? (
+          <p className="text-xs leading-5 text-slate-500 dark:text-stone-400 md:col-span-2">
+            Admin password reset does not require the current password. Enter a new password to reset this account, or leave both fields blank to keep it unchanged.
+          </p>
+        ) : null}
       </div>
 
       {selectedRole ? (

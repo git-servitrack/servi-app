@@ -108,8 +108,8 @@ export function UserManagementListView() {
       lastName: user.lastName,
       middleName: user.middleName,
       email: user.email,
-      password: "temporary123",
-      confirmPassword: "temporary123",
+      password: "",
+      confirmPassword: "",
       roleId: user.roleId,
     });
     setModalUserId(user.id);
