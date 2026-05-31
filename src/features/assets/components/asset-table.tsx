@@ -7,9 +7,10 @@ import type { AssetRecord } from "@/features/assets/types/assets";
 interface AssetTableProps {
   assets: AssetRecord[];
   onEdit?: (assetId: string) => void;
+  onDelete?: (assetId: string) => void;
 }
 
-export function AssetTable({ assets, onEdit }: AssetTableProps) {
+export function AssetTable({ assets, onEdit, onDelete }: AssetTableProps) {
   if (assets.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
@@ -26,7 +27,7 @@ export function AssetTable({ assets, onEdit }: AssetTableProps) {
       {assets.map((asset) => (
         <div
           key={asset.id}
-          className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/50 sm:gap-4 sm:px-6 sm:py-4 dark:hover:bg-white/3"
+          className="grid items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/50 sm:grid-cols-[2.5rem_minmax(0,1fr)_9rem_auto] sm:gap-4 sm:px-6 sm:py-4 dark:hover:bg-white/3"
         >
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
@@ -41,27 +42,36 @@ export function AssetTable({ assets, onEdit }: AssetTableProps) {
             {asset.code.slice(0, 2)}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <p className="text-sm font-semibold text-slate-900 dark:text-stone-100">
-                {asset.name}
-              </p>
-              <AssetStatusBadge status={asset.status} />
-            </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900 dark:text-stone-100">
+              {asset.name}
+            </p>
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
               <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{asset.id}</span>
-              {" — "}
-              {asset.category} · {asset.site} · Next service: {asset.nextServiceDate}
+              {" - "}
+              {asset.category} - {asset.site} - Next service: {asset.nextServiceDate}
             </p>
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+          <div className="justify-self-start sm:justify-self-center">
+            <AssetStatusBadge status={asset.status} />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2 justify-self-start sm:justify-self-end">
             <Link
               href={getAssetDetailRoute(asset.id)}
               className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
             >
               View
             </Link>
+            {onDelete ? (
+              <button
+                onClick={() => onDelete(asset.id)}
+                className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-500/10"
+              >
+                Delete
+              </button>
+            ) : null}
             <button
               onClick={() => onEdit?.(asset.id)}
               className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"

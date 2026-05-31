@@ -3,15 +3,16 @@ import { ArrowLeft } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
 import { AssetForm } from "@/features/assets/components/asset-form";
-import type { AssetFormValues } from "@/features/assets/types/assets";
+import type { AssetCategoryOption, AssetFormValues } from "@/features/assets/types/assets";
 
 interface AssetFormViewProps {
   mode: "create" | "edit";
   values: AssetFormValues;
   assetId?: string;
+  categoryOptions: AssetCategoryOption[];
 }
 
-export function AssetFormView({ mode, values, assetId }: AssetFormViewProps) {
+export function AssetFormView({ mode, values, assetId, categoryOptions }: AssetFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
@@ -44,6 +45,7 @@ export function AssetFormView({ mode, values, assetId }: AssetFormViewProps) {
             submitLabel={isEdit ? "Save changes" : "Create asset"}
             values={values}
             assetId={assetId}
+            categoryOptions={categoryOptions}
           />
         </div>
       </div>

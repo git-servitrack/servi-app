@@ -6,6 +6,7 @@ import {
   Package,
   ShieldCheck,
   SquareKanban,
+  Tags,
   UsersRound,
   Wrench,
 } from "lucide-react";
@@ -23,6 +24,7 @@ export const ROUTES = {
   maintenance: "/maintenance",
   technicians: "/technicians",
   userManagement: "/user-management",
+  category: "/category",
   spareParts: "/spare-parts",
   documentation: "/documentation",
   reports: "/reports",
@@ -73,6 +75,12 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         href: ROUTES.userManagement,
         icon: UsersRound,
         description: "Admin-only user provisioning and role assignment.",
+      },
+      {
+        title: "Category",
+        href: ROUTES.category,
+        icon: Tags,
+        description: "Manage asset and inventory category records.",
       },
       {
         title: "Spare Parts",

@@ -1,61 +1,201 @@
-import { assetRecords } from "@/features/assets/data/assets";
-import type { AssetRecord } from "@/features/assets/types/assets";
-import { AppRequestError } from "@/services/http/errors";
-import { createApiResult, simulateNetwork } from "@/services/http/client";
-import type { ApiResult } from "@/services/http/types";
-import type { AssetMutationResponse, AssetUpsertPayload } from "@/services/assets/contracts";
+import type {
+  AssetCategoryOption,
+  AssetRecord,
+} from "@/features/assets/types/assets";
+import { createApiResult, requestEnvelope, requestJson } from "@/services/http/client";
+import type { ApiResult, QueryParams } from "@/services/http/types";
+import type {
+  ApiAssetPayload,
+  ApiAssetRecord,
+  ApiCategoryRecord,
+  AssetMutationResponse,
+  AssetUpsertPayload,
+} from "@/services/assets/contracts";
 
-function buildAssetRecord(payload: AssetUpsertPayload, existingId?: string): AssetRecord {
+const ASSET_FIELDS = [
+  "_id",
+  "name",
+  "code",
+  "category.name",
+  "category.code",
+  "category.isActive",
+  "site",
+  "assignedTeam",
+  "status",
+  "criticality",
+  "condition",
+  "manufacturer",
+  "model",
+  "serialNumber",
+  "lastServiceDate",
+  "nextServiceDate",
+  "notes",
+].join(",");
+
+const CATEGORY_FIELDS = "_id,name,code,description,isActive";
+
+function formatDate(value?: string) {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+
+  return date.toISOString().slice(0, 10);
+}
+
+function normalizeCategory(category: ApiAssetRecord["category"]) {
+  if (typeof category === "string") {
+    return {
+      id: category,
+      name: "Uncategorized",
+    };
+  }
+
   return {
-    id: existingId ?? `AST-${String(assetRecords.length + 101).padStart(3, "0")}`,
-    ...payload,
-    lastServiceDate: payload.lastServiceDate || "N/A",
-    nextServiceDate: payload.nextServiceDate || "N/A",
+    id: category._id,
+    name: category.name,
+  };
+}
+
+function mapApiCategoryToOption(category: ApiCategoryRecord): AssetCategoryOption {
+  return {
+    id: category._id,
+    name: category.name,
+    code: category.code,
+    description: category.description,
+    isActive: category.isActive ?? true,
+  };
+}
+
+function mapApiAssetToRecord(asset: ApiAssetRecord): AssetRecord {
+  const category = normalizeCategory(asset.category);
+
+  return {
+    id: asset._id,
+    name: asset.name,
+    code: asset.code ?? asset._id.slice(-6).toUpperCase(),
+    categoryId: category.id,
+    category: category.name,
+    site: asset.site,
+    assignedTeam: asset.assignedTeam,
+    status: asset.status,
+    criticality: asset.criticality,
+    condition: asset.condition ?? "No condition summary provided.",
+    lastServiceDate: formatDate(asset.lastServiceDate),
+    nextServiceDate: formatDate(asset.nextServiceDate),
+    manufacturer: asset.manufacturer,
+    model: asset.model,
+    serialNumber: asset.serialNumber,
+    notes: asset.notes ?? "No notes provided.",
+  };
+}
+
+function optionalString(value: string) {
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function optionalDate(value?: string) {
+  return value && value.trim().length > 0 ? value : undefined;
+}
+
+function mapPayloadToApiAsset(payload: AssetUpsertPayload, assetId?: string): ApiAssetPayload {
+  return {
+    ...(assetId ? { _id: assetId } : {}),
+    name: payload.name,
+    code: optionalString(payload.code),
+    category: payload.category,
+    site: payload.site,
+    assignedTeam: payload.assignedTeam,
+    status: payload.status,
+    criticality: payload.criticality,
+    condition: optionalString(payload.condition),
+    manufacturer: payload.manufacturer,
+    model: payload.model,
+    serialNumber: payload.serialNumber,
+    lastServiceDate: optionalDate(payload.lastServiceDate),
+    nextServiceDate: optionalDate(payload.nextServiceDate),
+    notes: optionalString(payload.notes),
+  };
+}
+
+function buildAssetQuery(query?: QueryParams): QueryParams {
+  return {
+    fields: ASSET_FIELDS,
+    limit: 100,
+    sort: "createdAt",
+    order: "desc",
+    ...query,
   };
 }
 
 export const assetsService = {
-  async list(): Promise<ApiResult<AssetRecord[]>> {
-    return createApiResult(async () => simulateNetwork(assetRecords));
+  async list(query?: QueryParams): Promise<ApiResult<AssetRecord[]>> {
+    return createApiResult(async () => {
+      const assets = await requestJson<ApiAssetRecord[]>("/asset", {
+        query: buildAssetQuery(query),
+      });
+
+      return assets.map(mapApiAssetToRecord);
+    });
   },
 
   async getById(assetId: string): Promise<ApiResult<AssetRecord>> {
     return createApiResult(async () => {
-      const asset = assetRecords.find((item) => item.id === assetId);
+      const asset = await requestJson<ApiAssetRecord>(`/asset/${assetId}`, {
+        query: {
+          fields: ASSET_FIELDS,
+        },
+      });
 
-      if (!asset) {
-        throw new AppRequestError({
-          code: "NOT_FOUND",
-          message: "Asset record could not be found.",
-          status: 404,
-        });
-      }
+      return mapApiAssetToRecord(asset);
+    });
+  },
 
-      return simulateNetwork(asset);
+  async categories(): Promise<ApiResult<AssetCategoryOption[]>> {
+    return createApiResult(async () => {
+      const categories = await requestJson<ApiCategoryRecord[]>("/category", {
+        query: {
+          fields: CATEGORY_FIELDS,
+          limit: 100,
+          sort: "name",
+          order: "asc",
+        },
+      });
+
+      return categories.map(mapApiCategoryToOption);
     });
   },
 
   async save(payload: AssetUpsertPayload, assetId?: string): Promise<ApiResult<AssetMutationResponse>> {
     return createApiResult(async () => {
-      const duplicateCode = assetRecords.find((item) => item.code === payload.code && item.id !== assetId);
+      const result = await requestEnvelope<ApiAssetRecord, ApiAssetPayload>("/asset", {
+        method: assetId ? "PUT" : "POST",
+        body: mapPayloadToApiAsset(payload, assetId),
+      });
 
-      if (duplicateCode) {
-        throw new AppRequestError({
-          code: "VALIDATION_ERROR",
-          message: "Asset code must be unique.",
-          status: 422,
-          fieldErrors: {
-            code: "This asset code is already in use.",
-          },
-        });
+      if (!result.data) {
+        throw new Error("Asset response did not include record data.");
       }
 
-      const asset = buildAssetRecord(payload, assetId);
+      return {
+        asset: mapApiAssetToRecord(result.data),
+        message: result.message,
+      };
+    });
+  },
 
-      return simulateNetwork({
-        asset,
-        message: assetId ? "Asset record updated successfully." : "Asset record created successfully.",
+  async delete(assetId: string): Promise<ApiResult<{ id: string; message: string }>> {
+    return createApiResult(async () => {
+      const result = await requestEnvelope<null>(`/asset/${assetId}`, {
+        method: "DELETE",
       });
+
+      return {
+        id: assetId,
+        message: result.message,
+      };
     });
   },
 };

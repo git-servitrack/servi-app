@@ -1,17 +1,90 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
 
+import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { AssetDetailsPanel } from "@/features/assets/components/asset-details-panel";
 import { AssetFormModal } from "@/features/assets/components/asset-form-modal";
 import { AssetStatusBadge } from "@/features/assets/components/asset-status-badge";
 import { mapAssetToFormValues } from "@/features/assets/lib/assets";
-import type { AssetRecord } from "@/features/assets/types/assets";
+import type { AssetCategoryOption, AssetRecord } from "@/features/assets/types/assets";
+import { assetsService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
-export function AssetDetailView({ asset }: { asset: AssetRecord }) {
+export function AssetDetailView({ assetId }: { assetId: string }) {
+  const [asset, setAsset] = useState<AssetRecord | null>(null);
+  const [categories, setCategories] = useState<AssetCategoryOption[]>([]);
+  const [error, setError] = useState<ApiErrorShape | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
+
+  const loadAsset = useCallback(async () => {
+    const [assetResult, categoryResult] = await Promise.all([
+      assetsService.getById(assetId),
+      assetsService.categories(),
+    ]);
+
+    if (assetResult.error) {
+      setError(assetResult.error);
+      setAsset(null);
+    } else {
+      setAsset(assetResult.data);
+    }
+
+    if (categoryResult.error) {
+      setError(categoryResult.error);
+      setCategories([]);
+    } else {
+      setCategories(categoryResult.data);
+    }
+
+    if (!assetResult.error && !categoryResult.error) {
+      setError(null);
+    }
+  }, [assetId]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadInitialData() {
+      await loadAsset();
+
+      if (active) {
+        setIsLoading(false);
+      }
+    }
+
+    void loadInitialData();
+
+    return () => {
+      active = false;
+    };
+  }, [assetId, loadAsset]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center gap-2 text-sm text-slate-500 dark:text-stone-400">
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+        Loading asset...
+      </div>
+    );
+  }
+
+  if (!asset) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        {error ? <ApiErrorAlert message={error.message} /> : <ApiErrorAlert message="Asset record could not be found." />}
+        <Link
+          href="/assets"
+          className="mt-5 inline-flex text-sm font-medium text-[#145d66] hover:text-[#0e4d55]"
+        >
+          Back to assets
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -23,6 +96,8 @@ export function AssetDetailView({ asset }: { asset: AssetRecord }) {
           <ArrowLeft className="h-4 w-4" />
           Back to assets
         </Link>
+
+        {error ? <ApiErrorAlert message={error.message} /> : null}
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-center gap-4">
@@ -37,7 +112,7 @@ export function AssetDetailView({ asset }: { asset: AssetRecord }) {
                 <AssetStatusBadge status={asset.status} />
               </div>
               <p className="mt-1 text-sm text-slate-500 dark:text-stone-400">
-                {asset.id} · {asset.code} · {asset.category}
+                {asset.id} - {asset.code} - {asset.category}
               </p>
             </div>
           </div>
@@ -67,12 +142,12 @@ export function AssetDetailView({ asset }: { asset: AssetRecord }) {
 
           <div className="rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:rounded-[24px] sm:px-6 sm:py-6 dark:border-white/10 dark:bg-[#171815]">
             <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">
-              Future data shape
+              API record
             </h2>
-            <p className="mt-0.5 text-sm text-slate-400 dark:text-stone-500">API integration notes</p>
+            <p className="mt-0.5 text-sm text-slate-400 dark:text-stone-500">Live asset data</p>
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-stone-400">
-              <p>Later phases can enrich this route with maintenance history, linked documentation, and service request relationships without changing the base panel contract.</p>
-              <p>Recommended future API split: asset detail payload, maintenance summary payload, and linked documents payload.</p>
+              <p>This page is loaded from the asset API and uses the populated category returned by the backend.</p>
+              <p>Linked maintenance history, documentation, and service requests can be layered in later phases.</p>
             </div>
           </div>
         </div>
@@ -84,6 +159,8 @@ export function AssetDetailView({ asset }: { asset: AssetRecord }) {
         mode="edit"
         values={mapAssetToFormValues(asset)}
         assetId={asset.id}
+        categoryOptions={categories}
+        onSaved={loadAsset}
       />
     </div>
   );
