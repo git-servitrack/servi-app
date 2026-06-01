@@ -8,6 +8,19 @@ export function MaintenanceTimeline({ events }: { events: MaintenanceTimelineEve
       <div className="border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
         <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">Maintenance timeline</h2>
       </div>
+      {events.length === 0 ? (
+        <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#145d66]/10 dark:bg-[#145d66]/20">
+            <Wrench className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" />
+          </div>
+          <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-stone-100">
+            No timeline activity yet
+          </p>
+          <p className="mt-1 max-w-sm text-sm leading-6 text-slate-400 dark:text-stone-500">
+            Workflow updates will appear here after assignment, diagnosis, hold, repair, or completion actions.
+          </p>
+        </div>
+      ) : null}
       <div className="divide-y divide-slate-100 dark:divide-white/6">
         {events.map((event) => (
           <div key={event.id} className="flex gap-3 px-4 py-4 sm:gap-4 sm:px-6">

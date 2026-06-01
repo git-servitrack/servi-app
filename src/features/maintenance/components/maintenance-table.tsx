@@ -46,8 +46,8 @@ export function MaintenanceTable({ items }: { items: MaintenanceRecord[] }) {
             </div>
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
               <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{item.workOrder}</span>
-              {" — "}
-              {item.requestTicket} · {item.site} · {item.assignedTeam}
+              {" - "}
+              {item.requestTicket} - {item.site} - {item.assignedTeam}
             </p>
           </div>
 

@@ -96,19 +96,19 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Maintenance Operations
 
-- [ ] Wire maintenance listing to `GET /maintenance`
-- [ ] Wire maintenance detail pages to `GET /maintenance/:id`
-- [ ] Wire maintenance history views to `GET /maintenance/history`
-- [ ] Wire asset maintenance history to `GET /maintenance/history/asset/:assetId`
-- [ ] Wire open-from-request flow to `POST /maintenance/from-request`
-- [ ] Wire direct maintenance creation, if used, to `POST /maintenance`
-- [ ] Wire technician assignment to `PATCH /maintenance/:id/assign-technician`
-- [ ] Wire start workflow action to `PATCH /maintenance/:id/start`
-- [ ] Wire diagnosis notes to `PATCH /maintenance/:id/diagnosis`
-- [ ] Wire repair actions to `POST /maintenance/:id/repair-actions`
-- [ ] Wire hold action to `PATCH /maintenance/:id/hold`
-- [ ] Wire completion form to `PATCH /maintenance/:id/complete`
-- [ ] Align workflow UI with API-supported statuses, including `On Hold`
+- [x] Wire maintenance listing to `GET /maintenance`
+- [x] Wire maintenance detail pages to `GET /maintenance/:id`
+- [x] Wire maintenance history service helper to `GET /maintenance/history`
+- [x] Wire asset maintenance history service helper to `GET /maintenance/history/asset/:assetId`
+- [x] Wire open-from-request flow to `POST /maintenance/from-request`
+- [x] Wire direct maintenance creation service helper to `POST /maintenance`
+- [x] Wire technician assignment to `PATCH /maintenance/:id/assign-technician`
+- [x] Wire start workflow action to `PATCH /maintenance/:id/start`
+- [x] Wire diagnosis notes to `PATCH /maintenance/:id/diagnosis`
+- [x] Wire repair actions to `POST /maintenance/:id/repair-actions`
+- [x] Wire hold action to `PATCH /maintenance/:id/hold`
+- [x] Wire completion form to `PATCH /maintenance/:id/complete`
+- [x] Align workflow UI with API-supported statuses, including `On Hold`
 
 ### Technicians
 

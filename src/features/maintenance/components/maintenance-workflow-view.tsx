@@ -1,14 +1,22 @@
-import Link from "next/link";
-import { ArrowLeft, Check } from "lucide-react";
+"use client";
 
+import Link from "next/link";
+import { ArrowLeft, Check, LoaderCircle, PauseCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { cn } from "@/lib/utils";
-import { DiagnosisNotesPanel } from "@/features/maintenance/components/diagnosis-notes-panel";
 import { MaintenanceAssignmentUi } from "@/features/maintenance/components/maintenance-assignment-ui";
 import { MaintenanceCompletionForm } from "@/features/maintenance/components/maintenance-completion-form";
 import { MaintenanceStatusBadge } from "@/features/maintenance/components/maintenance-status-badge";
 import { MaintenanceTimeline } from "@/features/maintenance/components/maintenance-timeline";
+import { MaintenanceWorkflowActions } from "@/features/maintenance/components/maintenance-workflow-actions";
+import { RepairActionEditModal } from "@/features/maintenance/components/repair-action-edit-modal";
 import { RepairActionList } from "@/features/maintenance/components/repair-action-list";
-import type { MaintenanceRecord } from "@/features/maintenance/types/maintenance";
+import type { MaintenanceRecord, RepairAction } from "@/features/maintenance/types/maintenance";
+import { authService, maintenanceService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
+import type { MaintenanceTechnicianOption } from "@/services/maintenance/contracts";
 
 const workflowSteps = [
   "Assigned",
@@ -19,8 +27,94 @@ const workflowSteps = [
   "Completed",
 ] as const;
 
-export function MaintenanceWorkflowView({ item }: { item: MaintenanceRecord }) {
+function getActorFallback() {
+  return "Service Desk";
+}
+
+export function MaintenanceWorkflowView({ maintenanceId }: { maintenanceId: string }) {
+  const [item, setItem] = useState<MaintenanceRecord | null>(null);
+  const [technicians, setTechnicians] = useState<MaintenanceTechnicianOption[]>([]);
+  const [actor, setActor] = useState(getActorFallback());
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<ApiErrorShape | null>(null);
+  const [repairActionToEdit, setRepairActionToEdit] = useState<RepairAction | null>(null);
+
+  const loadMaintenance = useCallback(async () => {
+    const [itemResult, optionsResult] = await Promise.all([
+      maintenanceService.getById(maintenanceId),
+      maintenanceService.formOptions(),
+    ]);
+
+    if (itemResult.error) {
+      setError(itemResult.error);
+      setItem(null);
+    } else {
+      setItem(itemResult.data);
+    }
+
+    if (optionsResult.error) {
+      setError(optionsResult.error);
+      setTechnicians([]);
+    } else {
+      setTechnicians(optionsResult.data.technicians);
+    }
+
+    if (!itemResult.error && !optionsResult.error) {
+      setError(null);
+    }
+  }, [maintenanceId]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadInitialData() {
+      const [currentUserResult] = await Promise.all([
+        authService.getCurrentUser(),
+        loadMaintenance(),
+      ]);
+
+      if (!active) return;
+
+      if (!currentUserResult.error) {
+        setActor(currentUserResult.data.session.fullName);
+      }
+
+      setIsLoading(false);
+    }
+
+    void loadInitialData();
+
+    return () => {
+      active = false;
+    };
+  }, [loadMaintenance]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center gap-2 text-sm text-slate-500 dark:text-stone-400">
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+        Loading maintenance workflow...
+      </div>
+    );
+  }
+
+  if (error || !item) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <ApiErrorAlert message={error?.message ?? "Maintenance workflow could not be found."} />
+        <Link
+          href="/maintenance"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#145d66] hover:text-[#0e4d55]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to maintenance
+        </Link>
+      </div>
+    );
+  }
+
   const currentStepIndex = workflowSteps.findIndex((step) => step === item.status);
+  const isOnHold = item.status === "On Hold";
 
   return (
     <div className="min-h-screen">
@@ -40,16 +134,28 @@ export function MaintenanceWorkflowView({ item }: { item: MaintenanceRecord }) {
               {item.workOrder}
             </h1>
             <p className="mt-1.5 text-sm text-slate-500 dark:text-stone-400">
-              {item.assetName} · {item.site}
+              {item.assetName} - {item.site}
             </p>
           </div>
           <MaintenanceStatusBadge status={item.status} />
         </div>
 
+        {isOnHold ? (
+          <div className="mt-5 flex items-start gap-3 rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-4 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/20 dark:text-rose-300">
+            <PauseCircle className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold">This work order is on hold.</p>
+              <p className="mt-0.5 text-sm opacity-80">
+                Use the workflow actions to resume into the correct operational status.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         <div className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-6">
           {workflowSteps.map((step, index) => {
-            const isActive = index === currentStepIndex;
-            const isComplete = index < currentStepIndex;
+            const isActive = !isOnHold && index === currentStepIndex;
+            const isComplete = currentStepIndex > -1 && index < currentStepIndex;
 
             return (
               <div
@@ -89,19 +195,40 @@ export function MaintenanceWorkflowView({ item }: { item: MaintenanceRecord }) {
           })}
         </div>
 
-        <div className="mt-4 grid gap-4 sm:mt-6 sm:gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <MaintenanceTimeline events={item.timeline} />
-          <div className="space-y-4 sm:space-y-6">
-            <MaintenanceAssignmentUi maintenanceId={item.id} assignment={item.assignment} />
-            <DiagnosisNotesPanel notes={item.diagnosisNotes} />
-          </div>
+        <div className="mt-4 sm:mt-6">
+          <MaintenanceWorkflowActions item={item} actor={actor} onSaved={loadMaintenance} />
         </div>
 
-        <div className="mt-4 grid gap-4 pb-6 sm:mt-6 sm:gap-6 sm:pb-8 xl:grid-cols-[1.05fr_0.95fr]">
-          <RepairActionList actions={item.repairActions} />
-          <MaintenanceCompletionForm maintenanceId={item.id} values={item.completion} />
+        <div className="mt-4 sm:mt-6">
+          <MaintenanceTimeline events={item.timeline} />
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:mt-6 sm:gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <MaintenanceAssignmentUi
+            maintenanceId={item.id}
+            assignment={item.assignment}
+            technicians={technicians}
+            onSaved={loadMaintenance}
+          />
+          <RepairActionList actions={item.repairActions} onEdit={setRepairActionToEdit} />
+        </div>
+
+        <div className="mt-4 pb-6 sm:mt-6 sm:pb-8">
+          <MaintenanceCompletionForm
+            maintenanceId={item.id}
+            values={item.completion}
+            actor={actor}
+            onSaved={loadMaintenance}
+          />
         </div>
       </div>
+      <RepairActionEditModal
+        action={repairActionToEdit}
+        actions={item.repairActions}
+        maintenanceId={item.id}
+        onClose={() => setRepairActionToEdit(null)}
+        onSaved={loadMaintenance}
+      />
     </div>
   );
 }

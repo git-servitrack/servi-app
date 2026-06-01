@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
+import { OpenMaintenanceModal } from "@/features/maintenance/components/open-maintenance-modal";
 import { RequestFormModal } from "@/features/service-requests/components/request-form-modal";
 import { RequestStatusBadge } from "@/features/service-requests/components/request-status-badge";
 import { RequestTimeline } from "@/features/service-requests/components/request-timeline";
@@ -14,8 +15,9 @@ import type {
   ServiceRequestRecord,
   ServiceRequestRequesterOption,
 } from "@/features/service-requests/types/service-requests";
-import { serviceRequestsService } from "@/services";
+import { maintenanceService, serviceRequestsService } from "@/services";
 import type { ApiErrorShape } from "@/services/http/types";
+import type { MaintenanceTechnicianOption } from "@/services/maintenance/contracts";
 
 const PRIORITY_COLORS: Record<string, string> = {
   Critical: "#dc2626",
@@ -28,14 +30,17 @@ export function RequestDetailView({ requestId }: { requestId: string }) {
   const [request, setRequest] = useState<ServiceRequestRecord | null>(null);
   const [assets, setAssets] = useState<ServiceRequestAssetOption[]>([]);
   const [requesters, setRequesters] = useState<ServiceRequestRequesterOption[]>([]);
+  const [technicians, setTechnicians] = useState<MaintenanceTechnicianOption[]>([]);
   const [error, setError] = useState<ApiErrorShape | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
+  const [maintenanceOpen, setMaintenanceOpen] = useState(false);
 
   const loadRequest = useCallback(async () => {
-    const [requestResult, optionResult] = await Promise.all([
+    const [requestResult, optionResult, maintenanceOptionResult] = await Promise.all([
       serviceRequestsService.getById(requestId),
       serviceRequestsService.formOptions(),
+      maintenanceService.formOptions(),
     ]);
 
     if (requestResult.error) {
@@ -54,7 +59,14 @@ export function RequestDetailView({ requestId }: { requestId: string }) {
       setRequesters(optionResult.data.requesters);
     }
 
-    if (!requestResult.error && !optionResult.error) {
+    if (maintenanceOptionResult.error) {
+      setError(maintenanceOptionResult.error);
+      setTechnicians([]);
+    } else {
+      setTechnicians(maintenanceOptionResult.data.technicians);
+    }
+
+    if (!requestResult.error && !optionResult.error && !maintenanceOptionResult.error) {
       setError(null);
     }
   }, [requestId]);
@@ -135,12 +147,21 @@ export function RequestDetailView({ requestId }: { requestId: string }) {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setEditOpen(true)}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] dark:hover:bg-[#1a7a86]"
-          >
-            Update request
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setMaintenanceOpen(true)}
+              disabled={technicians.length === 0 || request.status === "Resolved" || request.status === "Closed"}
+              className="flex w-fit items-center gap-1.5 rounded-full border border-[#145d66]/30 px-5 py-2.5 text-sm font-semibold text-[#145d66] transition-colors hover:bg-[#145d66]/5 disabled:pointer-events-none disabled:opacity-50 dark:border-[#86d0d8]/30 dark:text-[#86d0d8] dark:hover:bg-[#145d66]/10"
+            >
+              Open maintenance
+            </button>
+            <button
+              onClick={() => setEditOpen(true)}
+              className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] dark:hover:bg-[#1a7a86]"
+            >
+              Update request
+            </button>
+          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -199,6 +220,14 @@ export function RequestDetailView({ requestId }: { requestId: string }) {
         requestId={request.id}
         assets={assets}
         requesters={requesters}
+        onSaved={handleSaved}
+      />
+      <OpenMaintenanceModal
+        open={maintenanceOpen}
+        onClose={() => setMaintenanceOpen(false)}
+        serviceRequestId={request.id}
+        requestTicket={request.ticketNumber}
+        technicians={technicians}
         onSaved={handleSaved}
       />
     </div>
