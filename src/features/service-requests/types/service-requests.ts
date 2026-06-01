@@ -22,8 +22,10 @@ export interface ServiceRequestRecord {
   ticketNumber: string;
   title: string;
   site: string;
+  requesterId: string;
   requester: string;
   category: string;
+  assetId: string;
   assetName: string;
   status: RequestStatus;
   priority: RequestPriority;
@@ -45,10 +47,23 @@ export interface ServiceRequestFormValues {
   title: string;
   requester: string;
   site: string;
-  category: string;
-  assetName: string;
+  asset: string;
   status: RequestStatus;
   priority: RequestPriority;
   scheduledFor: string;
   summary: string;
+}
+
+export interface ServiceRequestAssetOption {
+  id: string;
+  name: string;
+  code: string;
+  site: string;
+  category: string;
+}
+
+export interface ServiceRequestRequesterOption {
+  id: string;
+  name: string;
+  email: string;
 }

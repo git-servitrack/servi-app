@@ -3,20 +3,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { sileo } from "sileo";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
-import { MutationFeedback } from "@/components/feedback/mutation-feedback";
 import { requestFormSchema, type RequestFormSchemaValues } from "@/features/service-requests/schemas/request-schema";
-import type { RequestPriority, RequestStatus, ServiceRequestFormValues } from "@/features/service-requests/types/service-requests";
+import type {
+  RequestPriority,
+  RequestStatus,
+  ServiceRequestAssetOption,
+  ServiceRequestFormValues,
+  ServiceRequestRequesterOption,
+} from "@/features/service-requests/types/service-requests";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { cn } from "@/lib/utils";
 import { serviceRequestsService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
 interface RequestFormProps {
   submitLabel: string;
   values: ServiceRequestFormValues;
   requestId?: string;
+  assets: ServiceRequestAssetOption[];
+  requesters: ServiceRequestRequesterOption[];
   onSuccess?: () => void;
   onCancel?: () => void;
 }
@@ -28,39 +37,98 @@ const inputClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate
 const selectClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-900 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100";
 const textareaClass = "flex min-h-[100px] w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
 
-export function RequestForm({ submitLabel, values, requestId, onSuccess, onCancel }: RequestFormProps) {
+export function RequestForm({
+  submitLabel,
+  values,
+  requestId,
+  assets,
+  requesters,
+  onSuccess,
+  onCancel,
+}: RequestFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
     setError,
+    setValue,
+    control,
   } = useForm<RequestFormSchemaValues>({
     resolver: zodResolver(requestFormSchema),
     defaultValues: values,
   });
-  const { isSubmitting, error, successMessage, run, clearFeedback } = useStandardFormSubmit();
+  const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
+  const isEditMode = Boolean(requestId);
+  const selectedAssetId = useWatch({ control, name: "asset" });
 
   useEffect(() => {
     reset(values);
   }, [reset, values]);
 
-  async function onSubmit(formValues: RequestFormSchemaValues) {
-    const result = await run(
-      () => serviceRequestsService.save(formValues, requestId),
-      (response) => response.message,
-    );
+  useEffect(() => {
+    const selectedAsset = assets.find((asset) => asset.id === selectedAssetId);
 
-    if (result.error?.fieldErrors) {
-      Object.entries(result.error.fieldErrors).forEach(([field, message]) => {
-        setError(field as keyof RequestFormSchemaValues, {
-          type: "server",
-          message,
-        });
+    if (selectedAsset) {
+      setValue("site", selectedAsset.site, {
+        shouldValidate: true,
       });
     }
+  }, [assets, selectedAssetId, setValue]);
 
-    if (!result.error) {
+  async function onSubmit(formValues: RequestFormSchemaValues) {
+    const result = await sileo
+      .promise(
+        async () => {
+          const submission = await run(
+            () => serviceRequestsService.save(formValues, requestId),
+            (response) => response.message,
+          );
+
+          if (submission.error) {
+            throw submission.error;
+          }
+
+          if (!submission.data) {
+            throw new Error("Service request response did not include record data.");
+          }
+
+          return submission.data;
+        },
+        {
+          loading: {
+            title: isEditMode ? "Updating request..." : "Creating request...",
+            description: isEditMode
+              ? `Saving changes for ${formValues.title}.`
+              : `Opening ${formValues.title} in the request queue.`,
+          },
+          success: (response) => ({
+            title: isEditMode ? "Request updated" : "Request created",
+            description: response.message,
+          }),
+          error: (errorValue) => ({
+            title: isEditMode ? "Update failed" : "Create failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The service request could not be saved.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        if (errorValue.fieldErrors) {
+          Object.entries(errorValue.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof RequestFormSchemaValues, {
+              type: "server",
+              message,
+            });
+          });
+        }
+
+        return null;
+      });
+
+    if (result) {
       onSuccess?.();
     }
   }
@@ -68,23 +136,33 @@ export function RequestForm({ submitLabel, values, requestId, onSuccess, onCance
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       {error ? <ApiErrorAlert message={error.message} /> : null}
-      {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         <FieldShell label="Request Title" error={errors.title?.message}>
           <input {...register("title", { onChange: clearFeedback })} placeholder="Badge scanner intermittently offline" className={inputClass} />
         </FieldShell>
         <FieldShell label="Requester" error={errors.requester?.message}>
-          <input {...register("requester", { onChange: clearFeedback })} placeholder="M. Garcia" className={inputClass} />
+          <select {...register("requester", { onChange: clearFeedback })} className={cn(selectClass, errors.requester && "border-destructive")}>
+            <option value="">Select requester</option>
+            {requesters.map((requester) => (
+              <option key={requester.id} value={requester.id}>
+                {requester.name} - {requester.email}
+              </option>
+            ))}
+          </select>
+        </FieldShell>
+        <FieldShell label="Related Asset" error={errors.asset?.message}>
+          <select {...register("asset", { onChange: clearFeedback })} className={cn(selectClass, errors.asset && "border-destructive")}>
+            <option value="">Select related asset</option>
+            {assets.map((asset) => (
+              <option key={asset.id} value={asset.id}>
+                {asset.name} - {asset.site}
+              </option>
+            ))}
+          </select>
         </FieldShell>
         <FieldShell label="Site" error={errors.site?.message}>
           <input {...register("site", { onChange: clearFeedback })} placeholder="Central Office" className={inputClass} />
-        </FieldShell>
-        <FieldShell label="Category" error={errors.category?.message}>
-          <input {...register("category", { onChange: clearFeedback })} placeholder="Access Control" className={inputClass} />
-        </FieldShell>
-        <FieldShell label="Related Asset" error={errors.assetName?.message}>
-          <input {...register("assetName", { onChange: clearFeedback })} placeholder="Lobby Access Reader" className={inputClass} />
         </FieldShell>
         <FieldShell label="Scheduled For" error={errors.scheduledFor?.message}>
           <input type="datetime-local" {...register("scheduledFor", { onChange: clearFeedback })} className={inputClass} />

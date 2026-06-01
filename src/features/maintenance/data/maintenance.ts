@@ -4,8 +4,10 @@ export const maintenanceRecords: MaintenanceRecord[] = [
   {
     id: "MW-204",
     workOrder: "MW-204",
+    assetId: "mock-asset-1",
     assetName: "Generator GEN-104",
     site: "Central Office",
+    serviceRequestId: "mock-request-1",
     requestTicket: "SR-783",
     status: "Repair In Progress",
     priority: "Critical",
@@ -14,6 +16,7 @@ export const maintenanceRecords: MaintenanceRecord[] = [
     diagnosisNotes:
       "Generator controller logs show intermittent voltage drops under load. Initial checks point to unstable relay behavior and degraded cabling near the transfer switch.",
     assignment: {
+      technicianId: "mock-technician-1",
       technician: "R. Santos",
       team: "Electrical Response",
       shift: "Day Shift",
@@ -75,8 +78,10 @@ export const maintenanceRecords: MaintenanceRecord[] = [
   {
     id: "MW-198",
     workOrder: "MW-198",
+    assetId: "mock-asset-2",
     assetName: "Elevator ELV-14",
     site: "Annex Building",
+    serviceRequestId: "mock-request-2",
     requestTicket: "SR-761",
     status: "Awaiting Parts",
     priority: "High",
@@ -85,6 +90,7 @@ export const maintenanceRecords: MaintenanceRecord[] = [
     diagnosisNotes:
       "Lift control diagnostics indicate inconsistent response from door motor sensor. Replacement part is on order, current operation restricted to supervised mode.",
     assignment: {
+      technicianId: "mock-technician-2",
       technician: "L. Ramos",
       team: "Mechanical Systems",
       shift: "Day Shift",
@@ -132,8 +138,10 @@ export const maintenanceRecords: MaintenanceRecord[] = [
   {
     id: "MW-191",
     workOrder: "MW-191",
+    assetId: "mock-asset-3",
     assetName: "HVAC AHU-08",
     site: "North Warehouse",
+    serviceRequestId: "mock-request-3",
     requestTicket: "SR-754",
     status: "Assigned",
     priority: "Medium",
@@ -142,6 +150,7 @@ export const maintenanceRecords: MaintenanceRecord[] = [
     diagnosisNotes:
       "Preventive inspection scheduled to address airflow variance and overdue filter replacement before escalation.",
     assignment: {
+      technicianId: "mock-technician-3",
       technician: "J. Navarro",
       team: "Facilities",
       shift: "Morning Shift",

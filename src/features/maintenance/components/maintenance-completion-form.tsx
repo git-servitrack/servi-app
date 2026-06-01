@@ -4,13 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { sileo } from "sileo";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
-import { MutationFeedback } from "@/components/feedback/mutation-feedback";
 import { maintenanceCompletionSchema, type MaintenanceCompletionSchemaValues } from "@/features/maintenance/schemas/maintenance-completion-schema";
 import type { MaintenanceCompletionValues } from "@/features/maintenance/types/maintenance";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { maintenanceService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
 const inputClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
 const textareaClass = "flex min-h-[100px] w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
@@ -18,9 +19,16 @@ const textareaClass = "flex min-h-[100px] w-full rounded-xl border border-slate-
 interface MaintenanceCompletionFormProps {
   maintenanceId: string;
   values: MaintenanceCompletionValues;
+  actor: string;
+  onSaved?: () => void | Promise<void>;
 }
 
-export function MaintenanceCompletionForm({ maintenanceId, values }: MaintenanceCompletionFormProps) {
+export function MaintenanceCompletionForm({
+  maintenanceId,
+  values,
+  actor,
+  onSaved,
+}: MaintenanceCompletionFormProps) {
   const {
     register,
     handleSubmit,
@@ -31,25 +39,64 @@ export function MaintenanceCompletionForm({ maintenanceId, values }: Maintenance
     resolver: zodResolver(maintenanceCompletionSchema),
     defaultValues: values,
   });
-  const { isSubmitting, error, successMessage, run, clearFeedback } = useStandardFormSubmit();
+  const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
 
   useEffect(() => {
     reset(values);
   }, [reset, values]);
 
   async function onSubmit(formValues: MaintenanceCompletionSchemaValues) {
-    const result = await run(
-      () => maintenanceService.updateCompletion(maintenanceId, formValues),
-      (response) => response.message,
-    );
+    const result = await sileo
+      .promise(
+        async () => {
+          const submission = await run(
+            () => maintenanceService.complete(maintenanceId, { ...formValues, actor }),
+            (response) => response.message,
+          );
 
-    if (result.error?.fieldErrors) {
-      Object.entries(result.error.fieldErrors).forEach(([field, message]) => {
-        setError(field as keyof MaintenanceCompletionSchemaValues, {
-          type: "server",
-          message,
-        });
+          if (submission.error) {
+            throw submission.error;
+          }
+
+          if (!submission.data) {
+            throw new Error("Maintenance response did not include record data.");
+          }
+
+          return submission.data;
+        },
+        {
+          loading: {
+            title: "Completing maintenance...",
+            description: "Saving resolution and closing the work order.",
+          },
+          success: (response) => ({
+            title: "Maintenance completed",
+            description: response.message,
+          }),
+          error: (errorValue) => ({
+            title: "Completion failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The maintenance work order could not be completed.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        if (errorValue.fieldErrors) {
+          Object.entries(errorValue.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof MaintenanceCompletionSchemaValues, {
+              type: "server",
+              message,
+            });
+          });
+        }
+
+        return null;
       });
+
+    if (result) {
+      await onSaved?.();
     }
   }
 
@@ -62,7 +109,6 @@ export function MaintenanceCompletionForm({ maintenanceId, values }: Maintenance
       <div className="px-4 py-5 sm:px-6">
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           {error ? <ApiErrorAlert message={error.message} /> : null}
-          {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
           <FieldShell label="Resolution Summary" error={errors.resolution?.message}>
             <textarea {...register("resolution", { onChange: clearFeedback })} placeholder="Describe the repair outcome and operational status." className={textareaClass} />
@@ -77,7 +123,7 @@ export function MaintenanceCompletionForm({ maintenanceId, values }: Maintenance
               <input {...register("verifiedBy", { onChange: clearFeedback })} placeholder="QA Electrical" className={inputClass} />
             </FieldShell>
             <FieldShell label="Completed At" error={errors.completedAt?.message}>
-              <input type="datetime-local" {...register("completedAt", { onChange: clearFeedback })} className={inputClass} />
+              <input type="datetime-local" {...register("completedAt", { onChange: clearFeedback })} className={inputClass} disabled />
             </FieldShell>
           </div>
 
@@ -88,7 +134,7 @@ export function MaintenanceCompletionForm({ maintenanceId, values }: Maintenance
               className="flex h-11 items-center gap-2 rounded-full bg-[#145d66] px-6 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
             >
               {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              {isSubmitting ? "Saving..." : "Save completion"}
+              {isSubmitting ? "Closing..." : "Complete work order"}
               {!isSubmitting ? <ArrowRight className="h-4 w-4" /> : null}
             </button>
           </div>

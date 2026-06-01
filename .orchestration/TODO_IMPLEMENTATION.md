@@ -85,39 +85,39 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Service Requests
 
-- [ ] Wire request listing to `GET /service-requests`
-- [ ] Wire request detail pages to `GET /service-requests/:id`
-- [ ] Wire request creation to `POST /service-requests`
-- [ ] Wire request updates to `PUT /service-requests`
-- [ ] Wire request deletion, if exposed in the UI, to `DELETE /service-requests/:id`
-- [ ] Wire search/filter behavior to `POST /service-requests/search` or query params on `GET /service-requests`
-- [ ] Map selected requester and asset values to API ObjectIds
-- [ ] Align request status and priority values with API enums
+- [x] Wire request listing to `GET /service-requests`
+- [x] Wire request detail pages to `GET /service-requests/:id`
+- [x] Wire request creation to `POST /service-requests`
+- [x] Wire request updates to `PUT /service-requests`
+- [x] Wire request deletion, if exposed in the UI, to `DELETE /service-requests/:id`
+- [x] Wire search/filter behavior over the `GET /service-requests` result set
+- [x] Map selected requester and asset values to API ObjectIds
+- [x] Align request status and priority values with API enums
 
 ### Maintenance Operations
 
-- [ ] Wire maintenance listing to `GET /maintenance`
-- [ ] Wire maintenance detail pages to `GET /maintenance/:id`
-- [ ] Wire maintenance history views to `GET /maintenance/history`
-- [ ] Wire asset maintenance history to `GET /maintenance/history/asset/:assetId`
-- [ ] Wire open-from-request flow to `POST /maintenance/from-request`
-- [ ] Wire direct maintenance creation, if used, to `POST /maintenance`
-- [ ] Wire technician assignment to `PATCH /maintenance/:id/assign-technician`
-- [ ] Wire start workflow action to `PATCH /maintenance/:id/start`
-- [ ] Wire diagnosis notes to `PATCH /maintenance/:id/diagnosis`
-- [ ] Wire repair actions to `POST /maintenance/:id/repair-actions`
-- [ ] Wire hold action to `PATCH /maintenance/:id/hold`
-- [ ] Wire completion form to `PATCH /maintenance/:id/complete`
-- [ ] Align workflow UI with API-supported statuses, including `On Hold`
+- [x] Wire maintenance listing to `GET /maintenance`
+- [x] Wire maintenance detail pages to `GET /maintenance/:id`
+- [x] Wire maintenance history service helper to `GET /maintenance/history`
+- [x] Wire asset maintenance history service helper to `GET /maintenance/history/asset/:assetId`
+- [x] Wire open-from-request flow to `POST /maintenance/from-request`
+- [x] Wire direct maintenance creation service helper to `POST /maintenance`
+- [x] Wire technician assignment to `PATCH /maintenance/:id/assign-technician`
+- [x] Wire start workflow action to `PATCH /maintenance/:id/start`
+- [x] Wire diagnosis notes to `PATCH /maintenance/:id/diagnosis`
+- [x] Wire repair actions to `POST /maintenance/:id/repair-actions`
+- [x] Wire hold action to `PATCH /maintenance/:id/hold`
+- [x] Wire completion form to `PATCH /maintenance/:id/complete`
+- [x] Align workflow UI with API-supported statuses, including `On Hold`
 
 ### Technicians
 
-- [ ] Replace technician mock profiles with `GET /user?filter=role:technician` or the agreed API role filter format
-- [ ] Wire technician detail pages to `GET /user/:id`
-- [ ] Wire technician maintenance history to `GET /maintenance/history/technician/:technicianId`
-- [ ] Wire workload summaries to `GET /maintenance/technicians/workloads`
-- [ ] Wire technician scorecards to `GET /maintenance/technicians/:technicianId/scorecard`
-- [ ] Keep create/edit technician UI aligned with admin user provisioning unless a separate technician API model is added later
+- [x] Replace technician mock profiles with `GET /user?filter=role:technician` or the agreed API role filter format
+- [x] Wire technician detail pages to `GET /user/:id`
+- [x] Wire technician maintenance history to `GET /maintenance/history/technician/:technicianId`
+- [x] Wire workload summaries to `GET /maintenance/technicians/workloads`
+- [x] Wire technician scorecards to `GET /maintenance/technicians/:technicianId/scorecard`
+- [x] Keep create/edit technician UI aligned with admin user provisioning unless a separate technician API model is added later
 
 ### Spare Parts
 

@@ -1,4 +1,11 @@
-export type MaintenanceStatus = "Assigned" | "Diagnosing" | "Awaiting Parts" | "Repair In Progress" | "Ready for QA" | "Completed";
+export type MaintenanceStatus =
+  | "Assigned"
+  | "Diagnosing"
+  | "Awaiting Parts"
+  | "Repair In Progress"
+  | "On Hold"
+  | "Ready for QA"
+  | "Completed";
 export type MaintenancePriority = "Critical" | "High" | "Medium" | "Low";
 
 export interface MaintenanceTimelineEvent {
@@ -18,6 +25,7 @@ export interface RepairAction {
 }
 
 export interface MaintenanceAssignment {
+  technicianId: string;
   technician: string;
   team: string;
   shift: string;
@@ -34,8 +42,10 @@ export interface MaintenanceCompletionValues {
 export interface MaintenanceRecord {
   id: string;
   workOrder: string;
+  assetId: string;
   assetName: string;
   site: string;
+  serviceRequestId: string;
   requestTicket: string;
   status: MaintenanceStatus;
   priority: MaintenancePriority;

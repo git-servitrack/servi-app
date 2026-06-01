@@ -24,6 +24,10 @@ export interface TechnicianWorkload {
 
 export interface TechnicianRecord {
   id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
   employeeId: string;
   name: string;
   role: string;
@@ -40,14 +44,11 @@ export interface TechnicianRecord {
 }
 
 export interface TechnicianFormValues {
-  name: string;
-  employeeId: string;
-  role: string;
-  team: string;
-  primarySkill: string;
-  siteCoverage: string;
-  status: TechnicianStatus;
-  phone: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
   email: string;
-  bio: string;
+  password: string;
+  confirmPassword: string;
 }

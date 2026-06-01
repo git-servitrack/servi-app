@@ -15,15 +15,12 @@ export function getTechnicianEditRoute(technicianId: string) {
 
 export function mapTechnicianToFormValues(technician: TechnicianRecord): TechnicianFormValues {
   return {
-    name: technician.name,
-    employeeId: technician.employeeId,
-    role: technician.role,
-    team: technician.team,
-    primarySkill: technician.primarySkill,
-    siteCoverage: technician.siteCoverage,
-    status: technician.status,
-    phone: technician.phone,
+    username: technician.username,
+    firstName: technician.firstName,
+    lastName: technician.lastName,
+    middleName: technician.middleName,
     email: technician.email,
-    bio: technician.bio,
+    password: "",
+    confirmPassword: "",
   };
 }

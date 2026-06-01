@@ -1,6 +1,5 @@
-import { emptyServiceRequestFormValues } from "@/features/service-requests/data/service-requests";
-import { RequestFormView } from "@/features/service-requests/components/request-form-view";
+import { RequestFormPageView } from "@/features/service-requests/components/request-form-page-view";
 
 export default function ServiceRequestCreatePage() {
-  return <RequestFormView mode="create" values={emptyServiceRequestFormValues} />;
+  return <RequestFormPageView mode="create" />;
 }

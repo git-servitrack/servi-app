@@ -1,17 +1,22 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, LoaderCircle } from "lucide-react";
-import { useEffect } from "react";
+import { ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { sileo } from "sileo";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
-import { MutationFeedback } from "@/components/feedback/mutation-feedback";
-import { technicianFormSchema, type TechnicianFormSchemaValues } from "@/features/technicians/schemas/technician-schema";
-import type { TechnicianFormValues, TechnicianStatus } from "@/features/technicians/types/technicians";
+import {
+  technicianEditFormSchema,
+  technicianFormSchema,
+  type TechnicianFormSchemaValues,
+} from "@/features/technicians/schemas/technician-schema";
+import type { TechnicianFormValues } from "@/features/technicians/types/technicians";
 import { useStandardFormSubmit } from "@/hooks/use-standard-form-submit";
 import { cn } from "@/lib/utils";
 import { techniciansService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
 interface TechnicianFormProps {
   submitLabel: string;
@@ -21,13 +26,14 @@ interface TechnicianFormProps {
   onCancel?: () => void;
 }
 
-const statusOptions: TechnicianStatus[] = ["Available", "On Assignment", "Off Shift", "Leave"];
-
 const inputClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
-const selectClass = "flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-900 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100";
-const textareaClass = "flex min-h-[100px] w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 dark:border-white/10 dark:bg-white/4 dark:text-stone-100 dark:placeholder:text-stone-500";
+
+function getDisplayName(values: Pick<TechnicianFormSchemaValues, "firstName" | "lastName" | "username">) {
+  return [values.firstName, values.lastName].filter(Boolean).join(" ") || values.username;
+}
 
 export function TechnicianForm({ submitLabel, values, technicianId, onSuccess, onCancel }: TechnicianFormProps) {
+  const isEditMode = Boolean(technicianId);
   const {
     register,
     handleSubmit,
@@ -35,77 +41,121 @@ export function TechnicianForm({ submitLabel, values, technicianId, onSuccess, o
     reset,
     setError,
   } = useForm<TechnicianFormSchemaValues>({
-    resolver: zodResolver(technicianFormSchema),
+    resolver: zodResolver(isEditMode ? technicianEditFormSchema : technicianFormSchema),
     defaultValues: values,
   });
-  const { isSubmitting, error, successMessage, run, clearFeedback } = useStandardFormSubmit();
+  const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
 
   useEffect(() => {
     reset(values);
   }, [reset, values]);
 
   async function onSubmit(formValues: TechnicianFormSchemaValues) {
-    const result = await run(
-      () => techniciansService.save(formValues, technicianId),
-      (response) => response.message,
-    );
+    const { confirmPassword, ...payload } = formValues;
+    void confirmPassword;
 
-    if (result.error?.fieldErrors) {
-      Object.entries(result.error.fieldErrors).forEach(([field, message]) => {
-        setError(field as keyof TechnicianFormSchemaValues, {
-          type: "server",
-          message,
-        });
+    const result = await sileo
+      .promise(
+        async () => {
+          const submission = await run(
+            () => techniciansService.save(payload, technicianId),
+            (response) => response.message,
+          );
+
+          if (submission.error) {
+            throw submission.error;
+          }
+
+          if (!submission.data) {
+            throw new Error("Technician response did not include account data.");
+          }
+
+          return submission.data;
+        },
+        {
+          loading: {
+            title: isEditMode ? "Updating technician..." : "Creating technician...",
+            description: isEditMode
+              ? `Saving access changes for ${getDisplayName(payload)}.`
+              : `Provisioning ${getDisplayName(payload)} as a technician.`,
+          },
+          success: (response) => ({
+            title: isEditMode ? "Technician updated" : "Technician created",
+            description: response.message,
+          }),
+          error: (errorValue) => ({
+            title: isEditMode ? "Update failed" : "Create failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The technician account could not be saved.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        if (errorValue.fieldErrors) {
+          Object.entries(errorValue.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof TechnicianFormSchemaValues, {
+              type: "server",
+              message,
+            });
+          });
+        }
+
+        return null;
       });
-    }
 
-    if (!result.error) {
-      onSuccess?.();
-    }
+    if (!result) return;
+
+    onSuccess?.();
   }
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       {error ? <ApiErrorAlert message={error.message} /> : null}
-      {successMessage ? <MutationFeedback message={successMessage} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FieldShell label="Technician Name" error={errors.name?.message}>
-          <input {...register("name", { onChange: clearFeedback })} placeholder="R. Santos" className={inputClass} />
+        <FieldShell label="Username" error={errors.username?.message}>
+          <input {...register("username", { onChange: clearFeedback })} placeholder="alex.montemayor" className={inputClass} />
         </FieldShell>
-        <FieldShell label="Employee ID" error={errors.employeeId?.message}>
-          <input {...register("employeeId", { onChange: clearFeedback })} placeholder="EMP-2041" className={inputClass} />
+        <FieldShell label="Work email" error={errors.email?.message}>
+          <input {...register("email", { onChange: clearFeedback })} placeholder="alex@servi-web.local" className={inputClass} />
         </FieldShell>
-        <FieldShell label="Role" error={errors.role?.message}>
-          <input {...register("role", { onChange: clearFeedback })} placeholder="Senior Electrical Technician" className={inputClass} />
+        <FieldShell label="First name" error={errors.firstName?.message}>
+          <input {...register("firstName", { onChange: clearFeedback })} placeholder="Alex" className={inputClass} />
         </FieldShell>
-        <FieldShell label="Team" error={errors.team?.message}>
-          <input {...register("team", { onChange: clearFeedback })} placeholder="Electrical Response" className={inputClass} />
+        <FieldShell label="Middle name" error={errors.middleName?.message}>
+          <input {...register("middleName", { onChange: clearFeedback })} placeholder="Optional" className={inputClass} />
         </FieldShell>
-        <FieldShell label="Primary Skill" error={errors.primarySkill?.message}>
-          <input {...register("primarySkill", { onChange: clearFeedback })} placeholder="Power Systems" className={inputClass} />
+        <FieldShell label="Last name" error={errors.lastName?.message}>
+          <input {...register("lastName", { onChange: clearFeedback })} placeholder="Montemayor" className={inputClass} />
         </FieldShell>
-        <FieldShell label="Site Coverage" error={errors.siteCoverage?.message}>
-          <input {...register("siteCoverage", { onChange: clearFeedback })} placeholder="Central Office, Annex Building" className={inputClass} />
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 dark:border-white/10 dark:bg-white/4">
+          <p className="font-medium text-slate-900 dark:text-stone-100">Technician role</p>
+          <p className="text-slate-500 dark:text-stone-400">This account is saved to the API as role: technician.</p>
+        </div>
+        <FieldShell label={isEditMode ? "New password" : "Temporary password"} error={errors.password?.message}>
+          <PasswordField
+            register={register}
+            name="password"
+            placeholder={isEditMode ? "Enter a new password" : "Temporary password"}
+            clearFeedback={clearFeedback}
+          />
         </FieldShell>
-        <FieldShell label="Phone" error={errors.phone?.message}>
-          <input {...register("phone", { onChange: clearFeedback })} placeholder="+63 912 300 1001" className={inputClass} />
+        <FieldShell label={isEditMode ? "Confirm new password" : "Confirm password"} error={errors.confirmPassword?.message}>
+          <PasswordField
+            register={register}
+            name="confirmPassword"
+            placeholder={isEditMode ? "Repeat the new password" : "Repeat password"}
+            clearFeedback={clearFeedback}
+          />
         </FieldShell>
-        <FieldShell label="Email" error={errors.email?.message}>
-          <input {...register("email", { onChange: clearFeedback })} placeholder="r.santos@servi.local" className={inputClass} />
-        </FieldShell>
-        <FieldShell label="Status" error={errors.status?.message}>
-          <select {...register("status", { onChange: clearFeedback })} className={cn(selectClass, errors.status && "border-destructive")}>
-            {statusOptions.map((option) => (
-              <option key={option}>{option}</option>
-            ))}
-          </select>
-        </FieldShell>
+        {isEditMode ? (
+          <p className="text-xs leading-5 text-slate-500 dark:text-stone-400 md:col-span-2">
+            Enter a new password to reset this technician account, or leave both password fields blank to keep it unchanged.
+          </p>
+        ) : null}
       </div>
-
-      <FieldShell label="Professional Summary" error={errors.bio?.message}>
-        <textarea {...register("bio", { onChange: clearFeedback })} placeholder="Describe responsibilities, specialization, and operating context." className={textareaClass} />
-      </FieldShell>
 
       <div className="flex items-center justify-end gap-3 pt-2">
         {onCancel ? (
@@ -128,6 +178,39 @@ export function TechnicianForm({ submitLabel, values, technicianId, onSuccess, o
         </button>
       </div>
     </form>
+  );
+}
+
+function PasswordField({
+  register,
+  name,
+  placeholder,
+  clearFeedback,
+}: {
+  register: ReturnType<typeof useForm<TechnicianFormSchemaValues>>["register"];
+  name: "password" | "confirmPassword";
+  placeholder: string;
+  clearFeedback: () => void;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        {...register(name, { onChange: clearFeedback })}
+        type={visible ? "text" : "password"}
+        placeholder={placeholder}
+        className={cn(inputClass, "pr-11")}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((value) => !value)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600 dark:text-stone-500 dark:hover:text-stone-300"
+        aria-label={visible ? "Hide password" : "Show password"}
+      >
+        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
   );
 }
 

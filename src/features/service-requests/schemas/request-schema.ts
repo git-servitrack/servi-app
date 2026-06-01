@@ -7,10 +7,9 @@ const priorityOptions: [RequestPriority, ...RequestPriority[]] = ["Critical", "H
 
 export const requestFormSchema = z.object({
   title: z.string().min(5, "Request title must be at least 5 characters."),
-  requester: z.string().min(2, "Requester name is required."),
+  requester: z.string().min(1, "Requester is required."),
   site: z.string().min(2, "Site is required."),
-  category: z.string().min(2, "Category is required."),
-  assetName: z.string().min(2, "Related asset is required."),
+  asset: z.string().min(1, "Related asset is required."),
   status: z.enum(statusOptions),
   priority: z.enum(priorityOptions),
   scheduledFor: z.string().optional(),

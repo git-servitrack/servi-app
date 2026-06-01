@@ -37,10 +37,9 @@ export function getServiceRequestEditRoute(requestId: string) {
 export function mapServiceRequestToFormValues(request: ServiceRequestRecord): ServiceRequestFormValues {
   return {
     title: request.title,
-    requester: request.requester,
+    requester: request.requesterId,
     site: request.site,
-    category: request.category,
-    assetName: request.assetName,
+    asset: request.assetId,
     status: request.status,
     priority: request.priority,
     scheduledFor: request.scheduledFor.includes("Pending") || request.scheduledFor === "Unassigned" ? "" : request.scheduledFor,
