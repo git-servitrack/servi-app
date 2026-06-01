@@ -12,10 +12,16 @@ interface TechnicianFormModalProps {
   mode: "create" | "edit";
   values: TechnicianFormValues;
   technicianId?: string;
+  onSaved?: () => void | Promise<void>;
 }
 
-export function TechnicianFormModal({ open, onClose, mode, values, technicianId }: TechnicianFormModalProps) {
+export function TechnicianFormModal({ open, onClose, mode, values, technicianId, onSaved }: TechnicianFormModalProps) {
   const isEdit = mode === "edit";
+
+  async function handleSuccess() {
+    await onSaved?.();
+    onClose();
+  }
 
   return (
     <AnimatePresence>
@@ -63,7 +69,7 @@ export function TechnicianFormModal({ open, onClose, mode, values, technicianId 
                 submitLabel={isEdit ? "Save changes" : "Create technician"}
                 values={values}
                 technicianId={technicianId}
-                onSuccess={onClose}
+                onSuccess={handleSuccess}
                 onCancel={onClose}
               />
             </div>

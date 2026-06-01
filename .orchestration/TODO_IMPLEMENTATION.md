@@ -112,12 +112,12 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Technicians
 
-- [ ] Replace technician mock profiles with `GET /user?filter=role:technician` or the agreed API role filter format
-- [ ] Wire technician detail pages to `GET /user/:id`
-- [ ] Wire technician maintenance history to `GET /maintenance/history/technician/:technicianId`
-- [ ] Wire workload summaries to `GET /maintenance/technicians/workloads`
-- [ ] Wire technician scorecards to `GET /maintenance/technicians/:technicianId/scorecard`
-- [ ] Keep create/edit technician UI aligned with admin user provisioning unless a separate technician API model is added later
+- [x] Replace technician mock profiles with `GET /user?filter=role:technician` or the agreed API role filter format
+- [x] Wire technician detail pages to `GET /user/:id`
+- [x] Wire technician maintenance history to `GET /maintenance/history/technician/:technicianId`
+- [x] Wire workload summaries to `GET /maintenance/technicians/workloads`
+- [x] Wire technician scorecards to `GET /maintenance/technicians/:technicianId/scorecard`
+- [x] Keep create/edit technician UI aligned with admin user provisioning unless a separate technician API model is added later
 
 ### Spare Parts
 

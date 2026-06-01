@@ -1,26 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { LoaderCircle, Plus } from "lucide-react";
+import { sileo } from "sileo";
 
+import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { TechnicianFormModal } from "@/features/technicians/components/technician-form-modal";
 import { TechnicianTable } from "@/features/technicians/components/technician-table";
-import { emptyTechnicianFormValues, technicianRecords } from "@/features/technicians/data/technicians";
+import { emptyTechnicianFormValues } from "@/features/technicians/data/technicians";
 import { mapTechnicianToFormValues } from "@/features/technicians/lib/technicians";
-import type { TechnicianFormValues } from "@/features/technicians/types/technicians";
-
-const STAT_ITEMS = [
-  { label: "Available", value: technicianRecords.filter((t) => t.status === "Available").length.toString(), color: "#059669" },
-  { label: "On Assignment", value: technicianRecords.filter((t) => t.status === "On Assignment").length.toString(), color: "#7c3aed" },
-  { label: "Teams", value: new Set(technicianRecords.map((t) => t.team)).size.toString(), color: "#145d66" },
-  { label: "Total", value: technicianRecords.length.toString(), color: "#1e293b" },
-];
+import type { TechnicianFormValues, TechnicianRecord } from "@/features/technicians/types/technicians";
+import { techniciansService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
 export function TechnicianListView() {
+  const [technicians, setTechnicians] = useState<TechnicianRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<ApiErrorShape | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [modalValues, setModalValues] = useState<TechnicianFormValues>(emptyTechnicianFormValues);
   const [modalTechId, setModalTechId] = useState<string | undefined>();
+  const [deleteTarget, setDeleteTarget] = useState<TechnicianRecord | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const statItems = useMemo(
+    () => [
+      { label: "Available", value: technicians.filter((t) => t.status === "Available").length.toString(), color: "#059669" },
+      { label: "On Assignment", value: technicians.filter((t) => t.status === "On Assignment").length.toString(), color: "#7c3aed" },
+      { label: "Teams", value: new Set(technicians.map((t) => t.team)).size.toString(), color: "#145d66" },
+      { label: "Total", value: technicians.length.toString(), color: "#1e293b" },
+    ],
+    [technicians],
+  );
+
+  async function loadTechnicians() {
+    const result = await techniciansService.list();
+
+    if (result.error) {
+      setError(result.error);
+      setTechnicians([]);
+      return;
+    }
+
+    setError(null);
+    setTechnicians(result.data);
+  }
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadInitialData() {
+      await loadTechnicians();
+
+      if (active) {
+        setIsLoading(false);
+      }
+    }
+
+    void loadInitialData();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function handleCreate() {
     setModalMode("create");
@@ -30,12 +81,67 @@ export function TechnicianListView() {
   }
 
   function handleEdit(technicianId: string) {
-    const tech = technicianRecords.find((t) => t.id === technicianId);
+    const tech = technicians.find((t) => t.id === technicianId);
     if (!tech) return;
     setModalMode("edit");
     setModalValues(mapTechnicianToFormValues(tech));
     setModalTechId(tech.id);
     setModalOpen(true);
+  }
+
+  function handleDelete(technicianId: string) {
+    const technician = technicians.find((item) => item.id === technicianId);
+    if (!technician) return;
+
+    setDeleteTarget(technician);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+
+    const deletedTechnician = await sileo
+      .promise(
+        async () => {
+          const result = await techniciansService.delete(deleteTarget.id);
+
+          if (result.error) {
+            throw result.error;
+          }
+
+          return result.data;
+        },
+        {
+          loading: {
+            title: "Deleting technician...",
+            description: `Removing ${deleteTarget.name} from technician access.`,
+          },
+          success: {
+            title: "Technician deleted",
+            description: `${deleteTarget.name} was removed successfully.`,
+          },
+          error: (errorValue) => ({
+            title: "Delete failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The technician account could not be deleted.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        setError(errorValue);
+        return null;
+      });
+
+    setIsDeleting(false);
+
+    if (!deletedTechnician) return;
+
+    setTechnicians((current) => current.filter((technician) => technician.id !== deleteTarget.id));
+    setError(null);
+    setDeleteTarget(null);
   }
 
   return (
@@ -60,7 +166,7 @@ export function TechnicianListView() {
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          {STAT_ITEMS.map((stat) => (
+          {statItems.map((stat) => (
             <div
               key={stat.label}
               className="rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:rounded-[24px] sm:px-5 sm:py-5 dark:border-white/10 dark:bg-[#171815]"
@@ -74,6 +180,10 @@ export function TechnicianListView() {
           ))}
         </div>
 
+        <div className="mt-4 space-y-3 sm:mt-6">
+          {error ? <ApiErrorAlert message={error.message} /> : null}
+        </div>
+
         <div className="mt-4 sm:mt-6">
           <div className="rounded-[20px] border border-slate-200 bg-white shadow-sm sm:rounded-[24px] dark:border-white/10 dark:bg-[#171815]">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5 dark:border-white/8">
@@ -82,11 +192,18 @@ export function TechnicianListView() {
                   Technician directory
                 </h2>
                 <p className="mt-0.5 text-sm text-slate-400 dark:text-stone-500">
-                  {technicianRecords.length} profiles
+                  {technicians.length} API technician accounts
                 </p>
               </div>
             </div>
-            <TechnicianTable technicians={technicianRecords} onEdit={handleEdit} />
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-slate-500 dark:text-stone-400">
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Loading technicians...
+              </div>
+            ) : (
+              <TechnicianTable technicians={technicians} onEdit={handleEdit} onDelete={handleDelete} />
+            )}
           </div>
         </div>
       </div>
@@ -97,7 +214,47 @@ export function TechnicianListView() {
         mode={modalMode}
         values={modalValues}
         technicianId={modalTechId}
+        onSaved={loadTechnicians}
       />
+
+      <Dialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setDeleteTarget(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete technician account?</DialogTitle>
+            <DialogDescription>
+              {deleteTarget
+                ? `This will remove ${deleteTarget.name} from technician access. This action cannot be undone.`
+                : "This action cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              disabled={isDeleting}
+              className="flex h-11 items-center justify-center rounded-full border border-slate-200 px-5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="flex h-11 items-center justify-center gap-2 rounded-full bg-rose-500 px-5 text-sm font-semibold text-white transition-colors hover:bg-rose-600 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {isDeleting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+              {isDeleting ? "Deleting..." : "Delete technician"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

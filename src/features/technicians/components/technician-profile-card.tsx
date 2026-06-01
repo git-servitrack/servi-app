@@ -26,7 +26,7 @@ export function TechnicianProfileCard({ technician }: { technician: TechnicianRe
           { label: "Team", value: technician.team },
           { label: "Primary Skill", value: technician.primarySkill },
           { label: "Coverage", value: technician.siteCoverage },
-          { label: "Contact", value: technician.phone },
+          { label: "Email", value: technician.email },
         ].map((item) => (
           <div key={item.label} className="bg-white px-4 py-4 sm:px-6 sm:py-5 dark:bg-[#171815]">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">{item.label}</p>

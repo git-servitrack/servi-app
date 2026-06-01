@@ -3,6 +3,7 @@ import Link from "next/link";
 import { TechnicianStatusBadge } from "@/features/technicians/components/technician-status-badge";
 import { getTechnicianDetailRoute } from "@/features/technicians/lib/technicians";
 import type { TechnicianRecord } from "@/features/technicians/types/technicians";
+import { getInitials } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   Available: "#059669",
@@ -14,15 +15,16 @@ const STATUS_COLORS: Record<string, string> = {
 interface TechnicianTableProps {
   technicians: TechnicianRecord[];
   onEdit?: (technicianId: string) => void;
+  onDelete?: (technicianId: string) => void;
 }
 
-export function TechnicianTable({ technicians, onEdit }: TechnicianTableProps) {
+export function TechnicianTable({ technicians, onEdit, onDelete }: TechnicianTableProps) {
   if (technicians.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
         <p className="font-medium text-slate-900 dark:text-stone-100">No technicians found</p>
         <p className="text-sm text-slate-400 dark:text-stone-500">
-          Add a technician profile to start building assignment coverage.
+          Add a technician account to start building assignment coverage.
         </p>
       </div>
     );
@@ -39,7 +41,7 @@ export function TechnicianTable({ technicians, onEdit }: TechnicianTableProps) {
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
             style={{ backgroundColor: STATUS_COLORS[tech.status] ?? "#64748b" }}
           >
-            {tech.name.split(" ").map((n) => n[0]).join("")}
+            {getInitials(tech.name)}
           </div>
 
           <div className="min-w-0 flex-1">
@@ -51,8 +53,8 @@ export function TechnicianTable({ technicians, onEdit }: TechnicianTableProps) {
             </div>
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
               <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{tech.employeeId}</span>
-              {" — "}
-              {tech.team} · {tech.primarySkill} · {tech.workload.activeAssignments} active
+              {" - "}
+              {tech.team} - {tech.primarySkill} - {tech.workload.activeAssignments} active
             </p>
           </div>
 
@@ -63,6 +65,12 @@ export function TechnicianTable({ technicians, onEdit }: TechnicianTableProps) {
             >
               View
             </Link>
+            <button
+              onClick={() => onDelete?.(tech.id)}
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-white/10 dark:text-rose-300 dark:hover:bg-rose-500/10"
+            >
+              Delete
+            </button>
             <button
               onClick={() => onEdit?.(tech.id)}
               className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
