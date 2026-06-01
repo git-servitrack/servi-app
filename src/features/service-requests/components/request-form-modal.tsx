@@ -4,7 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ClipboardList, X } from "lucide-react";
 
 import { RequestForm } from "@/features/service-requests/components/request-form";
-import type { ServiceRequestFormValues } from "@/features/service-requests/types/service-requests";
+import type {
+  ServiceRequestAssetOption,
+  ServiceRequestFormValues,
+  ServiceRequestRequesterOption,
+} from "@/features/service-requests/types/service-requests";
 
 interface RequestFormModalProps {
   open: boolean;
@@ -12,10 +16,27 @@ interface RequestFormModalProps {
   mode: "create" | "edit";
   values: ServiceRequestFormValues;
   requestId?: string;
+  assets: ServiceRequestAssetOption[];
+  requesters: ServiceRequestRequesterOption[];
+  onSaved?: () => void | Promise<void>;
 }
 
-export function RequestFormModal({ open, onClose, mode, values, requestId }: RequestFormModalProps) {
+export function RequestFormModal({
+  open,
+  onClose,
+  mode,
+  values,
+  requestId,
+  assets,
+  requesters,
+  onSaved,
+}: RequestFormModalProps) {
   const isEdit = mode === "edit";
+
+  async function handleSuccess() {
+    await onSaved?.();
+    onClose();
+  }
 
   return (
     <AnimatePresence>
@@ -63,7 +84,9 @@ export function RequestFormModal({ open, onClose, mode, values, requestId }: Req
                 submitLabel={isEdit ? "Save update" : "Create request"}
                 values={values}
                 requestId={requestId}
-                onSuccess={onClose}
+                assets={assets}
+                requesters={requesters}
+                onSuccess={handleSuccess}
                 onCancel={onClose}
               />
             </div>

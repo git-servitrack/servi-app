@@ -3,15 +3,21 @@ import { ArrowLeft } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
 import { RequestForm } from "@/features/service-requests/components/request-form";
-import type { ServiceRequestFormValues } from "@/features/service-requests/types/service-requests";
+import type {
+  ServiceRequestAssetOption,
+  ServiceRequestFormValues,
+  ServiceRequestRequesterOption,
+} from "@/features/service-requests/types/service-requests";
 
 interface RequestFormViewProps {
   mode: "create" | "edit";
   values: ServiceRequestFormValues;
   requestId?: string;
+  assets: ServiceRequestAssetOption[];
+  requesters: ServiceRequestRequesterOption[];
 }
 
-export function RequestFormView({ mode, values, requestId }: RequestFormViewProps) {
+export function RequestFormView({ mode, values, requestId, assets, requesters }: RequestFormViewProps) {
   const isEdit = mode === "edit";
 
   return (
@@ -44,6 +50,8 @@ export function RequestFormView({ mode, values, requestId }: RequestFormViewProp
             submitLabel={isEdit ? "Save update" : "Create request"}
             values={values}
             requestId={requestId}
+            assets={assets}
+            requesters={requesters}
           />
         </div>
       </div>

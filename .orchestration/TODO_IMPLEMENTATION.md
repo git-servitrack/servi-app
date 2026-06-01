@@ -85,14 +85,14 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Service Requests
 
-- [ ] Wire request listing to `GET /service-requests`
-- [ ] Wire request detail pages to `GET /service-requests/:id`
-- [ ] Wire request creation to `POST /service-requests`
-- [ ] Wire request updates to `PUT /service-requests`
-- [ ] Wire request deletion, if exposed in the UI, to `DELETE /service-requests/:id`
-- [ ] Wire search/filter behavior to `POST /service-requests/search` or query params on `GET /service-requests`
-- [ ] Map selected requester and asset values to API ObjectIds
-- [ ] Align request status and priority values with API enums
+- [x] Wire request listing to `GET /service-requests`
+- [x] Wire request detail pages to `GET /service-requests/:id`
+- [x] Wire request creation to `POST /service-requests`
+- [x] Wire request updates to `PUT /service-requests`
+- [x] Wire request deletion, if exposed in the UI, to `DELETE /service-requests/:id`
+- [x] Wire search/filter behavior over the `GET /service-requests` result set
+- [x] Map selected requester and asset values to API ObjectIds
+- [x] Align request status and priority values with API enums
 
 ### Maintenance Operations
 
