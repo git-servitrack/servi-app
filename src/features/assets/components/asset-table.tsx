@@ -33,7 +33,7 @@ export function AssetTable({ assets, onEdit, onDelete }: AssetTableProps) {
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
             style={{
               backgroundColor:
-                asset.status === "Operational" ? "#145d66"
+                asset.status === "Active" || asset.status === "Operational" ? "#145d66"
                 : asset.status === "Maintenance Due" ? "#d97706"
                 : asset.status === "Under Repair" ? "#7c3aed"
                 : "#64748b",
@@ -49,7 +49,7 @@ export function AssetTable({ assets, onEdit, onDelete }: AssetTableProps) {
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
               <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{asset.id}</span>
               {" - "}
-              {asset.category} - {asset.site} - Next service: {asset.nextServiceDate}
+              {asset.category} - {asset.assetType ?? "Type N/A"} - {asset.site} - Next service: {asset.nextServiceDate}
             </p>
           </div>
 

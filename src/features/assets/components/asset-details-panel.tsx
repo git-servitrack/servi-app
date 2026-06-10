@@ -2,11 +2,16 @@ import type { AssetRecord } from "@/features/assets/types/assets";
 
 const detailSections = [
   { label: "Category", key: "category" },
+  { label: "Asset Type", key: "assetType" },
   { label: "Site", key: "site" },
   { label: "Assigned Team", key: "assignedTeam" },
-  { label: "Manufacturer", key: "manufacturer" },
+  { label: "Brand", key: "manufacturer" },
   { label: "Model", key: "model" },
   { label: "Serial Number", key: "serialNumber" },
+  { label: "Quantity", key: "quantity" },
+  { label: "UOM", key: "unitOfMeasure" },
+  { label: "Supplier", key: "supplier" },
+  { label: "Acquisition Date", key: "acquisitionDate" },
   { label: "Last Service", key: "lastServiceDate" },
   { label: "Next Service", key: "nextServiceDate" },
 ] as const;
@@ -30,7 +35,7 @@ export function AssetDetailsPanel({ asset }: { asset: AssetRecord }) {
               {detail.label}
             </p>
             <p className="mt-1.5 text-sm font-medium text-slate-900 dark:text-stone-100">
-              {asset[detail.key]}
+              {asset[detail.key] ?? "N/A"}
             </p>
           </div>
         ))}

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { AssetStatus } from "@/features/assets/types/assets";
 
 const STATUS_STYLES: Record<AssetStatus, string> = {
+  Active: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-800",
   Operational: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-800",
   "Maintenance Due": "bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:ring-amber-800",
   "Under Repair": "bg-violet-50 text-violet-700 ring-1 ring-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:ring-violet-800",

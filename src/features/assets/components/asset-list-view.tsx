@@ -27,7 +27,7 @@ import type {
 import { assetsService } from "@/services";
 import type { ApiErrorShape } from "@/services/http/types";
 
-const STATUS_OPTIONS = ["All", "Operational", "Maintenance Due", "Under Repair", "Decommissioned"] as const;
+const STATUS_OPTIONS = ["All", "Active", "Operational", "Maintenance Due", "Under Repair", "Decommissioned"] as const;
 
 function buildEmptyAssetValues(categories: AssetCategoryOption[]): AssetFormValues {
   return {
@@ -60,7 +60,7 @@ export function AssetListView() {
   );
   const statItems = useMemo(
     () => [
-      { label: "Operational", value: assets.filter((a) => a.status === "Operational").length.toString(), color: "#145d66" },
+      { label: "Active", value: assets.filter((a) => ["Active", "Operational"].includes(a.status)).length.toString(), color: "#145d66" },
       { label: "Maintenance Due", value: assets.filter((a) => a.status === "Maintenance Due").length.toString(), color: "#d97706" },
       { label: "Under Repair", value: assets.filter((a) => a.status === "Under Repair").length.toString(), color: "#7c3aed" },
       { label: "Total Tracked", value: assets.length.toString(), color: "#1e293b" },

@@ -19,6 +19,7 @@ const ASSET_FIELDS = [
   "category.name",
   "category.code",
   "category.isActive",
+  "assetType",
   "site",
   "assignedTeam",
   "status",
@@ -27,6 +28,10 @@ const ASSET_FIELDS = [
   "manufacturer",
   "model",
   "serialNumber",
+  "quantity",
+  "unitOfMeasure",
+  "supplier",
+  "acquisitionDate",
   "lastServiceDate",
   "nextServiceDate",
   "notes",
@@ -76,6 +81,7 @@ function mapApiAssetToRecord(asset: ApiAssetRecord): AssetRecord {
     code: asset.code ?? asset._id.slice(-6).toUpperCase(),
     categoryId: category.id,
     category: category.name,
+    assetType: asset.assetType,
     site: asset.site,
     assignedTeam: asset.assignedTeam,
     status: asset.status,
@@ -86,11 +92,17 @@ function mapApiAssetToRecord(asset: ApiAssetRecord): AssetRecord {
     manufacturer: asset.manufacturer,
     model: asset.model,
     serialNumber: asset.serialNumber,
+    quantity: asset.quantity,
+    unitOfMeasure: asset.unitOfMeasure,
+    supplier: asset.supplier,
+    acquisitionDate: formatDate(asset.acquisitionDate),
     notes: asset.notes ?? "No notes provided.",
   };
 }
 
-function optionalString(value: string) {
+function optionalString(value?: string) {
+  if (!value) return undefined;
+
   const trimmed = value.trim();
 
   return trimmed.length > 0 ? trimmed : undefined;
@@ -100,12 +112,18 @@ function optionalDate(value?: string) {
   return value && value.trim().length > 0 ? value : undefined;
 }
 
+function optionalNumber(value?: string) {
+  if (!value || value.trim().length === 0) return undefined;
+  return Number(value);
+}
+
 function mapPayloadToApiAsset(payload: AssetUpsertPayload, assetId?: string): ApiAssetPayload {
   return {
     ...(assetId ? { _id: assetId } : {}),
     name: payload.name,
     code: optionalString(payload.code),
     category: payload.category,
+    assetType: optionalString(payload.assetType),
     site: payload.site,
     assignedTeam: payload.assignedTeam,
     status: payload.status,
@@ -114,6 +132,10 @@ function mapPayloadToApiAsset(payload: AssetUpsertPayload, assetId?: string): Ap
     manufacturer: payload.manufacturer,
     model: payload.model,
     serialNumber: payload.serialNumber,
+    quantity: optionalNumber(payload.quantity),
+    unitOfMeasure: optionalString(payload.unitOfMeasure),
+    supplier: optionalString(payload.supplier),
+    acquisitionDate: optionalDate(payload.acquisitionDate),
     lastServiceDate: optionalDate(payload.lastServiceDate),
     nextServiceDate: optionalDate(payload.nextServiceDate),
     notes: optionalString(payload.notes),
