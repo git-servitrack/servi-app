@@ -148,15 +148,16 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Predictive Maintenance
 
-- [ ] Wire model training admin action, if exposed, to `POST /predictive-maintenance/train`
-- [ ] Wire manual prediction to `POST /predictive-maintenance/predict`
-- [ ] Wire asset-specific prediction to `POST /predictive-maintenance/assets/:assetId/predict`
-- [ ] Wire prediction listing to `GET /predictive-maintenance`
-- [ ] Wire prediction detail to `GET /predictive-maintenance/:id`
-- [ ] Wire prediction search to `POST /predictive-maintenance/search`
-- [ ] Wire prediction deletion, if exposed in the UI, to `DELETE /predictive-maintenance/:id`
-- [ ] Add frontend contracts for decision-tree fields: `type`, `airTemperature`, `processTemperature`, `rotationalSpeed`, `torque`, and `toolWear`
+- [x] Wire model training admin action, if exposed, to `POST /predictive-maintenance/train`
+- [x] Wire manual prediction to `POST /predictive-maintenance/predict`
+- [x] Wire asset-specific prediction to `POST /predictive-maintenance/assets/:assetId/predict`
+- [x] Wire prediction listing to `GET /predictive-maintenance`
+- [x] Wire prediction detail to `GET /predictive-maintenance/:id`
+- [x] Wire prediction search to `POST /predictive-maintenance/search`
+- [x] Wire prediction deletion, if exposed in the UI, to `DELETE /predictive-maintenance/:id`
+- [x] Add frontend contracts for decision-tree fields: `type`, `airTemperature`, `processTemperature`, `rotationalSpeed`, `torque`, and `toolWear`
 - [ ] Connect Phase 11 UI items: asset risk card, dashboard high-risk section, service request risk context, maintenance assignment context, and high-risk equipment report
+  - Initial placement done: Reports now includes manual/asset-linked predictive analysis and recent saved predictions. Asset/dashboard/request/maintenance contextual cards can reuse the same service in later UI passes.
 
 ### Reports and Dashboard
 
