@@ -1,6 +1,6 @@
 "use client";
 
-import { Images, ScanLine } from "lucide-react";
+import { Images, ScanLine, Trash2 } from "lucide-react";
 
 import type { DocumentationFile, VisionSeverity } from "@/features/documentation/types/documentation";
 
@@ -17,7 +17,15 @@ const SEVERITY_STYLES: Record<VisionSeverity, string> = {
   Critical: "bg-rose-50 text-rose-900 ring-1 ring-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:ring-rose-800",
 };
 
-export function MediaPreviewCard({ file, onPreview }: { file: DocumentationFile; onPreview: () => void }) {
+export function MediaPreviewCard({
+  file,
+  onPreview,
+  onDelete,
+}: {
+  file: DocumentationFile;
+  onPreview: () => void;
+  onDelete?: () => void;
+}) {
   const va = file.visionAnalysis;
   const findingCount = va.applicable ? (va.findings?.length ?? 0) : 0;
 
@@ -25,8 +33,11 @@ export function MediaPreviewCard({ file, onPreview }: { file: DocumentationFile;
     <div className="group overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md sm:rounded-[24px] dark:border-white/10 dark:bg-[#171815] dark:hover:border-white/15">
       <div className="border-b border-slate-100 bg-linear-to-br from-[#145d66]/5 to-transparent p-5 dark:border-white/8 dark:from-[#145d66]/10">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#145d66]/10 transition-transform duration-200 group-hover:scale-105 dark:bg-[#145d66]/20">
-            <Images className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" />
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#145d66]/10 bg-cover bg-center transition-transform duration-200 group-hover:scale-105 dark:bg-[#145d66]/20"
+            style={file.url ? { backgroundImage: `url(${file.url})` } : undefined}
+          >
+            {!file.url ? <Images className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" /> : null}
           </div>
           <div className="flex flex-col items-end gap-1.5">
             <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[file.status] ?? ""}`}>
@@ -68,14 +79,26 @@ export function MediaPreviewCard({ file, onPreview }: { file: DocumentationFile;
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={onPreview}
-          className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-slate-200 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
-        >
-          <ScanLine className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />
-          Preview &amp; analysis
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={onPreview}
+            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+          >
+            <ScanLine className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />
+            Preview
+          </button>
+          {onDelete ? (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-500/10"
+              aria-label={`Delete ${file.title}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );

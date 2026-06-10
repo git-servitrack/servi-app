@@ -33,12 +33,47 @@ export interface DocumentationFile {
   fileName: string;
   type: DocumentationFileType;
   size: string;
+  url?: string;
   uploadedAt: string;
   uploadedBy: string;
   status: "Verified" | "Pending Review";
   summary: string;
+  purpose?: DocumentationPurpose;
   previewLabel: string;
   tags: string[];
   links: DocumentationLink[];
   visionAnalysis: DocumentationVisionAnalysis;
+}
+
+export type DocumentationPurpose =
+  | "Damage Photo"
+  | "Repair Completion Photo"
+  | "Asset Photo"
+  | "General";
+
+export type DocumentationStatus = DocumentationFile["status"];
+
+export type DocumentationRelatedModel = "Asset" | "ServiceRequest" | "Maintenance";
+
+export interface DocumentationRelatedOption {
+  id: string;
+  label: string;
+  detail: string;
+}
+
+export interface DocumentationUploadOptions {
+  Asset: DocumentationRelatedOption[];
+  ServiceRequest: DocumentationRelatedOption[];
+  Maintenance: DocumentationRelatedOption[];
+}
+
+export interface DocumentationUploadValues {
+  image: File;
+  title: string;
+  summary: string;
+  purpose: DocumentationPurpose;
+  tags: string;
+  relatedModel: DocumentationRelatedModel;
+  relatedId: string;
+  status: DocumentationStatus | "";
 }

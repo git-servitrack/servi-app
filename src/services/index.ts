@@ -1,6 +1,7 @@
 export { assetsService } from "@/services/assets/assets.service";
 export { authService } from "@/services/auth/auth.service";
 export { categoriesService } from "@/services/categories/categories.service";
+export { documentationService } from "@/services/documentation/documentation.service";
 export {
   apiToFrontendRoleMap,
   buildCurrentSession,

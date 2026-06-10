@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Camera, Images, ScanLine, X } from "lucide-react";
+import { AlertTriangle, Camera, Images, LoaderCircle, ScanLine, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import type { DocumentationFile, VisionSeverity } from "@/features/documentation/types/documentation";
@@ -17,17 +17,26 @@ interface DocumentationPreviewModalProps {
   file: DocumentationFile | null;
   open: boolean;
   onClose: () => void;
+  isLoading?: boolean;
 }
 
-export function DocumentationPreviewModal({ file, open, onClose }: DocumentationPreviewModalProps) {
+export function DocumentationPreviewModal({ file, open, onClose, isLoading = false }: DocumentationPreviewModalProps) {
   return (
     <AnimatePresence>
-      {open && file ? <PreviewModalContent file={file} onClose={onClose} /> : null}
+      {open && file ? <PreviewModalContent file={file} onClose={onClose} isLoading={isLoading} /> : null}
     </AnimatePresence>
   );
 }
 
-function PreviewModalContent({ file, onClose }: { file: DocumentationFile; onClose: () => void }) {
+function PreviewModalContent({
+  file,
+  onClose,
+  isLoading,
+}: {
+  file: DocumentationFile;
+  onClose: () => void;
+  isLoading: boolean;
+}) {
   const va = file.visionAnalysis;
 
   return (
@@ -54,8 +63,14 @@ function PreviewModalContent({ file, onClose }: { file: DocumentationFile; onClo
                   <Images className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-stone-100">{file.title}</h2>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-stone-100">{file.title}</h2>
                   <p className="mt-0.5 text-sm text-slate-500 dark:text-stone-400">{file.summary}</p>
+                  {isLoading ? (
+                    <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-[#145d66] dark:text-[#86d0d8]">
+                      <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                      Refreshing preview data...
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <button
@@ -71,15 +86,22 @@ function PreviewModalContent({ file, onClose }: { file: DocumentationFile; onClo
               <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start lg:gap-8 lg:p-6">
                 <div className="space-y-4">
                   <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/4">
-                    <div className="flex aspect-[4/3] items-center justify-center bg-linear-to-br from-slate-200/80 via-slate-100 to-[#145d66]/10 dark:from-white/8 dark:via-white/4 dark:to-[#145d66]/15">
+                    <div
+                      className="flex aspect-[4/3] items-center justify-center bg-linear-to-br from-slate-200/80 via-slate-100 to-[#145d66]/10 bg-cover bg-center dark:from-white/8 dark:via-white/4 dark:to-[#145d66]/15"
+                      style={file.url ? { backgroundImage: `url(${file.url})` } : undefined}
+                    >
                       <div className="flex flex-col items-center gap-3 px-6 text-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/90 shadow-sm dark:bg-white/10">
-                          <Camera className="h-8 w-8 text-[#145d66] dark:text-[#86d0d8]" />
-                        </div>
-                        <p className="text-sm font-medium text-slate-700 dark:text-stone-300">{file.previewLabel}</p>
-                        <p className="text-xs text-slate-500 dark:text-stone-500">
-                          Thumbnail would load from storage; analysis uses the stored vision snapshot.
-                        </p>
+                        {!file.url ? (
+                          <>
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/90 shadow-sm dark:bg-white/10">
+                              <Camera className="h-8 w-8 text-[#145d66] dark:text-[#86d0d8]" />
+                            </div>
+                            <p className="text-sm font-medium text-slate-700 dark:text-stone-300">{file.previewLabel}</p>
+                            <p className="text-xs text-slate-500 dark:text-stone-500">
+                              Image URL was not returned by the API.
+                            </p>
+                          </>
+                        ) : null}
                       </div>
                     </div>
                   </div>

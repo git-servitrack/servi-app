@@ -137,14 +137,14 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Documentation Uploads
 
-- [ ] Wire documentation gallery to `GET /documentation`
-- [ ] Wire media detail/preview data to `GET /documentation/:id`
-- [ ] Wire media search to `POST /documentation/search`
-- [ ] Wire media deletion to `DELETE /documentation/:id`
-- [ ] Wire file upload to `POST /documentation/upload` with multipart form data
-- [ ] Include upload fields expected by the API: `title`, `summary`, `purpose`, `tags`, `relatedModel`, `relatedId`, and optional `status`
-- [ ] Map documentation links to API related models: asset, service request, or maintenance job
-- [ ] Keep current damage-image analysis UI simulated until damage detection API endpoints exist
+- [x] Wire documentation gallery to `GET /documentation`
+- [x] Wire media detail/preview data to `GET /documentation/:id`
+- [x] Wire media search to `POST /documentation/search`
+- [x] Wire media deletion to `DELETE /documentation/:id`
+- [x] Wire file upload to `POST /documentation/upload` with multipart form data
+- [x] Include upload fields expected by the API: `title`, `summary`, `purpose`, `tags`, `relatedModel`, `relatedId`, and optional `status`
+- [x] Map documentation links to API related models: asset, service request, or maintenance job
+- [x] Keep current damage-image analysis UI simulated until damage detection API endpoints exist
 
 ### Predictive Maintenance
 
