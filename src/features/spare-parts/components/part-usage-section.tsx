@@ -12,6 +12,14 @@ export function PartUsageSection({ items }: { items: PartUsageItem[] }) {
         </p>
       </div>
       <div className="divide-y divide-slate-100 dark:divide-white/6">
+        {items.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <p className="font-medium text-slate-900 dark:text-stone-100">No usage recorded yet</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-stone-400">
+              Maintenance job part usage will appear here after it is logged.
+            </p>
+          </div>
+        ) : null}
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#145d66]/10 text-[#145d66] dark:bg-[#145d66]/20 dark:text-[#86d0d8]">
@@ -24,7 +32,8 @@ export function PartUsageSection({ items }: { items: PartUsageItem[] }) {
               </div>
               <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
                 <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{item.workOrder}</span>
-                {" · "}{item.quantity} · {item.technician}
+                {" - "}
+                {item.quantity} - {item.technician}
               </p>
             </div>
           </div>

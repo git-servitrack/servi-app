@@ -121,19 +121,19 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Spare Parts
 
-- [ ] Wire spare parts listing to `GET /spare-parts`
-- [ ] Wire spare part details to `GET /spare-parts/:id`
-- [ ] Wire spare part creation to `POST /spare-parts`
-- [ ] Wire spare part updates to `PUT /spare-parts`
-- [ ] Wire deletion, if exposed in the UI, to `DELETE /spare-parts/:id`
-- [ ] Wire low-stock views to `GET /spare-parts/low-stock`
-- [ ] Wire stock movement history to `GET /spare-parts/:id/movements`
-- [ ] Wire part usage history to `GET /spare-parts/:id/usage`
-- [ ] Wire stock add to `PATCH /spare-parts/:id/stock/add`
-- [ ] Wire stock deduct to `PATCH /spare-parts/:id/stock/deduct`
-- [ ] Wire stock adjust to `PATCH /spare-parts/:id/stock/adjust`
-- [ ] Wire reserve action to `PATCH /spare-parts/:id/reserve`
-- [ ] Wire repair usage logging to `POST /spare-parts/:id/usage`
+- [x] Wire spare parts listing to `GET /spare-parts`
+- [x] Wire spare part details to `GET /spare-parts/:id`
+- [x] Wire spare part creation to `POST /spare-parts`
+- [x] Wire spare part updates to `PUT /spare-parts`
+- [x] Wire deletion, if exposed in the UI, to `DELETE /spare-parts/:id`
+- [x] Wire low-stock views to `GET /spare-parts/low-stock`
+- [x] Wire stock movement history to `GET /spare-parts/:id/movements`
+- [x] Wire part usage history to `GET /spare-parts/:id/usage`
+- [x] Wire stock add to `PATCH /spare-parts/:id/stock/add`
+- [x] Wire stock deduct to `PATCH /spare-parts/:id/stock/deduct`
+- [x] Wire stock adjust to `PATCH /spare-parts/:id/stock/adjust`
+- [x] Wire reserve action to `PATCH /spare-parts/:id/reserve`
+- [x] Wire repair usage logging to `POST /spare-parts/:id/usage`
 
 ### Documentation Uploads
 

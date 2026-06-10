@@ -4,6 +4,7 @@ import { LowStockIndicator } from "@/features/spare-parts/components/low-stock-i
 import { StockBadge } from "@/features/spare-parts/components/stock-badge";
 import { getSparePartDetailRoute } from "@/features/spare-parts/lib/spare-parts";
 import type { SparePartRecord } from "@/features/spare-parts/types/spare-parts";
+import { getInitials } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   "In Stock": "#059669",
@@ -15,9 +16,10 @@ const STATUS_COLORS: Record<string, string> = {
 interface SparePartsTableProps {
   parts: SparePartRecord[];
   onEdit?: (partId: string) => void;
+  onDelete?: (partId: string) => void;
 }
 
-export function SparePartsTable({ parts, onEdit }: SparePartsTableProps) {
+export function SparePartsTable({ parts, onEdit, onDelete }: SparePartsTableProps) {
   if (parts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
@@ -40,7 +42,7 @@ export function SparePartsTable({ parts, onEdit }: SparePartsTableProps) {
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[10px] font-bold uppercase tracking-wider text-white"
             style={{ backgroundColor: STATUS_COLORS[part.status] ?? "#64748b" }}
           >
-            {part.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+            {getInitials(part.name)}
           </div>
 
           <div className="min-w-0 flex-1">
@@ -55,7 +57,8 @@ export function SparePartsTable({ parts, onEdit }: SparePartsTableProps) {
             </div>
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
               <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{part.partNumber}</span>
-              {" · "}{part.category} · {part.site} · {part.stockOnHand} {part.unit} on hand / {part.reservedStock} reserved
+              {" - "}
+              {part.category} - {part.site} - {part.stockOnHand} {part.unit} on hand / {part.reservedStock} reserved
             </p>
           </div>
 
@@ -66,6 +69,12 @@ export function SparePartsTable({ parts, onEdit }: SparePartsTableProps) {
             >
               View
             </Link>
+            <button
+              onClick={() => onDelete?.(part.id)}
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-white/10 dark:text-rose-300 dark:hover:bg-rose-500/10"
+            >
+              Delete
+            </button>
             <button
               onClick={() => onEdit?.(part.id)}
               className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Cog, X } from "lucide-react";
 
 import { StockAdjustmentForm } from "@/features/spare-parts/components/stock-adjustment-form";
-import type { SparePartFormValues } from "@/features/spare-parts/types/spare-parts";
+import type { SparePartAssetOption, SparePartCategoryOption, SparePartFormValues } from "@/features/spare-parts/types/spare-parts";
 
 interface SparePartFormModalProps {
   open: boolean;
@@ -12,10 +12,27 @@ interface SparePartFormModalProps {
   mode: "create" | "edit";
   values: SparePartFormValues;
   partId?: string;
+  categoryOptions: SparePartCategoryOption[];
+  assetOptions: SparePartAssetOption[];
+  onSaved?: () => void | Promise<void>;
 }
 
-export function SparePartFormModal({ open, onClose, mode, values, partId }: SparePartFormModalProps) {
+export function SparePartFormModal({
+  open,
+  onClose,
+  mode,
+  values,
+  partId,
+  categoryOptions,
+  assetOptions,
+  onSaved,
+}: SparePartFormModalProps) {
   const isEdit = mode === "edit";
+
+  async function handleSuccess() {
+    await onSaved?.();
+    onClose();
+  }
 
   return (
     <AnimatePresence>
@@ -63,7 +80,9 @@ export function SparePartFormModal({ open, onClose, mode, values, partId }: Spar
                 submitLabel={isEdit ? "Save changes" : "Create spare part"}
                 values={values}
                 partId={partId}
-                onSuccess={onClose}
+                categoryOptions={categoryOptions}
+                assetOptions={assetOptions}
+                onSuccess={handleSuccess}
                 onCancel={onClose}
               />
             </div>
