@@ -76,12 +76,12 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         icon: FileStack,
         description: "Uploads, previews, and linked references.",
       },
-      {
-        title: "Predictive Maintenance",
-        href: ROUTES.predictiveMaintenance,
-        icon: BrainCircuit,
-        description: "Decision-tree risk prediction and saved results.",
-      },
+      // {
+      //   title: "Predictive Maintenance",
+      //   href: ROUTES.predictiveMaintenance,
+      //   icon: BrainCircuit,
+      //   description: "Decision-tree risk prediction and saved results.",
+      // },
       {
         title: "Reports",
         href: ROUTES.reports,
