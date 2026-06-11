@@ -53,20 +53,21 @@ export const authService = {
 
   async recoverAccount(payload: RecoverAccountPayload): Promise<ApiResult<RecoverAccountResponse>> {
     return createApiResult(async () => {
-      if (!payload.email.endsWith(".com") && !payload.email.endsWith(".ph") && !payload.email.endsWith(".local")) {
+      if (!payload.email.trim()) {
         throw new AppRequestError({
           code: "VALIDATION_ERROR",
-          message: "Use the work email connected to your SERVI-WEB account.",
+          message: "Enter the work email connected to your SERVI-WEB account.",
           status: 422,
           fieldErrors: {
-            email: "Use the email issued for this workspace.",
+            email: "Work email is required.",
           },
         });
       }
 
       return simulateNetwork({
         email: payload.email,
-        message: "Recovery instructions placeholder sent. Replace this with real email delivery when auth APIs are ready.",
+        message:
+          "Please contact your Head Technician or Admin to reset or change your password.",
       });
     });
   },

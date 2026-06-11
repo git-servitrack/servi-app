@@ -1,10 +1,5 @@
-import { UserManagementAccessGate } from "@/features/user-management/components/user-management-access-gate";
-import { UserManagementListView } from "@/features/user-management/components/user-management-list-view";
+import { redirect } from "next/navigation";
 
 export default function UserManagementPage() {
-  return (
-    <UserManagementAccessGate>
-      <UserManagementListView />
-    </UserManagementAccessGate>
-  );
+  redirect("/settings/user-management");
 }

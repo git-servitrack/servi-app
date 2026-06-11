@@ -53,7 +53,7 @@ export function RecoverAccountForm() {
       <div className="mb-8 text-center">
         <h1 className="mt-3 font-display text-4xl font-semibold text-slate-900">Recover account</h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">
-          Enter your work email and we&apos;ll send recovery instructions.
+          Enter your work email to see the correct password reset instruction.
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export function RecoverAccountForm() {
           className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#145d66] text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
         >
           {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-          {isSubmitting ? "Sending..." : "Send recovery instructions"}
+          {isSubmitting ? "Checking..." : "Show reset instruction"}
         </button>
       </form>
 

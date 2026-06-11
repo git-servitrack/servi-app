@@ -32,6 +32,7 @@ interface AssetFormProps {
 }
 
 const statusOptions: AssetStatus[] = [
+  "Active",
   "Operational",
   "Maintenance Due",
   "Under Repair",
@@ -142,7 +143,11 @@ export function AssetForm({
             className={inputClass}
           />
         </FieldShell>
-        <FieldShell label="Asset Code" error={errors.code?.message}>
+        <FieldShell
+          label="Asset Code (Optional)"
+          hint="Leave this blank to automatically generate an asset code."
+          error={errors.code?.message}
+        >
           <input
             {...register("code", { onChange: clearFeedback })}
             placeholder="GEN-104"
@@ -162,6 +167,13 @@ export function AssetForm({
             ))}
           </select>
         </FieldShell>
+        <FieldShell label="Asset Type" error={errors.assetType?.message}>
+          <input
+            {...register("assetType", { onChange: clearFeedback })}
+            placeholder="Forklift"
+            className={inputClass}
+          />
+        </FieldShell>
         <FieldShell label="Site" error={errors.site?.message}>
           <input
             {...register("site", { onChange: clearFeedback })}
@@ -176,10 +188,10 @@ export function AssetForm({
             className={inputClass}
           />
         </FieldShell>
-        <FieldShell label="Manufacturer" error={errors.manufacturer?.message}>
+        <FieldShell label="Brand" error={errors.manufacturer?.message}>
           <input
             {...register("manufacturer", { onChange: clearFeedback })}
-            placeholder="Caterpillar"
+            placeholder="Stanley"
             className={inputClass}
           />
         </FieldShell>
@@ -194,6 +206,37 @@ export function AssetForm({
           <input
             {...register("serialNumber", { onChange: clearFeedback })}
             placeholder="CAT-55-2190"
+            className={inputClass}
+          />
+        </FieldShell>
+        <FieldShell label="Quantity" error={errors.quantity?.message}>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            {...register("quantity", { onChange: clearFeedback })}
+            placeholder="1"
+            className={inputClass}
+          />
+        </FieldShell>
+        <FieldShell label="UOM" error={errors.unitOfMeasure?.message}>
+          <input
+            {...register("unitOfMeasure", { onChange: clearFeedback })}
+            placeholder="Unit"
+            className={inputClass}
+          />
+        </FieldShell>
+        <FieldShell label="Supplier" error={errors.supplier?.message}>
+          <input
+            {...register("supplier", { onChange: clearFeedback })}
+            placeholder="Prime Tools Trading"
+            className={inputClass}
+          />
+        </FieldShell>
+        <FieldShell label="Acquisition Date" error={errors.acquisitionDate?.message}>
+          <input
+            type="date"
+            {...register("acquisitionDate", { onChange: clearFeedback })}
             className={inputClass}
           />
         </FieldShell>
@@ -275,10 +318,12 @@ export function AssetForm({
 
 function FieldShell({
   label,
+  hint,
   error,
   children,
 }: {
   label: string;
+  hint?: string;
   error?: string;
   children: React.ReactNode;
 }) {
@@ -286,6 +331,7 @@ function FieldShell({
     <label className="space-y-1.5">
       <span className="text-sm font-medium text-slate-700 dark:text-stone-300">{label}</span>
       {children}
+      {hint ? <p className="text-xs text-slate-400 dark:text-stone-500">{hint}</p> : null}
       {error ? <p className="text-xs font-medium text-destructive">{error}</p> : null}
     </label>
   );

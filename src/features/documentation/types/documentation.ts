@@ -1,7 +1,7 @@
 /** Gallery accepts equipment photos only (PNG / JPEG in production). */
 export type DocumentationFileType = "Image";
 
-export type VisionSeverity = "Minor" | "Moderate" | "Critical";
+export type VisionSeverity = "Minor" | "Moderate" | "Low" | "Medium" | "High" | "Critical";
 
 export interface VisionFinding {
   label: string;
@@ -9,7 +9,7 @@ export interface VisionFinding {
   detail: string;
 }
 
-/** Stored snapshot from a vision pass (simulated in UI until a model is wired). */
+/** Stored snapshot from a damage detection vision pass. */
 export interface DocumentationVisionAnalysis {
   applicable: boolean;
   severity?: VisionSeverity;
@@ -33,12 +33,47 @@ export interface DocumentationFile {
   fileName: string;
   type: DocumentationFileType;
   size: string;
+  url?: string;
   uploadedAt: string;
   uploadedBy: string;
   status: "Verified" | "Pending Review";
   summary: string;
+  purpose?: DocumentationPurpose;
   previewLabel: string;
   tags: string[];
   links: DocumentationLink[];
   visionAnalysis: DocumentationVisionAnalysis;
+}
+
+export type DocumentationPurpose =
+  | "Damage Photo"
+  | "Repair Completion Photo"
+  | "Asset Photo"
+  | "General";
+
+export type DocumentationStatus = DocumentationFile["status"];
+
+export type DocumentationRelatedModel = "Asset" | "ServiceRequest" | "Maintenance";
+
+export interface DocumentationRelatedOption {
+  id: string;
+  label: string;
+  detail: string;
+}
+
+export interface DocumentationUploadOptions {
+  Asset: DocumentationRelatedOption[];
+  ServiceRequest: DocumentationRelatedOption[];
+  Maintenance: DocumentationRelatedOption[];
+}
+
+export interface DocumentationUploadValues {
+  image: File;
+  title: string;
+  summary: string;
+  purpose: DocumentationPurpose;
+  tags: string;
+  relatedModel: DocumentationRelatedModel;
+  relatedId: string;
+  status: DocumentationStatus | "";
 }

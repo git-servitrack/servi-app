@@ -8,6 +8,7 @@ import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { DiagnosisNotesPanel } from "@/features/maintenance/components/diagnosis-notes-panel";
 import { MaintenanceAssignmentUi } from "@/features/maintenance/components/maintenance-assignment-ui";
 import { MaintenanceStatusBadge } from "@/features/maintenance/components/maintenance-status-badge";
+import { PredictiveRiskContextCard } from "@/features/predictive-maintenance/components/predictive-risk-context-card";
 import { RepairActionList } from "@/features/maintenance/components/repair-action-list";
 import { getMaintenanceWorkflowRoute } from "@/features/maintenance/lib/maintenance";
 import type { MaintenanceRecord } from "@/features/maintenance/types/maintenance";
@@ -158,6 +159,16 @@ export function MaintenanceDetailView({ maintenanceId }: { maintenanceId: string
             assignment={item.assignment}
             technicians={technicians}
             onSaved={loadMaintenance}
+          />
+        </div>
+
+        <div className="mt-4 sm:mt-6">
+          <PredictiveRiskContextCard
+            title="Assignment risk context"
+            description="Latest predictive result linked to this job, request, or asset."
+            maintenanceId={item.id}
+            serviceRequestId={item.serviceRequestId}
+            assetId={item.assetId}
           />
         </div>
 

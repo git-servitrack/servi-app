@@ -1,5 +1,5 @@
-import { TechnicianFormView } from "@/features/technicians/components/technician-form-view";
+import { redirect } from "next/navigation";
 
 export default function TechnicianCreatePage() {
-  return <TechnicianFormView mode="create" />;
+  redirect("/settings/technicians/new");
 }

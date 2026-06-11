@@ -2,6 +2,9 @@ export interface ReportFilterState {
   period: string;
   site: string;
   team: string;
+  from: string;
+  to: string;
+  limit: string;
 }
 
 export interface ReportMetric {
@@ -39,6 +42,25 @@ export interface SparePartsUsageReportRow {
   site: string;
 }
 
+export interface DowntimeReportRow {
+  id: string;
+  asset: string;
+  site: string;
+  incidents: string;
+  downtimeHours: string;
+  lastDowntimeAt: string;
+}
+
+export interface HighRiskEquipmentReportRow {
+  id: string;
+  asset: string;
+  site: string;
+  riskLevel: string;
+  riskScore: string;
+  recommendation: string;
+  forecastedAt: string;
+}
+
 export interface RequestVolumeReportRow {
   id: string;
   category: string;
@@ -55,4 +77,15 @@ export interface CompletionRateReportRow {
   overdue: string;
   completionRate: string;
   qaReady: string;
+}
+
+export interface ReportingOverview {
+  metrics: ReportMetric[];
+  maintenanceHistory: MaintenanceHistoryReportRow[];
+  technicianPerformance: TechnicianPerformanceReportRow[];
+  sparePartsUsage: SparePartsUsageReportRow[];
+  downtime: DowntimeReportRow[];
+  highRiskEquipment: HighRiskEquipmentReportRow[];
+  requestVolume: RequestVolumeReportRow[];
+  completionRate: CompletionRateReportRow[];
 }

@@ -121,56 +121,57 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Spare Parts
 
-- [ ] Wire spare parts listing to `GET /spare-parts`
-- [ ] Wire spare part details to `GET /spare-parts/:id`
-- [ ] Wire spare part creation to `POST /spare-parts`
-- [ ] Wire spare part updates to `PUT /spare-parts`
-- [ ] Wire deletion, if exposed in the UI, to `DELETE /spare-parts/:id`
-- [ ] Wire low-stock views to `GET /spare-parts/low-stock`
-- [ ] Wire stock movement history to `GET /spare-parts/:id/movements`
-- [ ] Wire part usage history to `GET /spare-parts/:id/usage`
-- [ ] Wire stock add to `PATCH /spare-parts/:id/stock/add`
-- [ ] Wire stock deduct to `PATCH /spare-parts/:id/stock/deduct`
-- [ ] Wire stock adjust to `PATCH /spare-parts/:id/stock/adjust`
-- [ ] Wire reserve action to `PATCH /spare-parts/:id/reserve`
-- [ ] Wire repair usage logging to `POST /spare-parts/:id/usage`
+- [x] Wire spare parts listing to `GET /spare-parts`
+- [x] Wire spare part details to `GET /spare-parts/:id`
+- [x] Wire spare part creation to `POST /spare-parts`
+- [x] Wire spare part updates to `PUT /spare-parts`
+- [x] Wire deletion, if exposed in the UI, to `DELETE /spare-parts/:id`
+- [x] Wire low-stock views to `GET /spare-parts/low-stock`
+- [x] Wire stock movement history to `GET /spare-parts/:id/movements`
+- [x] Wire part usage history to `GET /spare-parts/:id/usage`
+- [x] Wire stock add to `PATCH /spare-parts/:id/stock/add`
+- [x] Wire stock deduct to `PATCH /spare-parts/:id/stock/deduct`
+- [x] Wire stock adjust to `PATCH /spare-parts/:id/stock/adjust`
+- [x] Wire reserve action to `PATCH /spare-parts/:id/reserve`
+- [x] Wire repair usage logging to `POST /spare-parts/:id/usage`
 
 ### Documentation Uploads
 
-- [ ] Wire documentation gallery to `GET /documentation`
-- [ ] Wire media detail/preview data to `GET /documentation/:id`
-- [ ] Wire media search to `POST /documentation/search`
-- [ ] Wire media deletion to `DELETE /documentation/:id`
-- [ ] Wire file upload to `POST /documentation/upload` with multipart form data
-- [ ] Include upload fields expected by the API: `title`, `summary`, `purpose`, `tags`, `relatedModel`, `relatedId`, and optional `status`
-- [ ] Map documentation links to API related models: asset, service request, or maintenance job
-- [ ] Keep current damage-image analysis UI simulated until damage detection API endpoints exist
+- [x] Wire documentation gallery to `GET /documentation`
+- [x] Wire media detail/preview data to `GET /documentation/:id`
+- [x] Wire media search to `POST /documentation/search`
+- [x] Wire media deletion to `DELETE /documentation/:id`
+- [x] Wire file upload to `POST /documentation/upload` with multipart form data
+- [x] Include upload fields expected by the API: `title`, `summary`, `purpose`, `tags`, `relatedModel`, `relatedId`, and optional `status`
+- [x] Map documentation links to API related models: asset, service request, or maintenance job
+- [x] Wire default documentation upload UI to damage detection when purpose is `Damage Photo`
 
 ### Predictive Maintenance
 
-- [ ] Wire model training admin action, if exposed, to `POST /predictive-maintenance/train`
-- [ ] Wire manual prediction to `POST /predictive-maintenance/predict`
-- [ ] Wire asset-specific prediction to `POST /predictive-maintenance/assets/:assetId/predict`
-- [ ] Wire prediction listing to `GET /predictive-maintenance`
-- [ ] Wire prediction detail to `GET /predictive-maintenance/:id`
-- [ ] Wire prediction search to `POST /predictive-maintenance/search`
-- [ ] Wire prediction deletion, if exposed in the UI, to `DELETE /predictive-maintenance/:id`
-- [ ] Add frontend contracts for decision-tree fields: `type`, `airTemperature`, `processTemperature`, `rotationalSpeed`, `torque`, and `toolWear`
-- [ ] Connect Phase 11 UI items: asset risk card, dashboard high-risk section, service request risk context, maintenance assignment context, and high-risk equipment report
+- [x] Wire model training admin action, if exposed, to `POST /predictive-maintenance/train`
+- [x] Wire manual prediction to `POST /predictive-maintenance/predict`
+- [x] Wire asset-specific prediction to `POST /predictive-maintenance/assets/:assetId/predict`
+- [x] Wire prediction listing to `GET /predictive-maintenance`
+- [x] Wire prediction detail to `GET /predictive-maintenance/:id`
+- [x] Wire prediction search to `POST /predictive-maintenance/search`
+- [x] Wire prediction deletion, if exposed in the UI, to `DELETE /predictive-maintenance/:id`
+- [x] Add frontend contracts for decision-tree fields: `type`, `airTemperature`, `processTemperature`, `rotationalSpeed`, `torque`, and `toolWear`
+- [x] Connect Phase 11 UI items: asset risk card, dashboard high-risk section, service request risk context, maintenance assignment context, and high-risk equipment report
+  - Initial placement done: Predictive Maintenance now has a dedicated page with manual/asset-linked predictive analysis and recent saved predictions. Asset/dashboard/request/maintenance contextual cards can reuse the same service in later UI passes.
 
 ### Reports and Dashboard
 
-- [ ] Wire reports overview to `GET /reports/overview`
-- [ ] Wire report metrics to `GET /reports/metrics`
-- [ ] Wire maintenance history report to `GET /reports/maintenance-history`
-- [ ] Wire technician performance report to `GET /reports/technician-performance`
-- [ ] Wire spare parts usage report to `GET /reports/spare-parts-usage`
-- [ ] Wire downtime report to `GET /reports/downtime`
-- [ ] Wire high-risk equipment report to `GET /reports/high-risk-equipment`
-- [ ] Wire request volume report to `GET /reports/request-volume`
-- [ ] Wire completion rate report to `GET /reports/completion-rate`
-- [ ] Replace dashboard mock metrics with a combination of report overview data and module summary endpoints
-- [ ] Preserve report filters for `from`, `to`, `period`, `site`, `team`, and `limit`
+- [x] Wire reports overview to `GET /reports/overview`
+- [x] Wire report metrics to `GET /reports/metrics`
+- [x] Wire maintenance history report to `GET /reports/maintenance-history`
+- [x] Wire technician performance report to `GET /reports/technician-performance`
+- [x] Wire spare parts usage report to `GET /reports/spare-parts-usage`
+- [x] Wire downtime report to `GET /reports/downtime`
+- [x] Wire high-risk equipment report to `GET /reports/high-risk-equipment`
+- [x] Wire request volume report to `GET /reports/request-volume`
+- [x] Wire completion rate report to `GET /reports/completion-rate`
+- [x] Replace dashboard mock metrics with a combination of report overview data and module summary endpoints
+- [x] Preserve report filters for `from`, `to`, `period`, `site`, `team`, and `limit`
 
 ---
 
@@ -236,15 +237,15 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Damage Detection
 
-- [ ] Keep damage detection UI marked as simulated until the API adds damage detection routes
-- [ ] Add client service contracts only after the API defines the damage detection request and response shape
-- [ ] Expected future client surfaces:
+- [x] Remove simulated damage detection messaging now that API damage detection routes exist
+- [x] Add client service contracts for the damage detection request and response shape
+- [x] Implement client surfaces:
   - analyze existing documentation media
-  - upload and analyze image in one flow
+  - upload and analyze image in one flow through the default documentation upload button
   - show top prediction label
   - show all class confidence scores
   - show severity, suggested action, and low-confidence fallback state
-- [ ] Do not wire the current documentation vision UI to predictive maintenance endpoints; these are separate API capabilities
+- [x] Do not wire the current documentation vision UI to predictive maintenance endpoints; these are separate API capabilities
 
 ### API Contract Follow-Ups
 
@@ -263,7 +264,7 @@ The app already has a frontend service layer in `src/services`, but many screens
 - [ ] Confirm this file exists at `servi-app/.orchestration/TODO_IMPLEMENTATION.md`
 - [ ] Confirm every currently registered API controller domain is represented
 - [ ] Confirm each frontend mock/static-data replacement area is listed
-- [ ] Confirm damage detection remains marked as blocked/future
+- [x] Confirm damage detection is wired to the implemented API endpoints
 
 ### Future Implementation Verification
 
@@ -289,6 +290,6 @@ The API integration is complete when:
 - [ ] Uploads use multipart requests where required
 - [ ] Role-aware UI behavior uses real session data
 - [ ] Predictive maintenance UI consumes real prediction/report data
-- [ ] Damage detection UI is either fully wired to future API endpoints or clearly labeled as simulated
+- [x] Damage detection UI is either fully wired to future API endpoints or clearly labeled as simulated
 - [ ] `pnpm lint` passes
 - [ ] `pnpm build` passes

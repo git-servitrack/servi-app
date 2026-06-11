@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
-import { RECENT_REQUESTS } from "@/features/dashboard/data/dashboard-kpi-data";
+import type { RecentRequestItem } from "@/features/dashboard/data/dashboard-kpi-data";
 
-export function RecentRequestsCard() {
+const DEFAULT_LIMIT = 10;
+
+export function RecentRequestsCard({ items }: { items: RecentRequestItem[] }) {
+  const visibleItems = items.slice(0, DEFAULT_LIMIT);
+
   return (
     <div className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[24px] sm:p-5 dark:border-white/10 dark:bg-[#171815]">
       <div className="flex items-center justify-between">
@@ -19,25 +23,31 @@ export function RecentRequestsCard() {
         </Link>
       </div>
 
-      <div className="mt-4 space-y-2.5">
-        {RECENT_REQUESTS.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-white/4"
-          >
-            <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full"
-              style={{ backgroundColor: item.dot }}
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-700 dark:text-stone-300">
-                {item.source}
-              </p>
-              <p className="text-xs text-slate-400 dark:text-stone-500">{item.id}</p>
+      <div className="mt-4 max-h-[420px] space-y-2.5 overflow-y-auto pr-1">
+        {items.length === 0 ? (
+          <p className="rounded-xl bg-slate-50 px-3 py-8 text-center text-sm text-slate-500 dark:bg-white/4 dark:text-stone-400">
+            No recent service requests from the API yet.
+          </p>
+        ) : (
+          visibleItems.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-white/4"
+            >
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: item.dot }}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-slate-700 dark:text-stone-300">
+                  {item.source}
+                </p>
+                <p className="text-xs text-slate-400 dark:text-stone-500">{item.id}</p>
+              </div>
+              <p className="shrink-0 text-xs text-slate-400 dark:text-stone-500">{item.date}</p>
             </div>
-            <p className="shrink-0 text-xs text-slate-400 dark:text-stone-500">{item.date}</p>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

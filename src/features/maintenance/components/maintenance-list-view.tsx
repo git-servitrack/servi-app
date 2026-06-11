@@ -7,7 +7,8 @@ import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { CreateMaintenanceModal } from "@/features/maintenance/components/create-maintenance-modal";
 import { MaintenanceTable } from "@/features/maintenance/components/maintenance-table";
 import type { MaintenanceRecord } from "@/features/maintenance/types/maintenance";
-import { maintenanceService } from "@/services";
+import { authService, maintenanceService } from "@/services";
+import type { UserRoleId } from "@/features/auth/types/auth";
 import type { ApiErrorShape } from "@/services/http/types";
 import type { MaintenanceFormOptions } from "@/services/maintenance/contracts";
 
@@ -20,6 +21,8 @@ export function MaintenanceListView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiErrorShape | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [roleId, setRoleId] = useState<UserRoleId | null>(null);
+  const canCreateMaintenance = roleId === "admin-operator" || roleId === "head-technician";
 
   const statItems = useMemo(
     () => [
@@ -48,10 +51,15 @@ export function MaintenanceListView() {
   );
 
   const loadMaintenance = useCallback(async () => {
-    const [maintenanceResult, optionResult] = await Promise.all([
+    const [userResult, maintenanceResult, optionResult] = await Promise.all([
+      authService.getCurrentUser(),
       maintenanceService.list(),
       maintenanceService.formOptions(),
     ]);
+
+    if (!userResult.error) {
+      setRoleId(userResult.data.session.roleId);
+    }
 
     if (maintenanceResult.error) {
       setError(maintenanceResult.error);
@@ -105,14 +113,16 @@ export function MaintenanceListView() {
               Track work orders, assignment ownership, repair progress, and workflow readiness.
             </p>
           </div>
-          <button
-            onClick={() => setCreateOpen(true)}
-            disabled={options.technicians.length === 0 || options.serviceRequests.length === 0}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-[#1a7a86]"
-          >
-            <Plus className="h-4 w-4" />
-            Create maintenance
-          </button>
+          {canCreateMaintenance ? (
+            <button
+              onClick={() => setCreateOpen(true)}
+              disabled={options.technicians.length === 0 || options.serviceRequests.length === 0}
+              className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-[#1a7a86]"
+            >
+              <Plus className="h-4 w-4" />
+              Create maintenance
+            </button>
+          ) : null}
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -132,10 +142,10 @@ export function MaintenanceListView() {
 
         <div className="mt-4 space-y-3 sm:mt-6">
           {error ? <ApiErrorAlert message={error.message} /> : null}
-          {!isLoading && options.technicians.length === 0 ? (
+          {!isLoading && canCreateMaintenance && options.technicians.length === 0 ? (
             <ApiErrorAlert message="Create a user with the Technician role before opening maintenance work orders." />
           ) : null}
-          {!isLoading && options.serviceRequests.length === 0 ? (
+          {!isLoading && canCreateMaintenance && options.serviceRequests.length === 0 ? (
             <ApiErrorAlert message="Create a service request before opening a maintenance work order." />
           ) : null}
         </div>

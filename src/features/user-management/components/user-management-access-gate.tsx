@@ -5,6 +5,7 @@ import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
+import { isRouteAllowedForRole } from "@/config/access-control";
 import { ROUTES } from "@/constants/routes";
 import { authService } from "@/services";
 import type { ApiErrorShape } from "@/services/http/types";
@@ -33,10 +34,10 @@ export function UserManagementAccessGate({ children }: UserManagementAccessGateP
         return;
       }
 
-      if (result.data.session.roleId !== "admin-operator") {
+      if (!isRouteAllowedForRole(ROUTES.userManagement, result.data.session.roleId)) {
         setError({
           code: "FORBIDDEN",
-          message: "Only Admin / System Operator users can provision and manage accounts.",
+          message: "Only authorized users can provision and manage accounts.",
           status: 403,
         });
         setIsAllowed(false);

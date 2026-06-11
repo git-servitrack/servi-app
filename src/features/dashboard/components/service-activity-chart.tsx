@@ -11,80 +11,92 @@ import {
   YAxis,
 } from "recharts";
 
-const DATA = [
-  { day: "S", requests: 3 },
-  { day: "M", requests: 11 },
-  { day: "T", requests: 18 },
-  { day: "W", requests: 8 },
-  { day: "T", requests: 14 },
-  { day: "F", requests: 6 },
-  { day: "S", requests: 2 },
-];
+import type { ServiceActivityPoint } from "@/features/dashboard/data/dashboard-kpi-data";
 
-const PEAK_IDX = DATA.reduce(
-  (best, d, i) => (d.requests > DATA[best].requests ? i : best),
-  0,
-);
+function getPeakIndex(data: ServiceActivityPoint[]) {
+  if (data.length === 0) return -1;
 
-function CustomTick({ x, y, payload, index }: {
-  x?: number;
-  y?: number;
-  payload?: { value: string };
-  index?: number;
-}) {
-  const isPeak = index === PEAK_IDX;
-  return (
-    <text
-      x={x}
-      y={(y ?? 0) + 12}
-      textAnchor="middle"
-      fontSize={13}
-      fill={isPeak ? "#145d66" : "#94a3b8"}
-      fontWeight={isPeak ? 700 : 400}
-    >
-      {payload?.value}
-    </text>
+  return data.reduce(
+    (best, item, index) => (item.requests > data[best].requests ? index : best),
+    0,
   );
 }
 
-function PeakLabel({ x, y, width, value, index }: {
-  x?: number;
-  y?: number;
-  width?: number;
-  value?: number;
-  index?: number;
-}) {
-  if (index !== PEAK_IDX) return null;
-  const cx = (x ?? 0) + (width ?? 0) / 2;
-  const badgeW = 44;
-  return (
-    <g>
-      <rect
-        x={cx - badgeW / 2}
-        y={(y ?? 0) - 30}
-        width={badgeW}
-        height={20}
-        rx={10}
-        fill="#145d66"
-      />
+export function ServiceActivityChart({ data }: { data: ServiceActivityPoint[] }) {
+  const peakIndex = getPeakIndex(data);
+
+  function CustomTick({
+    x,
+    y,
+    payload,
+    index,
+  }: {
+    x?: number;
+    y?: number;
+    payload?: { value: string };
+    index?: number;
+  }) {
+    const isPeak = index === peakIndex && data[peakIndex]?.requests > 0;
+
+    return (
       <text
-        x={cx}
-        y={(y ?? 0) - 16}
+        x={x}
+        y={(y ?? 0) + 12}
         textAnchor="middle"
-        fontSize={11}
-        fontWeight={700}
-        fill="white"
+        fontSize={13}
+        fill={isPeak ? "#145d66" : "#94a3b8"}
+        fontWeight={isPeak ? 700 : 400}
       >
-        {value}
+        {payload?.value}
       </text>
-    </g>
-  );
-}
+    );
+  }
 
-export function ServiceActivityChart() {
+  function PeakLabel({
+    x,
+    y,
+    width,
+    value,
+    index,
+  }: {
+    x?: number;
+    y?: number;
+    width?: number;
+    value?: number;
+    index?: number;
+  }) {
+    if (index !== peakIndex || !value) return null;
+
+    const cx = (x ?? 0) + (width ?? 0) / 2;
+    const badgeWidth = 44;
+
+    return (
+      <g>
+        <rect
+          x={cx - badgeWidth / 2}
+          y={(y ?? 0) - 30}
+          width={badgeWidth}
+          height={20}
+          rx={10}
+          fill="#145d66"
+        />
+        <text
+          x={cx}
+          y={(y ?? 0) - 16}
+          textAnchor="middle"
+          fontSize={11}
+          fontWeight={700}
+          fill="white"
+        >
+          {value}
+        </text>
+      </g>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={210}>
-      <BarChart data={DATA} barSize={30} margin={{ top: 36, right: 10, left: 10, bottom: 0 }}>
+      <BarChart data={data} barSize={30} margin={{ top: 36, right: 10, left: 10, bottom: 0 }}>
         <YAxis domain={[0, "dataMax"]} hide />
         <XAxis
           dataKey="day"
@@ -104,8 +116,8 @@ export function ServiceActivityChart() {
           }}
         />
         <Bar dataKey="requests" radius={[14, 14, 14, 14]}>
-          {DATA.map((_, i) => (
-            <Cell key={i} fill={i === PEAK_IDX ? "#145d66" : "#1e293b"} />
+          {data.map((_, index) => (
+            <Cell key={index} fill={index === peakIndex ? "#145d66" : "#1e293b"} />
           ))}
           <LabelList dataKey="requests" content={PeakLabel as never} />
         </Bar>

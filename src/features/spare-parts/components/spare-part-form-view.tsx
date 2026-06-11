@@ -1,18 +1,90 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+"use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
+
+import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { ROUTES } from "@/constants/routes";
 import { StockAdjustmentForm } from "@/features/spare-parts/components/stock-adjustment-form";
-import type { SparePartFormValues } from "@/features/spare-parts/types/spare-parts";
+import { emptySparePartFormValues } from "@/features/spare-parts/data/spare-parts";
+import { mapSparePartToFormValues } from "@/features/spare-parts/lib/spare-parts";
+import type { SparePartFormOptions, SparePartFormValues } from "@/features/spare-parts/types/spare-parts";
+import { sparePartsService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
 
 interface SparePartFormViewProps {
   mode: "create" | "edit";
-  values: SparePartFormValues;
   partId?: string;
 }
 
-export function SparePartFormView({ mode, values, partId }: SparePartFormViewProps) {
+const emptyOptions: SparePartFormOptions = {
+  categories: [],
+  assets: [],
+  maintenanceJobs: [],
+};
+
+function buildCreateValues(options: SparePartFormOptions): SparePartFormValues {
+  return {
+    ...emptySparePartFormValues,
+    category: options.categories.find((category) => category.isActive)?.id ?? options.categories[0]?.id ?? "",
+  };
+}
+
+export function SparePartFormView({ mode, partId }: SparePartFormViewProps) {
+  const router = useRouter();
   const isEdit = mode === "edit";
+  const [values, setValues] = useState<SparePartFormValues>(emptySparePartFormValues);
+  const [options, setOptions] = useState<SparePartFormOptions>(emptyOptions);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<ApiErrorShape | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadFormData() {
+      const [optionsResult, partResult] = await Promise.all([
+        sparePartsService.formOptions(),
+        isEdit && partId ? sparePartsService.getById(partId) : Promise.resolve(null),
+      ]);
+
+      if (!active) return;
+
+      if (optionsResult.error) {
+        setError(optionsResult.error);
+        setOptions(emptyOptions);
+        setValues(emptySparePartFormValues);
+        setIsLoading(false);
+        return;
+      }
+
+      setOptions(optionsResult.data);
+
+      if (partResult && partResult.error) {
+        setError(partResult.error);
+        setValues(emptySparePartFormValues);
+      } else if (partResult) {
+        setError(null);
+        setValues(mapSparePartToFormValues(partResult.data));
+      } else {
+        setError(null);
+        setValues(buildCreateValues(optionsResult.data));
+      }
+
+      setIsLoading(false);
+    }
+
+    void loadFormData();
+
+    return () => {
+      active = false;
+    };
+  }, [isEdit, partId]);
+
+  function handleSuccess() {
+    router.push(ROUTES.spareParts);
+  }
 
   return (
     <div className="min-h-screen">
@@ -40,11 +112,22 @@ export function SparePartFormView({ mode, values, partId }: SparePartFormViewPro
         </div>
 
         <div className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm sm:rounded-[24px] sm:p-8 dark:border-white/10 dark:bg-[#171815]">
-          <StockAdjustmentForm
-            submitLabel={isEdit ? "Save changes" : "Create spare part"}
-            values={values}
-            partId={partId}
-          />
+          {error ? <ApiErrorAlert message={error.message} /> : null}
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-slate-500 dark:text-stone-400">
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+              Loading spare part form...
+            </div>
+          ) : (
+            <StockAdjustmentForm
+              submitLabel={isEdit ? "Save changes" : "Create spare part"}
+              values={values}
+              partId={partId}
+              categoryOptions={options.categories}
+              assetOptions={options.assets}
+              onSuccess={handleSuccess}
+            />
+          )}
         </div>
       </div>
     </div>

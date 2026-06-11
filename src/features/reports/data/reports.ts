@@ -12,6 +12,9 @@ export const defaultReportFilters: ReportFilterState = {
   period: "Last 30 days",
   site: "All sites",
   team: "All teams",
+  from: "",
+  to: "",
+  limit: "10",
 };
 
 export const reportMetrics: ReportMetric[] = [

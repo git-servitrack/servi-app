@@ -9,7 +9,18 @@ export function filterAssets(assets: AssetRecord[], filters: AssetFilterState) {
   return assets.filter((asset) => {
     const matchesQuery =
       filters.query.length === 0 ||
-      [asset.name, asset.code, asset.site, asset.category, asset.manufacturer]
+      [
+        asset.name,
+        asset.code,
+        asset.site,
+        asset.category,
+        asset.assetType,
+        asset.manufacturer,
+        asset.model,
+        asset.serialNumber,
+        asset.supplier,
+        asset.unitOfMeasure,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(filters.query.toLowerCase());
@@ -35,6 +46,7 @@ export function mapAssetToFormValues(asset: AssetRecord): AssetFormValues {
     name: asset.name,
     code: asset.code,
     category: asset.categoryId,
+    assetType: asset.assetType ?? "",
     site: asset.site,
     assignedTeam: asset.assignedTeam,
     status: asset.status,
@@ -43,6 +55,10 @@ export function mapAssetToFormValues(asset: AssetRecord): AssetFormValues {
     manufacturer: asset.manufacturer,
     model: asset.model,
     serialNumber: asset.serialNumber,
+    quantity: asset.quantity?.toString() ?? "",
+    unitOfMeasure: asset.unitOfMeasure ?? "",
+    supplier: asset.supplier ?? "",
+    acquisitionDate: asset.acquisitionDate === "N/A" ? "" : asset.acquisitionDate ?? "",
     lastServiceDate: asset.lastServiceDate === "N/A" ? "" : asset.lastServiceDate,
     nextServiceDate: asset.nextServiceDate === "N/A" ? "" : asset.nextServiceDate,
     notes: asset.notes,

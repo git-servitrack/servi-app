@@ -7,6 +7,7 @@ export const assetRecords: AssetRecord[] = [
     code: "GEN-104",
     categoryId: "power-systems",
     category: "Power Systems",
+    assetType: "Generator",
     site: "Central Office",
     assignedTeam: "Electrical",
     status: "Operational",
@@ -17,6 +18,10 @@ export const assetRecords: AssetRecord[] = [
     manufacturer: "Caterpillar",
     model: "CAT C15",
     serialNumber: "CAT-55-2190",
+    quantity: 1,
+    unitOfMeasure: "Unit",
+    supplier: "Metro Industrial Supply",
+    acquisitionDate: "2024-01-10",
     notes: "Primary backup power source for the operations floor.",
   },
   {
@@ -96,7 +101,7 @@ export const assetRecords: AssetRecord[] = [
 export const assetFilterOptions = {
   categories: ["All", "Power Systems", "Climate Control", "Security", "Vertical Transport", "Office Equipment"],
   sites: ["All", "Central Office", "North Warehouse", "Annex Building"],
-  statuses: ["All", "Operational", "Maintenance Due", "Under Repair", "Decommissioned"] as const,
+  statuses: ["All", "Active", "Operational", "Maintenance Due", "Under Repair", "Decommissioned"] as const,
 };
 
 export const defaultAssetFilters: AssetFilterState = {
@@ -110,14 +115,19 @@ export const emptyAssetFormValues: AssetFormValues = {
   name: "",
   code: "",
   category: "",
+  assetType: "",
   site: "Central Office",
   assignedTeam: "",
-  status: "Operational",
+  status: "Active",
   criticality: "Medium",
   condition: "",
   manufacturer: "",
   model: "",
   serialNumber: "",
+  quantity: "",
+  unitOfMeasure: "Unit",
+  supplier: "",
+  acquisitionDate: "",
   lastServiceDate: "",
   nextServiceDate: "",
   notes: "",

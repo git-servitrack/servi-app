@@ -1,11 +1,12 @@
-import { ArrowDownCircle, ArrowUpCircle, Settings2 } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, BookmarkCheck, Settings2 } from "lucide-react";
 
-import type { StockMovementItem } from "@/features/spare-parts/types/spare-parts";
+import type { StockMovementItem, StockMovementType } from "@/features/spare-parts/types/spare-parts";
 
-const TYPE_ICONS: Record<string, { icon: typeof ArrowDownCircle; color: string }> = {
+const TYPE_ICONS: Record<StockMovementType, { icon: typeof ArrowDownCircle; color: string }> = {
   Received: { icon: ArrowDownCircle, color: "text-emerald-500 dark:text-emerald-400" },
   Issued: { icon: ArrowUpCircle, color: "text-rose-500 dark:text-rose-400" },
   Adjusted: { icon: Settings2, color: "text-amber-500 dark:text-amber-400" },
+  Reserved: { icon: BookmarkCheck, color: "text-[#145d66] dark:text-[#86d0d8]" },
 };
 
 export function StockMovementHistoryView({ items }: { items: StockMovementItem[] }) {
@@ -18,6 +19,14 @@ export function StockMovementHistoryView({ items }: { items: StockMovementItem[]
         </p>
       </div>
       <div className="divide-y divide-slate-100 dark:divide-white/6">
+        {items.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <p className="font-medium text-slate-900 dark:text-stone-100">No stock movements yet</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-stone-400">
+              Stock adjustments, reservations, receipts, and issues will appear here.
+            </p>
+          </div>
+        ) : null}
         {items.map((item) => {
           const typeConfig = TYPE_ICONS[item.type] ?? TYPE_ICONS.Adjusted;
           const Icon = typeConfig.icon;
@@ -35,8 +44,8 @@ export function StockMovementHistoryView({ items }: { items: StockMovementItem[]
                   </span>
                 </div>
                 <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
-                  {item.date} · Ref: <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{item.reference}</span>
-                  {item.note ? ` — ${item.note}` : ""}
+                  {item.date} - Ref: <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{item.reference}</span>
+                  {item.note ? ` - ${item.note}` : ""}
                 </p>
               </div>
             </div>

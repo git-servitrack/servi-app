@@ -1,9 +1,11 @@
 export type StockStatus = "In Stock" | "Low Stock" | "Critical" | "Out of Stock";
 
+export type StockMovementType = "Received" | "Issued" | "Adjusted" | "Reserved";
+
 export interface StockMovementItem {
   id: string;
   date: string;
-  type: "Received" | "Issued" | "Adjusted";
+  type: StockMovementType;
   quantity: string;
   reference: string;
   note: string;
@@ -22,8 +24,10 @@ export interface SparePartRecord {
   id: string;
   partNumber: string;
   name: string;
+  categoryId: string;
   category: string;
   site: string;
+  compatibleAssetIds: string[];
   compatibleAssets: string;
   unit: string;
   stockOnHand: number;
@@ -42,13 +46,52 @@ export interface SparePartFormValues {
   name: string;
   category: string;
   site: string;
-  compatibleAssets: string;
+  compatibleAssets: string[];
   unit: string;
   stockOnHand: string;
   reservedStock: string;
   reorderPoint: string;
-  status: StockStatus;
   binLocation: string;
   supplier: string;
   notes: string;
+}
+
+export interface SparePartCategoryOption {
+  id: string;
+  name: string;
+  isActive: boolean;
+}
+
+export interface SparePartAssetOption {
+  id: string;
+  name: string;
+  code: string;
+  site: string;
+}
+
+export interface SparePartMaintenanceOption {
+  id: string;
+  workOrder: string;
+  assetName: string;
+  technician: string;
+}
+
+export interface SparePartFormOptions {
+  categories: SparePartCategoryOption[];
+  assets: SparePartAssetOption[];
+  maintenanceJobs: SparePartMaintenanceOption[];
+}
+
+export interface StockOperationValues {
+  operation: "add" | "deduct" | "adjust" | "reserve";
+  quantity: string;
+  reference: string;
+  note: string;
+}
+
+export interface PartUsageFormValues {
+  maintenanceJob: string;
+  quantity: string;
+  note: string;
+  usedAt: string;
 }

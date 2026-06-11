@@ -1,13 +1,12 @@
 import {
   BarChart3,
   ClipboardList,
+  BrainCircuit,
   FileStack,
   Gauge,
   Package,
-  ShieldCheck,
+  Settings,
   SquareKanban,
-  Tags,
-  UsersRound,
   Wrench,
 } from "lucide-react";
 
@@ -22,13 +21,15 @@ export const ROUTES = {
   assets: "/assets",
   serviceRequests: "/service-requests",
   maintenance: "/maintenance",
-  technicians: "/technicians",
-  userManagement: "/user-management",
-  category: "/category",
+  predictiveMaintenance: "/predictive-maintenance",
+  technicians: "/settings/technicians",
+  userManagement: "/settings/user-management",
+  category: "/settings/category",
   spareParts: "/spare-parts",
   documentation: "/documentation",
   reports: "/reports",
   settings: "/settings",
+  profile: "/profile",
 } as const;
 
 export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
@@ -65,24 +66,6 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
     title: "Support",
     items: [
       {
-        title: "Technicians",
-        href: ROUTES.technicians,
-        icon: ShieldCheck,
-        description: "Profiles, workload, and performance summaries.",
-      },
-      {
-        title: "User Management",
-        href: ROUTES.userManagement,
-        icon: UsersRound,
-        description: "Admin-only user provisioning and role assignment.",
-      },
-      {
-        title: "Category",
-        href: ROUTES.category,
-        icon: Tags,
-        description: "Manage asset and inventory category records.",
-      },
-      {
         title: "Spare Parts",
         href: ROUTES.spareParts,
         icon: Package,
@@ -95,10 +78,22 @@ export const DASHBOARD_NAVIGATION: NavigationGroup[] = [
         description: "Uploads, previews, and linked references.",
       },
       {
+        title: "Predictive Maintenance",
+        href: ROUTES.predictiveMaintenance,
+        icon: BrainCircuit,
+        description: "Decision-tree risk prediction and saved results.",
+      },
+      {
         title: "Reports",
         href: ROUTES.reports,
         icon: BarChart3,
         description: "Operational reports and exports.",
+      },
+      {
+        title: "Settings",
+        href: ROUTES.settings,
+        icon: Settings,
+        description: "Technicians, users, and category administration.",
       },
     ],
   },

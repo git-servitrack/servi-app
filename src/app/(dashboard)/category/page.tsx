@@ -1,5 +1,5 @@
-import { CategoryListView } from "@/features/categories/components/category-list-view";
+import { redirect } from "next/navigation";
 
 export default function CategoryPage() {
-  return <CategoryListView />;
+  redirect("/settings/category");
 }

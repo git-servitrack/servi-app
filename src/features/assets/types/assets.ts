@@ -1,4 +1,4 @@
-export type AssetStatus = "Operational" | "Maintenance Due" | "Under Repair" | "Decommissioned";
+export type AssetStatus = "Active" | "Operational" | "Maintenance Due" | "Under Repair" | "Decommissioned";
 export type AssetCriticality = "Critical" | "High" | "Medium" | "Low";
 
 export interface AssetRecord {
@@ -7,6 +7,7 @@ export interface AssetRecord {
   code: string;
   categoryId: string;
   category: string;
+  assetType?: string;
   site: string;
   assignedTeam: string;
   status: AssetStatus;
@@ -17,6 +18,10 @@ export interface AssetRecord {
   manufacturer: string;
   model: string;
   serialNumber: string;
+  quantity?: number;
+  unitOfMeasure?: string;
+  supplier?: string;
+  acquisitionDate?: string;
   notes: string;
 }
 
@@ -31,6 +36,7 @@ export interface AssetFormValues {
   name: string;
   code: string;
   category: string;
+  assetType: string;
   site: string;
   assignedTeam: string;
   status: AssetStatus;
@@ -39,6 +45,10 @@ export interface AssetFormValues {
   manufacturer: string;
   model: string;
   serialNumber: string;
+  quantity: string;
+  unitOfMeasure: string;
+  supplier: string;
+  acquisitionDate: string;
   lastServiceDate: string;
   nextServiceDate: string;
   notes: string;

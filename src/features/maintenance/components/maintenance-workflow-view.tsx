@@ -11,6 +11,7 @@ import { MaintenanceCompletionForm } from "@/features/maintenance/components/mai
 import { MaintenanceStatusBadge } from "@/features/maintenance/components/maintenance-status-badge";
 import { MaintenanceTimeline } from "@/features/maintenance/components/maintenance-timeline";
 import { MaintenanceWorkflowActions } from "@/features/maintenance/components/maintenance-workflow-actions";
+import { PredictiveRiskContextCard } from "@/features/predictive-maintenance/components/predictive-risk-context-card";
 import { RepairActionEditModal } from "@/features/maintenance/components/repair-action-edit-modal";
 import { RepairActionList } from "@/features/maintenance/components/repair-action-list";
 import type { MaintenanceRecord, RepairAction } from "@/features/maintenance/types/maintenance";
@@ -197,6 +198,16 @@ export function MaintenanceWorkflowView({ maintenanceId }: { maintenanceId: stri
 
         <div className="mt-4 sm:mt-6">
           <MaintenanceWorkflowActions item={item} actor={actor} onSaved={loadMaintenance} />
+        </div>
+
+        <div className="mt-4 sm:mt-6">
+          <PredictiveRiskContextCard
+            title="Workflow risk context"
+            description="Latest prediction to consider while assigning work and repair actions."
+            maintenanceId={item.id}
+            serviceRequestId={item.serviceRequestId}
+            assetId={item.assetId}
+          />
         </div>
 
         <div className="mt-4 sm:mt-6">

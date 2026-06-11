@@ -32,10 +32,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
+    let active = true;
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     const initial = stored ?? (document.documentElement.classList.contains("dark") ? "dark" : "light");
-    setThemeState(initial);
     applyTheme(initial);
+
+    window.requestAnimationFrame(() => {
+      if (active) setThemeState(initial);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   function setTheme(next: Theme) {
