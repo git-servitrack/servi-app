@@ -50,6 +50,7 @@ export function AssetListView() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const filteredAssets = useMemo(() => filterAssets(assets, filters), [assets, filters]);
+  const tablePaginationKey = useMemo(() => JSON.stringify(filters), [filters]);
   const categoryOptions = useMemo(
     () => ["All", ...categories.map((category) => category.name)],
     [categories],
@@ -259,7 +260,12 @@ export function AssetListView() {
                 Loading assets...
               </div>
             ) : (
-              <AssetTable assets={filteredAssets} onEdit={handleEdit} onDelete={handleDelete} />
+              <AssetTable
+                key={tablePaginationKey}
+                assets={filteredAssets}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             )}
           </div>
         </div>

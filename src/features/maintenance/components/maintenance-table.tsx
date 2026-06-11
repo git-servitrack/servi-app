@@ -1,8 +1,14 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useMemo, useState } from "react";
+
+import { TablePagination } from "@/components/shared/table-pagination";
 import { MaintenanceStatusBadge } from "@/features/maintenance/components/maintenance-status-badge";
 import { getMaintenanceDetailRoute, getMaintenanceWorkflowRoute } from "@/features/maintenance/lib/maintenance";
 import type { MaintenanceRecord } from "@/features/maintenance/types/maintenance";
+
+const PAGE_SIZE = 10;
 
 const PRIORITY_COLORS: Record<string, string> = {
   Critical: "#dc2626",
@@ -12,6 +18,15 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 export function MaintenanceTable({ items }: { items: MaintenanceRecord[] }) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+
+    return items.slice(start, start + PAGE_SIZE);
+  }, [items, currentPage]);
+
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
@@ -24,49 +39,60 @@ export function MaintenanceTable({ items }: { items: MaintenanceRecord[] }) {
   }
 
   return (
-    <div className="divide-y divide-slate-100 dark:divide-white/6">
-      {items.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/50 sm:gap-4 sm:px-6 sm:py-4 dark:hover:bg-white/3"
-        >
+    <>
+      <div className="divide-y divide-slate-100 dark:divide-white/6">
+        {paginatedItems.map((item) => (
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-            style={{ backgroundColor: PRIORITY_COLORS[item.priority] ?? "#64748b" }}
+            key={item.id}
+            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50/50 sm:gap-4 sm:px-6 sm:py-4 dark:hover:bg-white/3"
           >
-            {item.workOrder.slice(-2)}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <p className="text-sm font-semibold text-slate-900 dark:text-stone-100">
-                {item.assetName}
-              </p>
-              <MaintenanceStatusBadge status={item.status} />
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+              style={{ backgroundColor: PRIORITY_COLORS[item.priority] ?? "#64748b" }}
+            >
+              {item.workOrder.slice(-2)}
             </div>
-            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
-              <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{item.workOrder}</span>
-              {" - "}
-              {item.requestTicket} - {item.site} - {item.assignedTeam}
-            </p>
-          </div>
 
-          <div className="hidden shrink-0 items-center gap-2 sm:flex">
-            <Link
-              href={getMaintenanceDetailRoute(item.id)}
-              className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
-            >
-              Details
-            </Link>
-            <Link
-              href={getMaintenanceWorkflowRoute(item.id)}
-              className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
-            >
-              Workflow
-            </Link>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <p className="text-sm font-semibold text-slate-900 dark:text-stone-100">
+                  {item.assetName}
+                </p>
+                <MaintenanceStatusBadge status={item.status} />
+              </div>
+              <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-stone-400">
+                <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{item.workOrder}</span>
+                {" - "}
+                {item.requestTicket} - {item.site} - {item.assignedTeam}
+              </p>
+            </div>
+
+            <div className="hidden shrink-0 items-center gap-2 sm:flex">
+              <Link
+                href={getMaintenanceDetailRoute(item.id)}
+                className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+              >
+                Details
+              </Link>
+              <Link
+                href={getMaintenanceWorkflowRoute(item.id)}
+                className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
+              >
+                Workflow
+              </Link>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={items.length}
+        pageSize={PAGE_SIZE}
+        itemLabel="work orders"
+        onPageChange={setPage}
+      />
+    </>
   );
 }
