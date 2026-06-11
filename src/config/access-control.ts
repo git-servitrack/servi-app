@@ -34,7 +34,7 @@ export const roleAccessMap = {
     ROUTES.dashboard,
     ROUTES.maintenance,
     ROUTES.documentation,
-    ROUTES.predictiveMaintenance,
+    // ROUTES.predictiveMaintenance,
     ROUTES.profile,
   ],
   "project-site": [ROUTES.dashboard, ROUTES.documentation, ROUTES.profile],
@@ -44,7 +44,7 @@ export const roleAccessMap = {
     ROUTES.reports,
     ROUTES.documentation,
     ROUTES.spareParts,
-    ROUTES.predictiveMaintenance,
+    // ROUTES.predictiveMaintenance,
     ROUTES.profile,
   ],
 } satisfies Record<UserRoleId, string[]>;
