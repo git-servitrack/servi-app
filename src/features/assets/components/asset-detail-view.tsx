@@ -10,6 +10,7 @@ import { AssetFormModal } from "@/features/assets/components/asset-form-modal";
 import { AssetStatusBadge } from "@/features/assets/components/asset-status-badge";
 import { mapAssetToFormValues } from "@/features/assets/lib/assets";
 import type { AssetCategoryOption, AssetRecord } from "@/features/assets/types/assets";
+import { PredictiveRiskContextCard } from "@/features/predictive-maintenance/components/predictive-risk-context-card";
 import { assetsService } from "@/services";
 import type { ApiErrorShape } from "@/services/http/types";
 
@@ -128,7 +129,7 @@ export function AssetDetailView({ assetId }: { assetId: string }) {
           <AssetDetailsPanel asset={asset} />
         </div>
 
-        <div className="mt-4 grid gap-4 pb-6 sm:mt-6 sm:gap-6 sm:pb-8 xl:grid-cols-2">
+        <div className="mt-4 grid gap-4 pb-6 sm:mt-6 sm:gap-6 sm:pb-8 xl:grid-cols-3">
           <div className="rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:rounded-[24px] sm:px-6 sm:py-6 dark:border-white/10 dark:bg-[#171815]">
             <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">
               Maintenance context
@@ -139,6 +140,12 @@ export function AssetDetailView({ assetId }: { assetId: string }) {
               <p>The assigned team is <span className="font-medium text-[#145d66] dark:text-[#86d0d8]">{asset.assignedTeam}</span>, with current asset criticality marked as <span className="font-medium text-slate-900 dark:text-stone-100">{asset.criticality.toLowerCase()}</span>.</p>
             </div>
           </div>
+
+          <PredictiveRiskContextCard
+            title="Asset risk"
+            description="Latest predictive result linked to this asset."
+            assetId={asset.id}
+          />
 
           <div className="rounded-[20px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:rounded-[24px] sm:px-6 sm:py-6 dark:border-white/10 dark:bg-[#171815]">
             <h2 className="text-base font-semibold text-slate-900 dark:text-stone-100">

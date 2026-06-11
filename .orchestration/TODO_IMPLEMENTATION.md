@@ -156,22 +156,22 @@ The app already has a frontend service layer in `src/services`, but many screens
 - [x] Wire prediction search to `POST /predictive-maintenance/search`
 - [x] Wire prediction deletion, if exposed in the UI, to `DELETE /predictive-maintenance/:id`
 - [x] Add frontend contracts for decision-tree fields: `type`, `airTemperature`, `processTemperature`, `rotationalSpeed`, `torque`, and `toolWear`
-- [ ] Connect Phase 11 UI items: asset risk card, dashboard high-risk section, service request risk context, maintenance assignment context, and high-risk equipment report
+- [x] Connect Phase 11 UI items: asset risk card, dashboard high-risk section, service request risk context, maintenance assignment context, and high-risk equipment report
   - Initial placement done: Predictive Maintenance now has a dedicated page with manual/asset-linked predictive analysis and recent saved predictions. Asset/dashboard/request/maintenance contextual cards can reuse the same service in later UI passes.
 
 ### Reports and Dashboard
 
-- [ ] Wire reports overview to `GET /reports/overview`
-- [ ] Wire report metrics to `GET /reports/metrics`
-- [ ] Wire maintenance history report to `GET /reports/maintenance-history`
-- [ ] Wire technician performance report to `GET /reports/technician-performance`
-- [ ] Wire spare parts usage report to `GET /reports/spare-parts-usage`
-- [ ] Wire downtime report to `GET /reports/downtime`
-- [ ] Wire high-risk equipment report to `GET /reports/high-risk-equipment`
-- [ ] Wire request volume report to `GET /reports/request-volume`
-- [ ] Wire completion rate report to `GET /reports/completion-rate`
-- [ ] Replace dashboard mock metrics with a combination of report overview data and module summary endpoints
-- [ ] Preserve report filters for `from`, `to`, `period`, `site`, `team`, and `limit`
+- [x] Wire reports overview to `GET /reports/overview`
+- [x] Wire report metrics to `GET /reports/metrics`
+- [x] Wire maintenance history report to `GET /reports/maintenance-history`
+- [x] Wire technician performance report to `GET /reports/technician-performance`
+- [x] Wire spare parts usage report to `GET /reports/spare-parts-usage`
+- [x] Wire downtime report to `GET /reports/downtime`
+- [x] Wire high-risk equipment report to `GET /reports/high-risk-equipment`
+- [x] Wire request volume report to `GET /reports/request-volume`
+- [x] Wire completion rate report to `GET /reports/completion-rate`
+- [x] Replace dashboard mock metrics with a combination of report overview data and module summary endpoints
+- [x] Preserve report filters for `from`, `to`, `period`, `site`, `team`, and `limit`
 
 ---
 

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { OpenMaintenanceModal } from "@/features/maintenance/components/open-maintenance-modal";
+import { PredictiveRiskContextCard } from "@/features/predictive-maintenance/components/predictive-risk-context-card";
 import { RequestFormModal } from "@/features/service-requests/components/request-form-modal";
 import { RequestStatusBadge } from "@/features/service-requests/components/request-status-badge";
 import { RequestTimeline } from "@/features/service-requests/components/request-timeline";
@@ -205,6 +206,15 @@ export function RequestDetailView({ requestId }: { requestId: string }) {
               <p className="mt-1.5 text-sm leading-6 text-slate-700 dark:text-stone-300">{request.summary}</p>
             </div>
           </div>
+        </div>
+
+        <div className="mt-4 sm:mt-6">
+          <PredictiveRiskContextCard
+            title="Request risk context"
+            description="Latest predictive result linked to this service request or its related asset."
+            serviceRequestId={request.id}
+            assetId={request.assetId}
+          />
         </div>
 
         <div className="mt-4 pb-6 sm:mt-6 sm:pb-8">

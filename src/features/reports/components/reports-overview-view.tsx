@@ -1,16 +1,13 @@
-import { BarChart3 } from "lucide-react";
+"use client";
 
-import {
-  completionRateReport,
-  defaultReportFilters,
-  maintenanceHistoryReport,
-  reportMetrics,
-  requestVolumeReport,
-  sparePartsUsageReport,
-  technicianPerformanceReport,
-} from "@/features/reports/data/reports";
+import { BarChart3, LoaderCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
 import { CompletionRateReportUi } from "@/features/reports/components/completion-rate-report-ui";
+import { DowntimeReportUi } from "@/features/reports/components/downtime-report-ui";
 import { ExportLayoutPlaceholder } from "@/features/reports/components/export-layout-placeholder";
+import { HighRiskEquipmentReportUi } from "@/features/reports/components/high-risk-equipment-report-ui";
 import { MaintenanceHistoryReportUi } from "@/features/reports/components/maintenance-history-report-ui";
 import { ReportFilterToolbar } from "@/features/reports/components/report-filter-toolbar";
 import { ReportMetricCard } from "@/features/reports/components/report-metric-card";
@@ -18,37 +15,119 @@ import { ReportSectionCard } from "@/features/reports/components/report-section-
 import { RequestVolumeReportUi } from "@/features/reports/components/request-volume-report-ui";
 import { SparePartsUsageReportUi } from "@/features/reports/components/spare-parts-usage-report-ui";
 import { TechnicianPerformanceReportUi } from "@/features/reports/components/technician-performance-report-ui";
+import { defaultReportFilters } from "@/features/reports/data/reports";
+import type { ReportFilterState, ReportingOverview } from "@/features/reports/types/reports";
+import { reportsService } from "@/services";
+import type { ApiErrorShape } from "@/services/http/types";
+
+const emptyOverview: ReportingOverview = {
+  metrics: [],
+  maintenanceHistory: [],
+  technicianPerformance: [],
+  sparePartsUsage: [],
+  downtime: [],
+  highRiskEquipment: [],
+  requestVolume: [],
+  completionRate: [],
+};
 
 export function ReportsOverviewView() {
+  const [filters, setFilters] = useState<ReportFilterState>(defaultReportFilters);
+  const [overview, setOverview] = useState<ReportingOverview>(emptyOverview);
+  const [error, setError] = useState<ApiErrorShape | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  async function loadReports(nextFilters = filters) {
+    setIsLoading(true);
+
+    const result = await reportsService.overview(nextFilters);
+
+    if (result.error) {
+      setError(result.error);
+      setOverview(emptyOverview);
+    } else {
+      setError(null);
+      setOverview(result.data);
+    }
+
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadInitialReports() {
+      const result = await reportsService.overview(defaultReportFilters);
+
+      if (!active) return;
+
+      if (result.error) {
+        setError(result.error);
+        setOverview(emptyOverview);
+      } else {
+        setError(null);
+        setOverview(result.data);
+      }
+
+      setIsLoading(false);
+    }
+
+    void loadInitialReports();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">Reports</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-stone-100">
+              Reports
+            </h1>
             <p className="mt-1.5 max-w-2xl text-sm text-slate-500 dark:text-stone-400">
-              Maintenance throughput, technician performance, parts usage, request volume, and completion efficiency — structured for future API-backed analytics and exports.
+              Maintenance throughput, technician performance, parts usage, request volume, downtime, and predictive
+              risk from the reporting API.
             </p>
           </div>
           <button
             type="button"
-            className="flex w-fit items-center gap-1.5 rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
+            onClick={() => void loadReports()}
+            disabled={isLoading}
+            className="flex w-fit items-center gap-1.5 rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-60 dark:border-white/10 dark:text-stone-300 dark:hover:bg-white/6"
           >
-            <BarChart3 className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />
-            Generate summary
+            {isLoading ? (
+              <LoaderCircle className="h-4 w-4 animate-spin text-[#145d66] dark:text-[#86d0d8]" />
+            ) : (
+              <BarChart3 className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />
+            )}
+            {isLoading ? "Loading reports" : "Generate summary"}
           </button>
         </div>
+
+        {error ? (
+          <div className="mt-5">
+            <ApiErrorAlert message={error.message} />
+          </div>
+        ) : null}
 
         <div className="mt-6 space-y-2">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-stone-100">Report filters</h2>
           <p className="text-sm text-slate-400 dark:text-stone-500">
-            Centralized filters for reuse with server queries and export payloads.
+            Sent to the reports API as period, from, to, site, team, and limit query params.
           </p>
-          <ReportFilterToolbar filters={defaultReportFilters} />
+          <ReportFilterToolbar
+            filters={filters}
+            isLoading={isLoading}
+            onChange={setFilters}
+            onRefresh={() => void loadReports()}
+          />
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          {reportMetrics.map((metric) => (
+          {overview.metrics.map((metric) => (
             <ReportMetricCard key={metric.label} metric={metric} />
           ))}
         </div>
@@ -58,40 +137,56 @@ export function ReportsOverviewView() {
             title="Maintenance history"
             description="Work order progression by asset and site, export-friendly."
           >
-            <MaintenanceHistoryReportUi items={maintenanceHistoryReport} />
+            <MaintenanceHistoryReportUi items={overview.maintenanceHistory} />
           </ReportSectionCard>
 
           <ReportSectionCard
             title="Technician performance"
             description="Completed jobs, response time, and SLA rate by technician."
           >
-            <TechnicianPerformanceReportUi items={technicianPerformanceReport} />
+            <TechnicianPerformanceReportUi items={overview.technicianPerformance} />
           </ReportSectionCard>
 
           <ReportSectionCard
             title="Spare parts usage"
             description="Issue volume with linked work orders and site context."
           >
-            <SparePartsUsageReportUi items={sparePartsUsageReport} />
+            <SparePartsUsageReportUi items={overview.sparePartsUsage} />
+          </ReportSectionCard>
+
+          <ReportSectionCard
+            title="Downtime"
+            description="Assets with downtime incidents and operating impact."
+          >
+            <DowntimeReportUi items={overview.downtime} />
+          </ReportSectionCard>
+
+          <ReportSectionCard
+            title="High-risk equipment"
+            description="Predictive maintenance results that need inspection or follow-up."
+          >
+            <HighRiskEquipmentReportUi items={overview.highRiskEquipment} />
           </ReportSectionCard>
 
           <ReportSectionCard
             title="Request volume"
             description="Intake flow by category and site for triage planning."
           >
-            <RequestVolumeReportUi items={requestVolumeReport} />
+            <RequestVolumeReportUi items={overview.requestVolume} />
           </ReportSectionCard>
 
           <ReportSectionCard
             title="Completion rate"
             description="Team delivery quality separate from raw volume."
           >
-            <CompletionRateReportUi items={completionRateReport} />
+            <CompletionRateReportUi items={overview.completionRate} />
           </ReportSectionCard>
 
           <div className="space-y-2">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-stone-100">Export preparation</h2>
-            <p className="text-sm text-slate-400 dark:text-stone-500">Dedicated print and spreadsheet layouts vs. interactive view.</p>
+            <p className="text-sm text-slate-400 dark:text-stone-500">
+              Dedicated print and spreadsheet layouts vs. interactive view.
+            </p>
             <ExportLayoutPlaceholder />
           </div>
         </div>

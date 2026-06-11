@@ -166,6 +166,34 @@ export const predictiveMaintenanceService = {
     });
   },
 
+  async listByAsset(assetId: string): Promise<ApiResult<PredictiveMaintenanceRecord[]>> {
+    return this.list({
+      filter: `asset:${assetId}`,
+      limit: 5,
+    });
+  },
+
+  async listByServiceRequest(serviceRequestId: string): Promise<ApiResult<PredictiveMaintenanceRecord[]>> {
+    return this.list({
+      filter: `serviceRequest:${serviceRequestId}`,
+      limit: 5,
+    });
+  },
+
+  async listByMaintenance(maintenanceId: string): Promise<ApiResult<PredictiveMaintenanceRecord[]>> {
+    return this.list({
+      filter: `maintenance:${maintenanceId}`,
+      limit: 5,
+    });
+  },
+
+  async highRisk(limit = 5): Promise<ApiResult<PredictiveMaintenanceRecord[]>> {
+    return this.list({
+      filter: "prediction.riskLevel:Critical",
+      limit,
+    });
+  },
+
   async getById(predictionId: string): Promise<ApiResult<PredictiveMaintenanceRecord>> {
     return createApiResult(async () => {
       const prediction = await requestJson<ApiPredictiveMaintenanceRecord>(`/predictive-maintenance/${predictionId}`, {

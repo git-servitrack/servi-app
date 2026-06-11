@@ -10,28 +10,13 @@ import {
   YAxis,
 } from "recharts";
 
-const DATA = [
-  { date: "Mar 18", requested: 7,  completed: 6  },
-  { date: "Mar 19", requested: 11, completed: 10 },
-  { date: "Mar 20", requested: 14, completed: 13 },
-  { date: "Mar 21", requested: 5,  completed: 4  },
-  { date: "Mar 22", requested: 16, completed: 15 },
-  { date: "Mar 23", requested: 12, completed: 11 },
-  { date: "Mar 24", requested: 8,  completed: 7  },
-  { date: "Mar 25", requested: 19, completed: 18 },
-  { date: "Mar 26", requested: 15, completed: 14 },
-  { date: "Mar 27", requested: 10, completed: 9  },
-  { date: "Mar 28", requested: 13, completed: 12 },
-  { date: "Mar 29", requested: 20, completed: 18 },
-  { date: "Mar 30", requested: 14, completed: 13 },
-  { date: "Mar 31", requested: 17, completed: 16 },
-];
+import type { MaintenanceTrendPoint } from "@/features/dashboard/data/dashboard-kpi-data";
 
-const TOTAL_REQUESTED = DATA.reduce((s, d) => s + d.requested, 0);
-const TOTAL_COMPLETED = DATA.reduce((s, d) => s + d.completed, 0);
-const COMPLETION_RATE = Math.round((TOTAL_COMPLETED / TOTAL_REQUESTED) * 100);
+export function MaintenanceTrendChart({ data }: { data: MaintenanceTrendPoint[] }) {
+  const totalRequested = data.reduce((sum, item) => sum + item.requested, 0);
+  const totalCompleted = data.reduce((sum, item) => sum + item.completed, 0);
+  const completionRate = totalRequested === 0 ? 0 : Math.round((totalCompleted / totalRequested) * 100);
 
-export function MaintenanceTrendChart() {
   return (
     <div className="flex h-full flex-col">
       <div className="mb-5 flex items-center gap-6">
@@ -47,7 +32,7 @@ export function MaintenanceTrendChart() {
 
       <div className="flex-1">
         <ResponsiveContainer width="100%" height={190}>
-          <AreaChart data={DATA} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
             <defs>
               <linearGradient id="requestedGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#cbd5e1" stopOpacity={0.5} />
@@ -84,17 +69,17 @@ export function MaintenanceTrendChart() {
                     <p className="mb-2 text-xs font-semibold text-slate-500 dark:text-stone-400">
                       {label}
                     </p>
-                    {payload.map((p, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm">
+                    {payload.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
                         <span
                           className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: p.color }}
+                          style={{ backgroundColor: item.color }}
                         />
                         <span className="capitalize text-slate-600 dark:text-stone-300">
-                          {String(p.dataKey)}:
+                          {String(item.dataKey)}:
                         </span>
                         <span className="font-semibold text-slate-900 dark:text-stone-100">
-                          {String(p.value)}
+                          {String(item.value)}
                         </span>
                       </div>
                     ))}
@@ -129,17 +114,17 @@ export function MaintenanceTrendChart() {
         <div className="px-3 py-2.5 sm:px-4 sm:py-3">
           <p className="text-[11px] text-slate-400 sm:text-xs dark:text-stone-500">Requested</p>
           <p className="mt-1 text-lg font-bold text-slate-900 sm:text-xl dark:text-stone-100">
-            {TOTAL_REQUESTED}
+            {totalRequested}
           </p>
         </div>
         <div className="px-3 py-2.5 sm:px-4 sm:py-3">
           <p className="text-[11px] text-slate-400 sm:text-xs dark:text-stone-500">Completed</p>
-          <p className="mt-1 text-lg font-bold text-[#145d66] sm:text-xl">{TOTAL_COMPLETED}</p>
+          <p className="mt-1 text-lg font-bold text-[#145d66] sm:text-xl">{totalCompleted}</p>
         </div>
         <div className="px-3 py-2.5 sm:px-4 sm:py-3">
           <p className="text-[11px] text-slate-400 sm:text-xs dark:text-stone-500">Completion rate</p>
           <p className="mt-1 text-lg font-bold text-slate-900 sm:text-xl dark:text-stone-100">
-            {COMPLETION_RATE}%
+            {completionRate}%
           </p>
         </div>
       </div>
