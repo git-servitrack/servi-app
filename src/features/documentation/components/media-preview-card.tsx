@@ -10,6 +10,12 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const SEVERITY_STYLES: Record<VisionSeverity, string> = {
+  Low:
+    "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
+  Medium:
+    "bg-amber-50 text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-800",
+  High:
+    "bg-orange-50 text-orange-900 ring-1 ring-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:ring-orange-800",
   Minor:
     "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
   Moderate:
@@ -49,7 +55,7 @@ export function MediaPreviewCard({
               </span>
             ) : (
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-white/8 dark:text-stone-500">
-                Pending CV
+                Not analyzed
               </span>
             )}
           </div>
@@ -58,7 +64,7 @@ export function MediaPreviewCard({
           <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-stone-500">Image</p>
           <p className="mt-1.5 text-base font-semibold text-slate-900 dark:text-stone-100">{file.previewLabel}</p>
           {va.applicable && findingCount > 0 ? (
-            <p className="mt-2 text-xs font-medium text-[#145d66] dark:text-[#86d0d8]">{findingCount} vision signals</p>
+            <p className="mt-2 text-xs font-medium text-[#145d66] dark:text-[#86d0d8]">{findingCount} model scores</p>
           ) : null}
         </div>
       </div>

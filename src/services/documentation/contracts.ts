@@ -6,6 +6,7 @@ import type {
   DocumentationUploadValues,
 } from "@/features/documentation/types/documentation";
 import type { ApiAuthUser } from "@/services/auth/session";
+import type { ApiDamageDetectionRecord } from "@/services/damage-detection/contracts";
 
 export interface ApiDocumentationRelatedRecord {
   _id: string;
@@ -40,8 +41,16 @@ export interface ApiDocumentationRecord {
 
 export interface DocumentationUploadResponse {
   file: DocumentationFile;
+  damageDetection?: ApiDamageDetectionRecord | null;
   message: string;
 }
+
+export type ApiDocumentationUploadData =
+  | ApiDocumentationRecord
+  | {
+      mediaFile: ApiDocumentationRecord;
+      damageDetection: ApiDamageDetectionRecord | null;
+    };
 
 export type DocumentationSearchPayload = Partial<{
   _id: string;
@@ -51,5 +60,9 @@ export type DocumentationSearchPayload = Partial<{
   "relatedTo.model": DocumentationRelatedModel;
   "relatedTo.id": string;
 }>;
+
+export interface DocumentationStatusUpdatePayload {
+  status: DocumentationStatus;
+}
 
 export type DocumentationUploadPayload = DocumentationUploadValues;

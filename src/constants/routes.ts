@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  BrainCircuit,
   ClipboardList,
   FileStack,
   Gauge,

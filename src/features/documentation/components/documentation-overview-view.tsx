@@ -17,9 +17,10 @@ import { DocumentationUploadModal } from "@/features/documentation/components/do
 import { FileGalleryGrid } from "@/features/documentation/components/file-gallery-grid";
 import type {
   DocumentationFile,
+  DocumentationStatus,
   DocumentationUploadOptions,
 } from "@/features/documentation/types/documentation";
-import { documentationService } from "@/services";
+import { damageDetectionService, documentationService } from "@/services";
 import type { ApiErrorShape } from "@/services/http/types";
 
 const emptyUploadOptions: DocumentationUploadOptions = {
@@ -44,7 +45,7 @@ export function DocumentationOverviewView() {
       { label: "Verified", value: files.filter((f) => f.status === "Verified").length.toString(), color: "#059669" },
       { label: "Pending Review", value: files.filter((f) => f.status === "Pending Review").length.toString(), color: "#d97706" },
       { label: "Total Files", value: files.length.toString(), color: "#145d66" },
-      { label: "Vision analyzed", value: visionReady.toString(), color: "#1e293b", hint: "Damage detection remains simulated" },
+      { label: "AI analyzed", value: visionReady.toString(), color: "#1e293b", hint: "Teachable Machine results" },
     ];
   }, [files]);
 
@@ -104,6 +105,68 @@ export function DocumentationOverviewView() {
     return result.data;
   }
 
+  async function analyzeExistingMedia(file: DocumentationFile) {
+    const result = await damageDetectionService.analyzeMediaFile(file.id);
+
+    if (result.error) {
+      setError(result.error);
+      return null;
+    }
+
+    const updatedFile = damageDetectionService.toDocumentationFile(file, result.data);
+    setFiles((current) => current.map((item) => (item.id === file.id ? updatedFile : item)));
+    setError(null);
+
+    return updatedFile;
+  }
+
+  async function updateMediaStatus(file: DocumentationFile, status: DocumentationStatus) {
+    const updated = await sileo
+      .promise(
+        async () => {
+          const result = await documentationService.updateStatus(file.id, status);
+
+          if (result.error) {
+            throw result.error;
+          }
+
+          return result.data;
+        },
+        {
+          loading: {
+            title: "Updating status...",
+            description: file.title,
+          },
+          success: (response) => ({
+            title: "Status updated",
+            description: response.message,
+          }),
+          error: (errorValue) => ({
+            title: "Status update failed",
+            description:
+              typeof errorValue === "object" && errorValue !== null && "message" in errorValue
+                ? String((errorValue as { message?: unknown }).message)
+                : "The media status could not be updated.",
+          }),
+        },
+      )
+      .catch((errorValue: ApiErrorShape) => {
+        setError(errorValue);
+        return null;
+      });
+
+    if (!updated) return null;
+
+    const updatedFile: DocumentationFile = {
+      ...file,
+      status: updated.file.status,
+    };
+    setFiles((current) => current.map((item) => (item.id === file.id ? updatedFile : item)));
+    setError(null);
+
+    return updatedFile;
+  }
+
   async function confirmDelete() {
     if (!deleteTarget) return;
 
@@ -161,7 +224,7 @@ export function DocumentationOverviewView() {
               Documentation
             </h1>
             <p className="mt-1.5 max-w-2xl text-sm text-slate-500 dark:text-stone-400">
-              Image library only (PNG/JPEG in production). Upload documentation to the API, then keep simulated damage detection separate until its backend endpoints exist.
+              Upload equipment images, connect them to operational records, and review API-side damage detection results.
             </p>
           </div>
           <button
@@ -208,6 +271,8 @@ export function DocumentationOverviewView() {
               files={files}
               onDelete={setDeleteTarget}
               onLoadPreview={loadPreview}
+              onAnalyzeDamage={analyzeExistingMedia}
+              onStatusChange={updateMediaStatus}
             />
           )}
         </div>

@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, FileImage, LoaderCircle, UploadCloud, X } from "lucide-react";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { sileo } from "sileo";
 
@@ -51,6 +52,7 @@ export function DocumentationUploadModal({
   onUploaded,
 }: DocumentationUploadModalProps) {
   const [image, setImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [purpose, setPurpose] = useState<DocumentationPurpose>("General");
@@ -62,6 +64,7 @@ export function DocumentationUploadModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const relatedOptions = options[relatedModel];
+  const isDamagePhoto = purpose === "Damage Photo";
   const canSubmit = Boolean(image && relatedId && !isSubmitting);
   const selectedFileMeta = useMemo(() => {
     if (!image) return "PNG or JPEG, up to 5 MB.";
@@ -69,7 +72,9 @@ export function DocumentationUploadModal({
   }, [image]);
 
   function resetForm() {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
     setImage(null);
+    setImagePreviewUrl(null);
     setTitle("");
     setSummary("");
     setPurpose("General");
@@ -89,6 +94,12 @@ export function DocumentationUploadModal({
   function handleModelChange(nextModel: DocumentationRelatedModel) {
     setRelatedModel(nextModel);
     setRelatedId("");
+  }
+
+  function handleImageChange(file?: File) {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    setImage(file ?? null);
+    setImagePreviewUrl(file ? URL.createObjectURL(file) : null);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -135,11 +146,11 @@ export function DocumentationUploadModal({
         },
         {
           loading: {
-            title: "Uploading documentation...",
+            title: isDamagePhoto ? "Uploading and analyzing damage photo..." : "Uploading documentation...",
             description: image.name,
           },
           success: (response) => ({
-            title: "Documentation uploaded",
+            title: isDamagePhoto ? "Damage analysis complete" : "Documentation uploaded",
             description: response.message,
           }),
           error: (errorValue) => ({
@@ -195,6 +206,7 @@ export function DocumentationUploadModal({
                   </h2>
                   <p className="text-sm text-slate-400 dark:text-stone-500">
                     Store equipment images and connect them to an asset, request, or maintenance job.
+                    {isDamagePhoto ? " Damage photos are analyzed after upload." : ""}
                   </p>
                 </div>
               </div>
@@ -217,15 +229,26 @@ export function DocumentationUploadModal({
                     type="file"
                     accept="image/png,image/jpeg"
                     className="sr-only"
-                    onChange={(event) => setImage(event.target.files?.[0] ?? null)}
+                    onChange={(event) => handleImageChange(event.target.files?.[0])}
                   />
-                  <FileImage className="h-8 w-8 text-[#145d66] dark:text-[#86d0d8]" />
+                  {imagePreviewUrl ? (
+                    <div className="relative mb-3 aspect-video w-full overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#171815]">
+                      <Image
+                        src={imagePreviewUrl}
+                        alt={image?.name ?? "Selected image preview"}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 90vw, 720px"
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <FileImage className="h-8 w-8 text-[#145d66] dark:text-[#86d0d8]" />
+                  )}
                   <span className="mt-3 text-sm font-semibold text-slate-900 dark:text-stone-100">
-                    Choose image
+                    {imagePreviewUrl ? "Replace image" : "Choose image"}
                   </span>
-                  <span className="mt-1 text-xs text-slate-500 dark:text-stone-400">
-                    {selectedFileMeta}
-                  </span>
+                  <span className="mt-1 text-xs text-slate-500 dark:text-stone-400">{selectedFileMeta}</span>
                 </label>
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -247,6 +270,9 @@ export function DocumentationUploadModal({
                         <option key={option}>{option}</option>
                       ))}
                     </select>
+                    <p className="text-xs leading-5 text-slate-500 dark:text-stone-400">
+                      Select <span className="font-semibold text-[#145d66] dark:text-[#86d0d8]">Damage Photo</span> to run AI damage detection after upload.
+                    </p>
                   </FieldShell>
                   <FieldShell label="Related model">
                     <select
@@ -323,7 +349,7 @@ export function DocumentationUploadModal({
                   className="flex h-12 items-center justify-center gap-2 rounded-full bg-[#145d66] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
                 >
                   {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                  {isSubmitting ? "Uploading..." : "Upload documentation"}
+                  {isSubmitting ? (isDamagePhoto ? "Analyzing..." : "Uploading...") : isDamagePhoto ? "Upload and analyze" : "Upload documentation"}
                   {!isSubmitting ? <ArrowRight className="h-4 w-4" /> : null}
                 </button>
               </div>

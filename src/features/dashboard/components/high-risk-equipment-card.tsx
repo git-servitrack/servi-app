@@ -1,6 +1,3 @@
-import Link from "next/link";
-
-import { ROUTES } from "@/constants/routes";
 import type { HighRiskEquipmentReportRow } from "@/features/reports/types/reports";
 
 const riskColor: Record<string, string> = {

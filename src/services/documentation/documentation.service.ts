@@ -1,13 +1,22 @@
 import type { AssetRecord } from "@/features/assets/types/assets";
 import type { DocumentationFile, DocumentationRelatedOption, DocumentationUploadOptions } from "@/features/documentation/types/documentation";
 import { assetsService } from "@/services/assets/assets.service";
+import type { ApiDamageDetectionRecord } from "@/services/damage-detection/contracts";
+import {
+  DAMAGE_DETECTION_FIELDS,
+  DAMAGE_DETECTION_POPULATE,
+  getLatestDamageDetectionByMediaFile,
+  mapApiDamageDetectionToVisionAnalysis,
+} from "@/services/damage-detection/mappers";
 import { createApiResult, requestEnvelope, requestFormData, requestJson } from "@/services/http/client";
 import type { ApiResult, QueryParams } from "@/services/http/types";
 import { maintenanceService } from "@/services/maintenance/maintenance.service";
 import { serviceRequestsService } from "@/services/service-requests/service-requests.service";
 import type {
   ApiDocumentationRecord,
+  ApiDocumentationUploadData,
   DocumentationSearchPayload,
+  DocumentationStatusUpdatePayload,
   DocumentationUploadPayload,
   DocumentationUploadResponse,
 } from "@/services/documentation/contracts";
@@ -90,7 +99,10 @@ function getRelatedLinkLabel(model: ApiDocumentationRecord["relatedTo"]["model"]
   return "Maintenance job";
 }
 
-function mapApiDocumentationToFile(file: ApiDocumentationRecord): DocumentationFile {
+export function mapApiDocumentationToFile(
+  file: ApiDocumentationRecord,
+  damageDetection?: ApiDamageDetectionRecord | null,
+): DocumentationFile {
   const relatedLabel = getRelatedLabel(file.relatedTo.id);
   const relatedDetail = getRelatedDetail(file.relatedTo.id);
   const summary = file.summary || "No documentation summary provided.";
@@ -115,13 +127,7 @@ function mapApiDocumentationToFile(file: ApiDocumentationRecord): DocumentationF
         value: relatedDetail ? `${relatedLabel} (${relatedDetail})` : relatedLabel,
       },
     ],
-    visionAnalysis: {
-      applicable: false,
-      skipReason:
-        "Damage detection remains simulated until the API exposes dedicated damage analysis endpoints.",
-      modelProfile: "Damage detection API pending",
-      analyzedAt: formatDate(file.updatedAt ?? file.createdAt),
-    },
+    visionAnalysis: mapApiDamageDetectionToVisionAnalysis(damageDetection),
   };
 }
 
@@ -156,6 +162,27 @@ function buildUploadFormData(payload: DocumentationUploadPayload) {
   return formData;
 }
 
+function getUploadMediaFile(data: ApiDocumentationUploadData): ApiDocumentationRecord {
+  return "mediaFile" in data ? data.mediaFile : data;
+}
+
+function getUploadDamageDetection(data: ApiDocumentationUploadData): ApiDamageDetectionRecord | null {
+  return "mediaFile" in data ? data.damageDetection : null;
+}
+
+async function getRecentDamageDetections(query?: QueryParams) {
+  return requestJson<ApiDamageDetectionRecord[]>("/damage-detection", {
+    query: {
+      fields: DAMAGE_DETECTION_FIELDS,
+      populate: DAMAGE_DETECTION_POPULATE,
+      limit: 100,
+      sort: "createdAt",
+      order: "desc",
+      ...query,
+    },
+  });
+}
+
 function mapAssetOption(asset: AssetRecord): DocumentationRelatedOption {
   return {
     id: asset.id,
@@ -167,24 +194,34 @@ function mapAssetOption(asset: AssetRecord): DocumentationRelatedOption {
 export const documentationService = {
   async list(query?: QueryParams): Promise<ApiResult<DocumentationFile[]>> {
     return createApiResult(async () => {
-      const files = await requestJson<ApiDocumentationRecord[]>("/documentation", {
-        query: buildDocumentationQuery(query),
-      });
+      const [files, detections] = await Promise.all([
+        requestJson<ApiDocumentationRecord[]>("/documentation", {
+          query: buildDocumentationQuery(query),
+        }),
+        getRecentDamageDetections(),
+      ]);
+      const detectionsByMediaFile = getLatestDamageDetectionByMediaFile(detections);
 
-      return files.map(mapApiDocumentationToFile);
+      return files.map((file) => mapApiDocumentationToFile(file, detectionsByMediaFile.get(file._id)));
     });
   },
 
   async getById(fileId: string): Promise<ApiResult<DocumentationFile>> {
     return createApiResult(async () => {
-      const file = await requestJson<ApiDocumentationRecord>(`/documentation/${fileId}`, {
-        query: {
-          fields: DOCUMENTATION_FIELDS,
-          populate: DOCUMENTATION_POPULATE,
-        },
-      });
+      const [file, detections] = await Promise.all([
+        requestJson<ApiDocumentationRecord>(`/documentation/${fileId}`, {
+          query: {
+            fields: DOCUMENTATION_FIELDS,
+            populate: DOCUMENTATION_POPULATE,
+          },
+        }),
+        getRecentDamageDetections({
+          filter: `mediaFile:${fileId}`,
+          limit: 1,
+        }),
+      ]);
 
-      return mapApiDocumentationToFile(file);
+      return mapApiDocumentationToFile(file, detections[0]);
     });
   },
 
@@ -205,13 +242,44 @@ export const documentationService = {
 
   async upload(payload: DocumentationUploadPayload): Promise<ApiResult<DocumentationUploadResponse>> {
     return createApiResult(async () => {
-      const result = await requestFormData<ApiDocumentationRecord>(
+      const result = await requestFormData<ApiDocumentationUploadData>(
         "/documentation/upload",
         buildUploadFormData(payload),
       );
 
       if (!result.data) {
         throw new Error("Documentation upload response did not include file data.");
+      }
+      const mediaFile = getUploadMediaFile(result.data);
+      const damageDetection = getUploadDamageDetection(result.data);
+
+      return {
+        file: mapApiDocumentationToFile(mediaFile, damageDetection),
+        damageDetection,
+        message: result.message,
+      };
+    });
+  },
+
+  async updateStatus(
+    fileId: string,
+    status: DocumentationUploadPayload["status"],
+  ): Promise<ApiResult<DocumentationUploadResponse>> {
+    return createApiResult(async () => {
+      if (!status) {
+        throw new Error("Choose a valid documentation status.");
+      }
+
+      const result = await requestEnvelope<ApiDocumentationRecord, DocumentationStatusUpdatePayload>(
+        `/documentation/${fileId}/status`,
+        {
+          method: "PATCH",
+          body: { status },
+        },
+      );
+
+      if (!result.data) {
+        throw new Error("Documentation status response did not include file data.");
       }
 
       return {

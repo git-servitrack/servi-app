@@ -2,10 +2,17 @@
 
 import { AlertTriangle, Camera, Images, LoaderCircle, ScanLine, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 
-import type { DocumentationFile, VisionSeverity } from "@/features/documentation/types/documentation";
+import type { DocumentationFile, DocumentationStatus, VisionSeverity } from "@/features/documentation/types/documentation";
 
 const SEVERITY_STYLES: Record<VisionSeverity, string> = {
+  Low:
+    "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
+  Medium:
+    "bg-amber-50 text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-800",
+  High:
+    "bg-orange-50 text-orange-900 ring-1 ring-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:ring-orange-800",
   Minor:
     "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
   Moderate:
@@ -18,12 +25,36 @@ interface DocumentationPreviewModalProps {
   open: boolean;
   onClose: () => void;
   isLoading?: boolean;
+  isAnalyzing?: boolean;
+  isUpdatingStatus?: boolean;
+  onAnalyze?: (file: DocumentationFile) => void;
+  onStatusChange?: (file: DocumentationFile, status: DocumentationStatus) => void;
 }
 
-export function DocumentationPreviewModal({ file, open, onClose, isLoading = false }: DocumentationPreviewModalProps) {
+export function DocumentationPreviewModal({
+  file,
+  open,
+  onClose,
+  isLoading = false,
+  isAnalyzing = false,
+  isUpdatingStatus = false,
+  onAnalyze,
+  onStatusChange,
+}: DocumentationPreviewModalProps) {
   return (
     <AnimatePresence>
-      {open && file ? <PreviewModalContent file={file} onClose={onClose} isLoading={isLoading} /> : null}
+      {open && file ? (
+        <PreviewModalContent
+          key={`${file.id}-${file.status}`}
+          file={file}
+          onClose={onClose}
+          isLoading={isLoading}
+          isAnalyzing={isAnalyzing}
+          isUpdatingStatus={isUpdatingStatus}
+          onAnalyze={onAnalyze}
+          onStatusChange={onStatusChange}
+        />
+      ) : null}
     </AnimatePresence>
   );
 }
@@ -32,12 +63,22 @@ function PreviewModalContent({
   file,
   onClose,
   isLoading,
+  isAnalyzing,
+  isUpdatingStatus,
+  onAnalyze,
+  onStatusChange,
 }: {
   file: DocumentationFile;
   onClose: () => void;
   isLoading: boolean;
+  isAnalyzing: boolean;
+  isUpdatingStatus: boolean;
+  onAnalyze?: (file: DocumentationFile) => void;
+  onStatusChange?: (file: DocumentationFile, status: DocumentationStatus) => void;
 }) {
   const va = file.visionAnalysis;
+  const [selectedStatus, setSelectedStatus] = useState<DocumentationStatus>(file.status);
+  const statusChanged = selectedStatus !== file.status;
 
   return (
         <motion.div
@@ -126,6 +167,34 @@ function PreviewModalContent({
                         <dd className="mt-0.5 font-medium text-slate-900 dark:text-stone-100">{file.uploadedBy}</dd>
                       </div>
                     </dl>
+                    {onStatusChange ? (
+                      <div className="mt-4 border-t border-slate-200 pt-4 dark:border-white/8">
+                        <label className="text-xs text-slate-400 dark:text-stone-500" htmlFor={`status-${file.id}`}>
+                          Review status
+                        </label>
+                        <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
+                          <select
+                            id={`status-${file.id}`}
+                            value={selectedStatus}
+                            onChange={(event) => setSelectedStatus(event.target.value as DocumentationStatus)}
+                            disabled={isUpdatingStatus}
+                            className="flex h-10 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 focus-visible:border-[#145d66] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#145d66]/20 disabled:opacity-60 dark:border-white/10 dark:bg-[#171815] dark:text-stone-100"
+                          >
+                            <option value="Pending Review">Pending Review</option>
+                            <option value="Verified">Verified</option>
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => onStatusChange(file, selectedStatus)}
+                            disabled={!statusChanged || isUpdatingStatus}
+                            className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#145d66] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
+                          >
+                            {isUpdatingStatus ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+                            {isUpdatingStatus ? "Saving..." : "Save status"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
                     <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-200 pt-4 dark:border-white/8">
                       {file.links.map((link) => (
                         <span
@@ -145,7 +214,7 @@ function PreviewModalContent({
                     <ScanLine className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" />
                     <div>
                       <h3 className="text-sm font-bold text-slate-900 dark:text-stone-100">Vision analysis</h3>
-                      <p className="text-xs text-slate-500 dark:text-stone-500">Stored snapshot (UI demo)</p>
+                      <p className="text-xs text-slate-500 dark:text-stone-500">Stored model result</p>
                     </div>
                   </div>
 
@@ -223,8 +292,20 @@ function PreviewModalContent({
                     </div>
                   )}
 
+                  {onAnalyze ? (
+                    <button
+                      type="button"
+                      onClick={() => onAnalyze(file)}
+                      disabled={isAnalyzing}
+                      className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#145d66] px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      {isAnalyzing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ScanLine className="h-4 w-4" />}
+                      {isAnalyzing ? "Analyzing..." : va.applicable ? "Re-analyze media" : "Analyze media"}
+                    </button>
+                  ) : null}
+
                   <p className="mt-4 border-t border-slate-200 pt-3 text-[11px] leading-relaxed text-slate-400 dark:border-white/8 dark:text-stone-500">
-                    Production would run CNN / transfer-learning (e.g. MobileNet, ResNet) via TensorFlow or PyTorch; TensorFlow Lite for mobile. This panel reflects mock data only.
+                    Results are generated by the API-side Teachable Machine TensorFlow.js damage detection model.
                   </p>
                 </div>
               </div>

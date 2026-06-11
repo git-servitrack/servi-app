@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 
 import { DocumentationPreviewModal } from "@/features/documentation/components/documentation-preview-modal";
 import { MediaPreviewCard } from "@/features/documentation/components/media-preview-card";
-import type { DocumentationFile, VisionSeverity } from "@/features/documentation/types/documentation";
+import type { DocumentationFile, DocumentationStatus, VisionSeverity } from "@/features/documentation/types/documentation";
 
 const PAGE_SIZE = 4;
 
@@ -16,6 +16,9 @@ const STATUS_FILTERS = [
 ];
 
 const SEVERITY_STYLES: Record<VisionSeverity, string> = {
+  Low: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
+  Medium: "bg-amber-50 text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-800",
+  High: "bg-orange-50 text-orange-900 ring-1 ring-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:ring-orange-800",
   Minor: "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
   Moderate: "bg-amber-50 text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-800",
   Critical: "bg-rose-50 text-rose-900 ring-1 ring-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:ring-rose-800",
@@ -25,15 +28,19 @@ interface FileGalleryGridProps {
   files: DocumentationFile[];
   onDelete?: (file: DocumentationFile) => void;
   onLoadPreview?: (fileId: string) => Promise<DocumentationFile | null>;
+  onAnalyzeDamage?: (file: DocumentationFile) => Promise<DocumentationFile | null>;
+  onStatusChange?: (file: DocumentationFile, status: DocumentationStatus) => Promise<DocumentationFile | null>;
 }
 
-export function FileGalleryGrid({ files, onDelete, onLoadPreview }: FileGalleryGridProps) {
+export function FileGalleryGrid({ files, onDelete, onLoadPreview, onAnalyzeDamage, onStatusChange }: FileGalleryGridProps) {
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]["id"]>("all");
-  const [view, setView] = useState<"cards" | "table">("cards");
+  const [view, setView] = useState<"cards" | "table">("table");
   const [page, setPage] = useState(1);
   const [previewFile, setPreviewFile] = useState<DocumentationFile | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (statusFilter === "all") return files;
@@ -68,6 +75,30 @@ export function FileGalleryGrid({ files, onDelete, onLoadPreview }: FileGalleryG
 
   function closePreview() {
     setPreviewOpen(false);
+  }
+
+  async function analyzePreviewFile(file: DocumentationFile) {
+    if (!onAnalyzeDamage) return;
+
+    setAnalyzingId(file.id);
+    const updatedFile = await onAnalyzeDamage(file);
+    setAnalyzingId(null);
+
+    if (updatedFile) {
+      setPreviewFile(updatedFile);
+    }
+  }
+
+  async function updatePreviewStatus(file: DocumentationFile, status: DocumentationStatus) {
+    if (!onStatusChange) return;
+
+    setUpdatingStatusId(file.id);
+    const updatedFile = await onStatusChange(file, status);
+    setUpdatingStatusId(null);
+
+    if (updatedFile) {
+      setPreviewFile(updatedFile);
+    }
   }
 
   const pageNumbers = useMemo(() => {
@@ -235,7 +266,7 @@ export function FileGalleryGrid({ files, onDelete, onLoadPreview }: FileGalleryG
                           {va.severity}
                         </span>
                       ) : (
-                        <span className="text-[11px] font-medium text-slate-400 dark:text-stone-500">Pending CV</span>
+                        <span className="text-[11px] font-medium text-slate-400 dark:text-stone-500">Not analyzed</span>
                       )}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-600 dark:text-stone-400">{file.uploadedAt}</td>
@@ -325,6 +356,10 @@ export function FileGalleryGrid({ files, onDelete, onLoadPreview }: FileGalleryG
         open={previewOpen}
         onClose={closePreview}
         isLoading={Boolean(previewLoadingId)}
+        isAnalyzing={Boolean(previewFile && analyzingId === previewFile.id)}
+        isUpdatingStatus={Boolean(previewFile && updatingStatusId === previewFile.id)}
+        onAnalyze={onAnalyzeDamage ? (file) => void analyzePreviewFile(file) : undefined}
+        onStatusChange={onStatusChange ? (file, status) => void updatePreviewStatus(file, status) : undefined}
       />
     </div>
   );

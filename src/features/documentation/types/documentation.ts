@@ -1,7 +1,7 @@
 /** Gallery accepts equipment photos only (PNG / JPEG in production). */
 export type DocumentationFileType = "Image";
 
-export type VisionSeverity = "Minor" | "Moderate" | "Critical";
+export type VisionSeverity = "Minor" | "Moderate" | "Low" | "Medium" | "High" | "Critical";
 
 export interface VisionFinding {
   label: string;
@@ -9,7 +9,7 @@ export interface VisionFinding {
   detail: string;
 }
 
-/** Stored snapshot from a vision pass (simulated in UI until a model is wired). */
+/** Stored snapshot from a damage detection vision pass. */
 export interface DocumentationVisionAnalysis {
   applicable: boolean;
   severity?: VisionSeverity;

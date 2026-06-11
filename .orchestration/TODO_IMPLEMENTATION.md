@@ -144,7 +144,7 @@ The app already has a frontend service layer in `src/services`, but many screens
 - [x] Wire file upload to `POST /documentation/upload` with multipart form data
 - [x] Include upload fields expected by the API: `title`, `summary`, `purpose`, `tags`, `relatedModel`, `relatedId`, and optional `status`
 - [x] Map documentation links to API related models: asset, service request, or maintenance job
-- [x] Keep current damage-image analysis UI simulated until damage detection API endpoints exist
+- [x] Wire default documentation upload UI to damage detection when purpose is `Damage Photo`
 
 ### Predictive Maintenance
 
@@ -237,15 +237,15 @@ The app already has a frontend service layer in `src/services`, but many screens
 
 ### Damage Detection
 
-- [ ] Keep damage detection UI marked as simulated until the API adds damage detection routes
-- [ ] Add client service contracts only after the API defines the damage detection request and response shape
-- [ ] Expected future client surfaces:
+- [x] Remove simulated damage detection messaging now that API damage detection routes exist
+- [x] Add client service contracts for the damage detection request and response shape
+- [x] Implement client surfaces:
   - analyze existing documentation media
-  - upload and analyze image in one flow
+  - upload and analyze image in one flow through the default documentation upload button
   - show top prediction label
   - show all class confidence scores
   - show severity, suggested action, and low-confidence fallback state
-- [ ] Do not wire the current documentation vision UI to predictive maintenance endpoints; these are separate API capabilities
+- [x] Do not wire the current documentation vision UI to predictive maintenance endpoints; these are separate API capabilities
 
 ### API Contract Follow-Ups
 
@@ -264,7 +264,7 @@ The app already has a frontend service layer in `src/services`, but many screens
 - [ ] Confirm this file exists at `servi-app/.orchestration/TODO_IMPLEMENTATION.md`
 - [ ] Confirm every currently registered API controller domain is represented
 - [ ] Confirm each frontend mock/static-data replacement area is listed
-- [ ] Confirm damage detection remains marked as blocked/future
+- [x] Confirm damage detection is wired to the implemented API endpoints
 
 ### Future Implementation Verification
 
@@ -290,6 +290,6 @@ The API integration is complete when:
 - [ ] Uploads use multipart requests where required
 - [ ] Role-aware UI behavior uses real session data
 - [ ] Predictive maintenance UI consumes real prediction/report data
-- [ ] Damage detection UI is either fully wired to future API endpoints or clearly labeled as simulated
+- [x] Damage detection UI is either fully wired to future API endpoints or clearly labeled as simulated
 - [ ] `pnpm lint` passes
 - [ ] `pnpm build` passes
