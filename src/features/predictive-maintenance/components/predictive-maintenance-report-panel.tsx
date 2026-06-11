@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BrainCircuit, LoaderCircle, RefreshCw, Trash2 } from "lucide-react";
+import { Activity, BrainCircuit, LoaderCircle, RefreshCw, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { sileo } from "sileo";
 
@@ -93,6 +93,7 @@ export function PredictiveMaintenanceReportPanel() {
       critical,
       high,
       averageRisk,
+      total: predictions.length,
     };
   }, [predictions]);
 
@@ -336,22 +337,31 @@ export function PredictiveMaintenanceReportPanel() {
       <div className="space-y-5 px-4 py-4 sm:px-6 sm:py-5">
         {error ? <ApiErrorAlert message={error.message} /> : null}
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <MiniMetric label="Critical risks" value={summary.critical.toString()} color="#e11d48" />
           <MiniMetric label="High risks" value={summary.high.toString()} color="#f97316" />
           <MiniMetric label="Average score" value={`${summary.averageRisk}%`} color="#145d66" />
+          <MiniMetric label="Saved results" value={summary.total.toString()} color="#64748b" />
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
-          <form className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-white/10 dark:bg-white/4" onSubmit={handlePredict}>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#145d66]/10 dark:bg-[#145d66]/20">
-                <BrainCircuit className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" />
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
+          <form
+            className="self-start rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-white/10 dark:bg-white/4"
+            onSubmit={handlePredict}
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#145d66]/10 dark:bg-[#145d66]/20">
+                  <BrainCircuit className="h-5 w-5 text-[#145d66] dark:text-[#86d0d8]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-stone-100">Manual prediction</h3>
+                  <p className="text-xs text-slate-500 dark:text-stone-400">
+                    Use Kaggle-style machine readings. Temperatures are Kelvin.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-stone-100">Manual prediction</h3>
-                <p className="text-xs text-slate-500 dark:text-stone-400">Use Kaggle-style machine readings. Temperatures are Kelvin.</p>
-              </div>
+              <StepBadge label="Step 1" />
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -427,7 +437,7 @@ export function PredictiveMaintenanceReportPanel() {
               </FieldShell>
             </div>
 
-            <div className="mt-5 flex justify-end">
+            <div className="mt-5 flex justify-end border-t border-slate-200 pt-4 dark:border-white/10">
               <button
                 type="submit"
                 disabled={isPredicting}
@@ -439,49 +449,78 @@ export function PredictiveMaintenanceReportPanel() {
             </div>
           </form>
 
-          <div className="space-y-4">
+          <div className="self-start space-y-4">
+            <PredictionResultCard prediction={latestPrediction} />
+
             <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-white/10 dark:bg-white/4">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-stone-100">Model training</h3>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-stone-100">What happens next</h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-stone-400">
+                    Use the score to decide inspection urgency, then open related maintenance work if needed.
+                  </p>
+                </div>
+                <StepBadge label="Step 2" />
+              </div>
+              <div className="mt-4 space-y-2 text-xs leading-5 text-slate-500 dark:text-stone-400">
+                <p className="rounded-xl bg-white px-3 py-2 dark:bg-[#171815]">
+                  Critical or high risk readings should be reviewed before the next operating window.
+                </p>
+                <p className="rounded-xl bg-white px-3 py-2 dark:bg-[#171815]">
+                  Asset-linked predictions are saved with the equipment context for easier follow-up.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-white/10 dark:bg-white/4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-stone-100">Model training</h3>
+              </div>
               <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-stone-400">
                 Optional admin action. Leave fields blank to use API defaults.
               </p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                <input
-                  value={trainValues.validationRatio}
-                  onChange={(event) => updateTrainValue("validationRatio", event.target.value)}
-                  placeholder="Validation ratio"
-                  className={inputClass}
-                />
-                <input
-                  value={trainValues.maxDepth}
-                  onChange={(event) => updateTrainValue("maxDepth", event.target.value)}
-                  placeholder="Max depth"
-                  className={inputClass}
-                />
-                <input
-                  value={trainValues.minNumSamples}
-                  onChange={(event) => updateTrainValue("minNumSamples", event.target.value)}
-                  placeholder="Min samples"
-                  className={inputClass}
-                />
-              </div>
-                <button
-                  type="button"
-                  onClick={() => void handleTrain()}
-                disabled={isTraining}
-                className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50 dark:border-white/10 dark:bg-[#171815] dark:text-stone-300 dark:hover:bg-white/6"
-              >
-                {isTraining ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <BrainCircuit className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />}
-                {isTraining ? "Training..." : "Train decision tree"}
-              </button>
               {trainingResult ? (
-                <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-stone-400">
+                <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-stone-400">
                   Latest training: {trainingResult.version}, target accuracy {(trainingResult.metrics.targetAccuracy * 100).toFixed(1)}%.
                 </p>
               ) : null}
             </div>
 
-            <PredictionResultCard prediction={latestPrediction} />
+            <div className="grid flex-1 gap-3 sm:grid-cols-3 lg:max-w-3xl">
+              <input
+                value={trainValues.validationRatio}
+                onChange={(event) => updateTrainValue("validationRatio", event.target.value)}
+                placeholder="Validation ratio"
+                className={inputClass}
+              />
+              <input
+                value={trainValues.maxDepth}
+                onChange={(event) => updateTrainValue("maxDepth", event.target.value)}
+                placeholder="Max depth"
+                className={inputClass}
+              />
+              <input
+                value={trainValues.minNumSamples}
+                onChange={(event) => updateTrainValue("minNumSamples", event.target.value)}
+                placeholder="Min samples"
+                className={inputClass}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => void handleTrain()}
+              disabled={isTraining}
+              className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50 dark:border-white/10 dark:bg-[#171815] dark:text-stone-300 dark:hover:bg-white/6"
+            >
+              {isTraining ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <BrainCircuit className="h-4 w-4 text-[#145d66] dark:text-[#86d0d8]" />}
+              {isTraining ? "Training..." : "Train decision tree"}
+            </button>
           </div>
         </div>
 
@@ -575,6 +614,14 @@ function FieldShell({
       <span className="text-sm font-medium text-slate-700 dark:text-stone-300">{label}</span>
       {children}
     </label>
+  );
+}
+
+function StepBadge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex h-8 shrink-0 items-center rounded-full border border-[#145d66]/20 bg-[#145d66]/10 px-3 text-xs font-semibold text-[#145d66] dark:border-[#86d0d8]/20 dark:bg-[#86d0d8]/10 dark:text-[#86d0d8]">
+      {label}
+    </span>
   );
 }
 

@@ -1,5 +1,4 @@
-import { UserEditView } from "@/features/user-management/components/user-edit-view";
-import { UserManagementAccessGate } from "@/features/user-management/components/user-management-access-gate";
+import { redirect } from "next/navigation";
 
 interface UserManagementEditPageProps {
   params: Promise<{ userId: string }>;
@@ -8,9 +7,5 @@ interface UserManagementEditPageProps {
 export default async function UserManagementEditPage({ params }: UserManagementEditPageProps) {
   const { userId } = await params;
 
-  return (
-    <UserManagementAccessGate>
-      <UserEditView userId={userId} />
-    </UserManagementAccessGate>
-  );
+  redirect(`/settings/user-management/${userId}/edit`);
 }

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
+import { ROUTES } from "@/constants/routes";
 import { TechnicianFormModal } from "@/features/technicians/components/technician-form-modal";
 import { TechnicianHistoryTable } from "@/features/technicians/components/technician-history-table";
 import { TechnicianProfileCard } from "@/features/technicians/components/technician-profile-card";
@@ -57,7 +58,7 @@ export function TechnicianDetailView({ technicianId }: { technicianId: string })
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
-          href="/technicians"
+          href={ROUTES.technicians}
           className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900 dark:text-stone-400 dark:hover:text-stone-100"
         >
           <ArrowLeft className="h-4 w-4" />

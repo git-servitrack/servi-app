@@ -1,4 +1,4 @@
-import { TechnicianFormView } from "@/features/technicians/components/technician-form-view";
+import { redirect } from "next/navigation";
 
 export default async function TechnicianEditPage({
   params,
@@ -7,5 +7,5 @@ export default async function TechnicianEditPage({
 }) {
   const { technicianId } = await params;
 
-  return <TechnicianFormView mode="edit" technicianId={technicianId} />;
+  redirect(`/settings/technicians/${technicianId}/edit`);
 }

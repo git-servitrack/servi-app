@@ -1,4 +1,4 @@
-import { TechnicianDetailView } from "@/features/technicians/components/technician-detail-view";
+import { redirect } from "next/navigation";
 
 export default async function TechnicianDetailPage({
   params,
@@ -7,5 +7,5 @@ export default async function TechnicianDetailPage({
 }) {
   const { technicianId } = await params;
 
-  return <TechnicianDetailView technicianId={technicianId} />;
+  redirect(`/settings/technicians/${technicianId}`);
 }

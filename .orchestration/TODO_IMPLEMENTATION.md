@@ -157,7 +157,7 @@ The app already has a frontend service layer in `src/services`, but many screens
 - [x] Wire prediction deletion, if exposed in the UI, to `DELETE /predictive-maintenance/:id`
 - [x] Add frontend contracts for decision-tree fields: `type`, `airTemperature`, `processTemperature`, `rotationalSpeed`, `torque`, and `toolWear`
 - [ ] Connect Phase 11 UI items: asset risk card, dashboard high-risk section, service request risk context, maintenance assignment context, and high-risk equipment report
-  - Initial placement done: Reports now includes manual/asset-linked predictive analysis and recent saved predictions. Asset/dashboard/request/maintenance contextual cards can reuse the same service in later UI passes.
+  - Initial placement done: Predictive Maintenance now has a dedicated page with manual/asset-linked predictive analysis and recent saved predictions. Asset/dashboard/request/maintenance contextual cards can reuse the same service in later UI passes.
 
 ### Reports and Dashboard
 

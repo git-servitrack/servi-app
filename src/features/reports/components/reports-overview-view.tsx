@@ -12,7 +12,6 @@ import {
 import { CompletionRateReportUi } from "@/features/reports/components/completion-rate-report-ui";
 import { ExportLayoutPlaceholder } from "@/features/reports/components/export-layout-placeholder";
 import { MaintenanceHistoryReportUi } from "@/features/reports/components/maintenance-history-report-ui";
-import { PredictiveMaintenanceReportPanel } from "@/features/predictive-maintenance/components/predictive-maintenance-report-panel";
 import { ReportFilterToolbar } from "@/features/reports/components/report-filter-toolbar";
 import { ReportMetricCard } from "@/features/reports/components/report-metric-card";
 import { ReportSectionCard } from "@/features/reports/components/report-section-card";
@@ -52,10 +51,6 @@ export function ReportsOverviewView() {
           {reportMetrics.map((metric) => (
             <ReportMetricCard key={metric.label} metric={metric} />
           ))}
-        </div>
-
-        <div className="mt-6 sm:mt-8">
-          <PredictiveMaintenanceReportPanel />
         </div>
 
         <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:gap-6">

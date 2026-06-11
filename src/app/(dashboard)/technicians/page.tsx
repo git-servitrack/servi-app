@@ -1,5 +1,5 @@
-import { TechnicianListView } from "@/features/technicians/components/technician-list-view";
+import { redirect } from "next/navigation";
 
 export default function TechniciansPage() {
-  return <TechnicianListView />;
+  redirect("/settings/technicians");
 }
