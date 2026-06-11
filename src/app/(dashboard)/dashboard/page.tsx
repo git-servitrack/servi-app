@@ -5,6 +5,8 @@ import { LoaderCircle, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { ApiErrorAlert } from "@/components/feedback/api-error-alert";
+import { isRouteAllowedForRole } from "@/config/access-control";
+import { ROUTES } from "@/constants/routes";
 import { HighRiskEquipmentCard } from "@/features/dashboard/components/high-risk-equipment-card";
 import { KpiCard } from "@/features/dashboard/components/kpi-card";
 import { MaintenanceTrendSection } from "@/features/dashboard/components/maintenance-trend-section";
@@ -21,7 +23,8 @@ import type {
 import type { MaintenanceRecord } from "@/features/maintenance/types/maintenance";
 import type { HighRiskEquipmentReportRow } from "@/features/reports/types/reports";
 import type { ServiceRequestRecord } from "@/features/service-requests/types/service-requests";
-import { maintenanceService, reportsService, serviceRequestsService, sparePartsService } from "@/services";
+import { authService, maintenanceService, reportsService, serviceRequestsService, sparePartsService } from "@/services";
+import type { UserRoleId } from "@/features/auth/types/auth";
 import type { ApiErrorShape } from "@/services/http/types";
 
 const priorityDots: Record<string, string> = {
@@ -198,12 +201,14 @@ export default function DashboardPage() {
   const [highRiskEquipment, setHighRiskEquipment] = useState<HighRiskEquipmentReportRow[]>([]);
   const [error, setError] = useState<ApiErrorShape | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [roleId, setRoleId] = useState<UserRoleId | null>(null);
 
   useEffect(() => {
     let active = true;
 
     async function loadDashboard() {
-      const [overviewResult, requestResult, lowStockResult, maintenanceResult] = await Promise.all([
+      const [userResult, overviewResult, requestResult, lowStockResult, maintenanceResult] = await Promise.all([
+        authService.getCurrentUser(),
         reportsService.overview({ period: "Last 30 days", limit: "10" }),
         serviceRequestsService.list({ limit: 100 }),
         sparePartsService.lowStock({ limit: 100 }),
@@ -212,10 +217,15 @@ export default function DashboardPage() {
 
       if (!active) return;
 
-      const firstError = overviewResult.error ?? requestResult.error ?? lowStockResult.error ?? maintenanceResult.error;
+      const currentRole = userResult.data?.session.roleId ?? null;
+      const getAllowedHref = (route: string) =>
+        currentRole && isRouteAllowedForRole(route, currentRole) ? route : undefined;
+      const firstError =
+        userResult.error ?? overviewResult.error ?? requestResult.error ?? lowStockResult.error ?? maintenanceResult.error;
       const requests = requestResult.error ? [] : requestResult.data;
       const maintenanceItems = maintenanceResult.error ? [] : maintenanceResult.data;
 
+      setRoleId(currentRole);
       setError(firstError);
       setHighRiskEquipment(overviewResult.error ? [] : overviewResult.data.highRiskEquipment);
       setRecentRequests(buildRecentRequests(requests));
@@ -228,28 +238,28 @@ export default function DashboardPage() {
           value: String(requests.filter((item) => !["Resolved", "Closed"].includes(item.status)).length),
           trend: "Open service requests",
           highlight: true,
-          href: "/service-requests",
+          href: getAllowedHref(ROUTES.serviceRequests),
         },
         {
           label: "Completion Rate",
           value: overviewResult.error ? "0%" : getMetricValue(overviewResult.data.metrics, "Average SLA rate", "0%"),
           trend: "Current report window",
           highlight: false,
-          href: "/reports",
+          href: getAllowedHref(ROUTES.reports),
         },
         {
           label: "Attention Needed",
           value: overviewResult.error ? "0" : String(overviewResult.data.highRiskEquipment.length),
           trend: "High-risk predictive results",
           highlight: false,
-          href: "/predictive-maintenance",
+          href: getAllowedHref(ROUTES.predictiveMaintenance),
         },
         {
           label: "Low Stock Parts",
           value: lowStockResult.error ? "0" : String(lowStockResult.data.length),
           trend: "Parts below reorder point",
           highlight: false,
-          href: "/spare-parts",
+          href: getAllowedHref(ROUTES.spareParts),
         },
       ]);
 
@@ -278,13 +288,15 @@ export default function DashboardPage() {
               Track service demand, maintenance throughput, resource pressure, and predictive risk at a glance.
             </p>
           </div>
-          <Link
-            href="/service-requests"
-            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] dark:hover:bg-[#1a7a86]"
-          >
-            <Plus className="h-4 w-4" />
-            New Request
-          </Link>
+          {roleId && isRouteAllowedForRole(ROUTES.serviceRequests, roleId) ? (
+            <Link
+              href={ROUTES.serviceRequests}
+              className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] dark:hover:bg-[#1a7a86]"
+            >
+              <Plus className="h-4 w-4" />
+              New Request
+            </Link>
+          ) : null}
         </div>
 
         {error ? (

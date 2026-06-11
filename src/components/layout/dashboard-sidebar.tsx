@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useTheme } from "@/components/providers/theme-provider";
 import { useSidebar } from "@/components/providers/sidebar-provider";
-import { DASHBOARD_NAVIGATION } from "@/constants/routes";
+import { getNavigationForRole } from "@/config/access-control";
 import { cn } from "@/lib/utils";
+import { authService } from "@/services";
+import type { UserRoleId } from "@/features/auth/types/auth";
 import type { NavigationGroup } from "@/types/navigation";
 
 function CollapsedTooltip({ label, children }: { label: string; children: React.ReactNode }) {
@@ -245,6 +247,24 @@ function SidebarLogo({
 export function DashboardSidebar() {
   const { isMobileOpen, closeMobile } = useSidebar();
   const [collapsed, setCollapsed] = useState(false);
+  const [roleId, setRoleId] = useState<UserRoleId | null>(null);
+  const groups = getNavigationForRole(roleId);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadRole() {
+      const result = await authService.getCurrentUser();
+      if (!active || result.error) return;
+      setRoleId(result.data.session.roleId);
+    }
+
+    void loadRole();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <>
@@ -269,7 +289,7 @@ export function DashboardSidebar() {
           </button>
         </div>
 
-        <SidebarBody collapsed={collapsed} groups={DASHBOARD_NAVIGATION} />
+        <SidebarBody collapsed={collapsed} groups={groups} />
       </aside>
 
       <AnimatePresence>
@@ -294,7 +314,7 @@ export function DashboardSidebar() {
               className="fixed left-0 top-0 z-50 flex h-full w-72 flex-col border-r border-slate-200 bg-white dark:border-white/8 dark:bg-[#11120f] lg:hidden"
             >
               <SidebarLogo collapsed={false} onClose={closeMobile} showCloseButton />
-              <SidebarBody collapsed={false} groups={DASHBOARD_NAVIGATION} onLinkClick={closeMobile} />
+              <SidebarBody collapsed={false} groups={groups} onLinkClick={closeMobile} />
             </motion.aside>
           </>
         )}

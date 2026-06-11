@@ -1,4 +1,5 @@
 import { authRoles } from "@/features/auth/data/auth-roles";
+import { getDefaultRouteForRole } from "@/config/access-control";
 import type { AuthSessionPreview, UserRoleId } from "@/features/auth/types/auth";
 import type { ApiErrorShape } from "@/services/http/types";
 
@@ -124,7 +125,7 @@ export function mapApiUserToSession(user: ApiAuthUser): AuthSessionPreview {
     fullName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username,
     roleId,
     roleLabel: roleDefinition?.label ?? roleId,
-    redirectTo: roleDefinition?.defaultRoute ?? "/dashboard",
+    redirectTo: getDefaultRouteForRole(roleId),
   };
 }
 

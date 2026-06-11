@@ -18,6 +18,7 @@ export {
   storeAuthTokens,
 } from "@/services/auth/session";
 export { maintenanceService } from "@/services/maintenance/maintenance.service";
+export { notificationsService } from "@/services/notifications/notifications.service";
 export { predictiveMaintenanceService } from "@/services/predictive-maintenance/predictive-maintenance.service";
 export { reportsService } from "@/services/reports/reports.service";
 export { serviceRequestsService } from "@/services/service-requests/service-requests.service";

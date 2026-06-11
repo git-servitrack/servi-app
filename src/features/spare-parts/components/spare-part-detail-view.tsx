@@ -15,7 +15,8 @@ import { StockMovementHistoryView } from "@/features/spare-parts/components/stoc
 import { StockOperationPanel } from "@/features/spare-parts/components/stock-operation-panel";
 import { mapSparePartToFormValues } from "@/features/spare-parts/lib/spare-parts";
 import type { SparePartFormOptions, SparePartRecord } from "@/features/spare-parts/types/spare-parts";
-import { sparePartsService } from "@/services";
+import { authService, sparePartsService } from "@/services";
+import type { UserRoleId } from "@/features/auth/types/auth";
 import type { ApiErrorShape } from "@/services/http/types";
 
 const emptyOptions: SparePartFormOptions = {
@@ -30,12 +31,19 @@ export function SparePartDetailView({ partId }: { partId: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiErrorShape | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [roleId, setRoleId] = useState<UserRoleId | null>(null);
+  const canManageParts = roleId === "admin-operator" || roleId === "head-technician" || roleId === "warehouse-staff";
 
   const loadPart = useCallback(async () => {
-    const [partResult, optionsResult] = await Promise.all([
+    const [userResult, partResult, optionsResult] = await Promise.all([
+      authService.getCurrentUser(),
       sparePartsService.getById(partId),
       sparePartsService.formOptions(),
     ]);
+
+    if (!userResult.error) {
+      setRoleId(userResult.data.session.roleId);
+    }
 
     if (partResult.error) {
       setError(partResult.error);
@@ -121,12 +129,14 @@ export function SparePartDetailView({ partId }: { partId: string }) {
               </div>
               <div className="flex items-center gap-3">
                 <StockBadge status={part.status} />
-                <button
-                  onClick={() => setEditOpen(true)}
-                  className="rounded-full bg-[#145d66] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55]"
-                >
-                  Edit part
-                </button>
+                {canManageParts ? (
+                  <button
+                    onClick={() => setEditOpen(true)}
+                    className="rounded-full bg-[#145d66] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55]"
+                  >
+                    Edit part
+                  </button>
+                ) : null}
               </div>
             </div>
 
@@ -193,13 +203,17 @@ export function SparePartDetailView({ partId }: { partId: string }) {
               </div>
             </div>
 
-            <div className="mt-4 sm:mt-6">
-              <StockOperationPanel part={part} onSaved={loadPart} />
-            </div>
+            {canManageParts ? (
+              <>
+                <div className="mt-4 sm:mt-6">
+                  <StockOperationPanel part={part} onSaved={loadPart} />
+                </div>
 
-            <div className="mt-4 sm:mt-6">
-              <PartUsageRecorder part={part} maintenanceJobs={options.maintenanceJobs} onSaved={loadPart} />
-            </div>
+                <div className="mt-4 sm:mt-6">
+                  <PartUsageRecorder part={part} maintenanceJobs={options.maintenanceJobs} onSaved={loadPart} />
+                </div>
+              </>
+            ) : null}
 
             <div className="mt-4 sm:mt-6">
               <StockMovementHistoryView items={part.movements} />

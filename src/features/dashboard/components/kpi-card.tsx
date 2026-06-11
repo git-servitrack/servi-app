@@ -23,22 +23,24 @@ export function KpiCard({ label, value, trend, highlight, href }: KpiStat) {
         >
           {label}
         </p>
-        <Link
-          href={href}
-          className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors",
-            highlight
-              ? "bg-white/20 hover:bg-white/30"
-              : "bg-slate-100 hover:bg-slate-200 dark:bg-white/8 dark:hover:bg-white/12",
-          )}
-        >
-          <ArrowUpRight
+        {href ? (
+          <Link
+            href={href}
             className={cn(
-              "h-4 w-4",
-              highlight ? "text-white" : "text-slate-500 dark:text-stone-400",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors",
+              highlight
+                ? "bg-white/20 hover:bg-white/30"
+                : "bg-slate-100 hover:bg-slate-200 dark:bg-white/8 dark:hover:bg-white/12",
             )}
-          />
-        </Link>
+          >
+            <ArrowUpRight
+              className={cn(
+                "h-4 w-4",
+                highlight ? "text-white" : "text-slate-500 dark:text-stone-400",
+              )}
+            />
+          </Link>
+        ) : null}
       </div>
 
       <p

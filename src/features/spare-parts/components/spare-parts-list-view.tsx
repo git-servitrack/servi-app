@@ -22,7 +22,8 @@ import type {
   SparePartFormValues,
   SparePartRecord,
 } from "@/features/spare-parts/types/spare-parts";
-import { sparePartsService } from "@/services";
+import { authService, sparePartsService } from "@/services";
+import type { UserRoleId } from "@/features/auth/types/auth";
 import type { ApiErrorShape } from "@/services/http/types";
 
 const emptyOptions: SparePartFormOptions = {
@@ -50,6 +51,9 @@ export function SparePartsListView() {
   const [modalPartId, setModalPartId] = useState<string | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<SparePartRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [roleId, setRoleId] = useState<UserRoleId | null>(null);
+  const canManageParts = roleId === "admin-operator" || roleId === "head-technician" || roleId === "warehouse-staff";
+  const canDeleteParts = roleId === "admin-operator";
 
   const statItems = useMemo(
     () => [
@@ -62,11 +66,16 @@ export function SparePartsListView() {
   );
 
   async function loadSpareParts() {
-    const [partsResult, lowStockResult, optionsResult] = await Promise.all([
+    const [userResult, partsResult, lowStockResult, optionsResult] = await Promise.all([
+      authService.getCurrentUser(),
       sparePartsService.list(),
       sparePartsService.lowStock(),
       sparePartsService.formOptions(),
     ]);
+
+    if (!userResult.error) {
+      setRoleId(userResult.data.session.roleId);
+    }
 
     if (partsResult.error) {
       setError(partsResult.error);
@@ -89,7 +98,7 @@ export function SparePartsListView() {
       setOptions(optionsResult.data);
     }
 
-    if (!partsResult.error && !lowStockResult.error && !optionsResult.error) {
+    if (!userResult.error && !partsResult.error && !lowStockResult.error && !optionsResult.error) {
       setError(null);
     }
   }
@@ -197,14 +206,16 @@ export function SparePartsListView() {
               Track stock health, reservations, and part availability.
             </p>
           </div>
-          <button
-            onClick={handleCreate}
-            disabled={options.categories.length === 0}
-            className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-[#1a7a86]"
-          >
-            <Plus className="h-4 w-4" />
-            Create spare part
-          </button>
+          {canManageParts ? (
+            <button
+              onClick={handleCreate}
+              disabled={options.categories.length === 0}
+              className="flex w-fit items-center gap-1.5 rounded-full bg-[#145d66] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55] disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-[#1a7a86]"
+            >
+              <Plus className="h-4 w-4" />
+              Create spare part
+            </button>
+          ) : null}
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -247,7 +258,13 @@ export function SparePartsListView() {
                 Loading spare parts...
               </div>
             ) : (
-              <SparePartsTable parts={parts} onEdit={handleEdit} onDelete={handleDelete} />
+              <SparePartsTable
+                parts={parts}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                canEdit={canManageParts}
+                canDelete={canDeleteParts}
+              />
             )}
           </div>
         </div>

@@ -23,9 +23,11 @@ interface SparePartsTableProps {
   parts: SparePartRecord[];
   onEdit?: (partId: string) => void;
   onDelete?: (partId: string) => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
-export function SparePartsTable({ parts, onEdit, onDelete }: SparePartsTableProps) {
+export function SparePartsTable({ parts, onEdit, onDelete, canEdit = true, canDelete = true }: SparePartsTableProps) {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(parts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -85,18 +87,22 @@ export function SparePartsTable({ parts, onEdit, onDelete }: SparePartsTableProp
               >
                 View
               </Link>
-              <button
-                onClick={() => onDelete?.(part.id)}
-                className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-white/10 dark:text-rose-300 dark:hover:bg-rose-500/10"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => onEdit?.(part.id)}
-                className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
-              >
-                Edit
-              </button>
+              {canDelete ? (
+                <button
+                  onClick={() => onDelete?.(part.id)}
+                  className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-white/10 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                >
+                  Delete
+                </button>
+              ) : null}
+              {canEdit ? (
+                <button
+                  onClick={() => onEdit?.(part.id)}
+                  className="rounded-full bg-[#145d66] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#0e4d55]"
+                >
+                  Edit
+                </button>
+              ) : null}
             </div>
           </div>
         ))}

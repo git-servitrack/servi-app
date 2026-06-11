@@ -8,7 +8,7 @@ export const authRoles: UserRoleDefinition[] = [
     shortLabel: "Warehouse Staff",
     description: "Submit service requests and manage equipment records for operational teams.",
     audience: "Best for request originators and inventory-facing staff.",
-    defaultRoute: ROUTES.serviceRequests,
+    defaultRoute: ROUTES.spareParts,
   },
   {
     id: "admin-operator",
@@ -32,7 +32,7 @@ export const authRoles: UserRoleDefinition[] = [
     shortLabel: "Supervisor",
     description: "Assign work, prioritize repairs, and monitor technician throughput.",
     audience: "Best for maintenance leads and supervisory staff.",
-    defaultRoute: ROUTES.technicians,
+    defaultRoute: ROUTES.dashboard,
   },
   {
     id: "project-site",
@@ -40,7 +40,7 @@ export const authRoles: UserRoleDefinition[] = [
     shortLabel: "Project Site",
     description: "Report site equipment issues and request field support when downtime occurs.",
     audience: "Best for site-based requesting and escalation roles.",
-    defaultRoute: ROUTES.assets,
+    defaultRoute: ROUTES.documentation,
   },
   {
     id: "management",

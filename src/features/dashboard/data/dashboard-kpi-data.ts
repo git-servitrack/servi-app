@@ -3,7 +3,7 @@ export type KpiStat = {
   value: string;
   trend: string;
   highlight: boolean;
-  href: string;
+  href?: string;
 };
 
 export type ActivityItem = {
