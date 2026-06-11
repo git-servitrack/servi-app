@@ -207,21 +207,42 @@ export default function DashboardPage() {
     let active = true;
 
     async function loadDashboard() {
-      const [userResult, overviewResult, requestResult, lowStockResult, maintenanceResult] = await Promise.all([
-        authService.getCurrentUser(),
-        reportsService.overview({ period: "Last 30 days", limit: "10" }),
-        serviceRequestsService.list({ limit: 100 }),
-        sparePartsService.lowStock({ limit: 100 }),
-        maintenanceService.list({ limit: 100 }),
-      ]);
+      const userResult = await authService.getCurrentUser();
 
       if (!active) return;
 
       const currentRole = userResult.data?.session.roleId ?? null;
-      const getAllowedHref = (route: string) =>
-        currentRole && isRouteAllowedForRole(route, currentRole) ? route : undefined;
+      const canAccessRoute = (route: string) =>
+        currentRole ? isRouteAllowedForRole(route, currentRole) : false;
+      const getAllowedHref = (route: string) => (canAccessRoute(route) ? route : undefined);
+
+      if (userResult.error) {
+        setRoleId(currentRole);
+        setError(userResult.error);
+        setIsLoading(false);
+        return;
+      }
+
+      const [overviewResult, requestResult, lowStockResult, maintenanceResult] = await Promise.all([
+        reportsService.overview({ period: "Last 30 days", limit: "10" }),
+        canAccessRoute(ROUTES.serviceRequests)
+          ? serviceRequestsService.list({ limit: 100 })
+          : Promise.resolve({ data: [] as ServiceRequestRecord[], error: null }),
+        canAccessRoute(ROUTES.spareParts)
+          ? sparePartsService.lowStock({ limit: 100 })
+          : Promise.resolve({ data: [], error: null }),
+        canAccessRoute(ROUTES.maintenance)
+          ? maintenanceService.list({ limit: 100 })
+          : Promise.resolve({ data: [] as MaintenanceRecord[], error: null }),
+      ]);
+
+      if (!active) return;
+
       const firstError =
-        userResult.error ?? overviewResult.error ?? requestResult.error ?? lowStockResult.error ?? maintenanceResult.error;
+        overviewResult.error ??
+        (canAccessRoute(ROUTES.serviceRequests) ? requestResult.error : null) ??
+        (canAccessRoute(ROUTES.spareParts) ? lowStockResult.error : null) ??
+        (canAccessRoute(ROUTES.maintenance) ? maintenanceResult.error : null);
       const requests = requestResult.error ? [] : requestResult.data;
       const maintenanceItems = maintenanceResult.error ? [] : maintenanceResult.data;
 
