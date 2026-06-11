@@ -6,6 +6,9 @@ import type {
   NotificationUnreadCount,
 } from "@/services/notifications/contracts";
 
+const NOTIFICATION_FIELDS =
+  "_id,title,message,type,relatedModel,relatedId,link,readAt,createdAt";
+
 function mapNotification(notification: ApiNotificationRecord): NotificationRecord {
   return {
     id: notification._id,
@@ -25,8 +28,9 @@ export const notificationsService = {
     return createApiResult(async () => {
       const notifications = await requestJson<ApiNotificationRecord[]>("/notifications", {
         query: {
+          fields: NOTIFICATION_FIELDS,
           limit: 10,
-          sort: "-createdAt",
+          sort: "createdAt",
           ...query,
         },
       });
