@@ -1,4 +1,6 @@
-import { createApiResult, requestJson } from "@/services/http/client";
+import { AppRequestError } from "@/services/http/errors";
+import { getAccessToken } from "@/services/auth/session";
+import { buildApiUrl, createApiResult, requestJson } from "@/services/http/client";
 import type { ApiResult, QueryParams } from "@/services/http/types";
 import type {
   ApiCompletionRateReportRow,
@@ -6,11 +8,13 @@ import type {
   ApiHighRiskEquipmentReportRow,
   ApiMaintenanceHistoryReportRow,
   ApiReportMetric,
+  ApiReportSummary,
   ApiReportingOverview,
   ApiRequestVolumeReportRow,
   ApiSparePartsUsageReportRow,
   ApiTechnicianPerformanceReportRow,
   ReportQueryPayload,
+  ReportExportResponse,
 } from "@/services/reports/contracts";
 
 function normalizeReportQuery(query?: ReportQueryPayload): QueryParams {
@@ -24,7 +28,42 @@ function normalizeReportQuery(query?: ReportQueryPayload): QueryParams {
   };
 }
 
+function getFilenameFromDisposition(value: string | null) {
+  const match = value?.match(/filename="?([^"]+)"?/i);
+  return match?.[1] ?? "servi-report-pack.csv";
+}
+
+async function requestReportExport(query?: ReportQueryPayload): Promise<ReportExportResponse> {
+  const token = getAccessToken();
+  const response = await fetch(buildApiUrl("/reports/export", normalizeReportQuery(query)), {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new AppRequestError({
+      code: response.status === 403 ? "FORBIDDEN" : response.status === 401 ? "UNAUTHORIZED" : "BAD_REQUEST",
+      message: payload?.message ?? "Report export failed.",
+      status: response.status,
+      meta: payload?.meta,
+    });
+  }
+
+  return {
+    blob: await response.blob(),
+    filename: getFilenameFromDisposition(response.headers.get("Content-Disposition")),
+  };
+}
+
 export const reportsService = {
+  async summary(query?: ReportQueryPayload): Promise<ApiResult<ApiReportSummary>> {
+    return createApiResult(async () => {
+      return requestJson<ApiReportSummary>("/reports/summary", {
+        query: normalizeReportQuery(query),
+      });
+    });
+  },
+
   async overview(query?: ReportQueryPayload): Promise<ApiResult<ApiReportingOverview>> {
     return createApiResult(async () => {
       return requestJson<ApiReportingOverview>("/reports/overview", {
@@ -95,5 +134,9 @@ export const reportsService = {
         query: normalizeReportQuery(query),
       });
     });
+  },
+
+  async exportPack(query?: ReportQueryPayload): Promise<ApiResult<ReportExportResponse>> {
+    return createApiResult(() => requestReportExport(query));
   },
 };
