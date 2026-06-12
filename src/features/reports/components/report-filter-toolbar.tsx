@@ -11,15 +11,19 @@ const inputClass =
 interface ReportFilterToolbarProps {
   filters: ReportFilterState;
   isLoading?: boolean;
+  isExporting?: boolean;
   onChange: (filters: ReportFilterState) => void;
   onRefresh: () => void;
+  onExport: () => void;
 }
 
 export function ReportFilterToolbar({
   filters,
   isLoading = false,
+  isExporting = false,
   onChange,
   onRefresh,
+  onExport,
 }: ReportFilterToolbarProps) {
   function updateFilter<TKey extends keyof ReportFilterState>(field: TKey, value: ReportFilterState[TKey]) {
     onChange({
@@ -106,10 +110,12 @@ export function ReportFilterToolbar({
           </button>
           <button
             type="button"
+            onClick={onExport}
+            disabled={isExporting}
             className="flex items-center gap-1.5 rounded-full bg-[#145d66] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0e4d55]"
           >
             <Download className="h-4 w-4" />
-            Export report pack
+            {isExporting ? "Exporting..." : "Export report pack"}
           </button>
         </div>
       </div>

@@ -6,6 +6,7 @@ import type {
   ReportFilterState,
   ReportMetric,
   ReportingOverview,
+  ReportSummary,
   RequestVolumeReportRow,
   SparePartsUsageReportRow,
   TechnicianPerformanceReportRow,
@@ -20,5 +21,11 @@ export type ApiHighRiskEquipmentReportRow = HighRiskEquipmentReportRow;
 export type ApiRequestVolumeReportRow = RequestVolumeReportRow;
 export type ApiCompletionRateReportRow = CompletionRateReportRow;
 export type ApiReportingOverview = ReportingOverview;
+export type ApiReportSummary = ReportSummary;
 
 export type ReportQueryPayload = Partial<ReportFilterState>;
+
+export interface ReportExportResponse {
+  blob: Blob;
+  filename: string;
+}
