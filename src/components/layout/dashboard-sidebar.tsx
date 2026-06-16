@@ -9,10 +9,12 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import logoImage from "@/assets/logo-black.png";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useSidebar } from "@/components/providers/sidebar-provider";
 import { getNavigationForRole } from "@/config/access-control";
@@ -208,23 +210,24 @@ function SidebarLogo({
         collapsed ? "justify-center" : "justify-between",
       )}
     >
-      <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#145d66] font-display text-xs font-bold text-white shadow-sm">
-          SW
-        </span>
-        <AnimatePresence>
-          {!collapsed && (
-            <motion.span
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden whitespace-nowrap font-semibold tracking-tight text-slate-900 dark:text-stone-100"
-            >
-              SERVI-WEB
-            </motion.span>
+      <Link
+        href="/dashboard"
+        className={cn(
+          "flex items-center",
+          collapsed ? "h-10 w-10 justify-center overflow-hidden" : "w-[190px]",
+        )}
+      >
+        <Image
+          src={logoImage}
+          alt="Servi logo"
+          width={220}
+          height={65}
+          priority
+          className={cn(
+            "h-auto object-contain dark:invert",
+            collapsed ? "w-[150px] max-w-none" : "w-[190px]",
           )}
-        </AnimatePresence>
+        />
       </Link>
 
       {!collapsed &&
