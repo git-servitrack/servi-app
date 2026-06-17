@@ -26,13 +26,11 @@ function buildEmptyRequestValues(
   assets: ServiceRequestAssetOption[],
   requesters: ServiceRequestRequesterOption[],
 ): ServiceRequestFormValues {
-  const firstAsset = assets[0];
-
   return {
     ...emptyServiceRequestFormValues,
     requester: requesters[0]?.id ?? "",
-    asset: firstAsset?.id ?? "",
-    site: firstAsset?.site ?? emptyServiceRequestFormValues.site,
+    asset: "",
+    site: assets[0]?.site ?? emptyServiceRequestFormValues.site,
   };
 }
 

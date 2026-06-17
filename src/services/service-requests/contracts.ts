@@ -21,15 +21,15 @@ export interface ApiServiceRequestAssetCategory {
 }
 
 export type ApiServiceRequestAsset = Pick<ApiAssetRecord, "_id" | "name" | "code" | "site"> & {
-  category?: string | ApiServiceRequestAssetCategory;
+  category?: string | ApiServiceRequestAssetCategory | null;
 };
 
 export interface ApiServiceRequestRecord {
   _id: string;
   title: string;
-  requester: string | ApiServiceRequestUser;
+  requester: string | ApiServiceRequestUser | null;
   site: string;
-  asset: string | ApiServiceRequestAsset;
+  asset: string | ApiServiceRequestAsset | null;
   status: RequestStatus;
   priority: RequestPriority;
   scheduledFor?: string;

@@ -12,7 +12,7 @@ export interface ApiAssetRecord {
   _id: string;
   name: string;
   code?: string;
-  category: string | ApiCategoryRecord;
+  category: string | ApiCategoryRecord | null;
   assetType?: string;
   site: string;
   assignedTeam: string;

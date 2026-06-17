@@ -49,6 +49,13 @@ function formatDate(value?: string) {
 }
 
 function normalizeCategory(category: ApiAssetRecord["category"]) {
+  if (!category) {
+    return {
+      id: "",
+      name: "Uncategorized",
+    };
+  }
+
   if (typeof category === "string") {
     return {
       id: category,

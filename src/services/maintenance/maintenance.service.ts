@@ -10,10 +10,8 @@ import type { ApiResult, QueryParams } from "@/services/http/types";
 import type { ApiAuthUser } from "@/services/auth/session";
 import { serviceRequestsService } from "@/services/service-requests/service-requests.service";
 import type {
-  ApiMaintenanceAsset,
   ApiMaintenancePayload,
   ApiMaintenanceRecord,
-  ApiMaintenanceServiceRequest,
   ApiMaintenanceUser,
   ApiRepairAction,
   DiagnosisNotesPayload,
@@ -79,7 +77,16 @@ function mapTechnicianOption(user: Pick<ApiAuthUser, "_id" | "username" | "first
   };
 }
 
-function getAssetDetails(asset: string | ApiMaintenanceAsset) {
+function getAssetDetails(asset: ApiMaintenanceRecord["asset"]) {
+  if (!asset) {
+    return {
+      id: "",
+      name: "Unassigned asset",
+      site: "Unassigned site",
+      team: "Maintenance Team",
+    };
+  }
+
   if (typeof asset === "string") {
     return {
       id: asset,
@@ -97,7 +104,15 @@ function getAssetDetails(asset: string | ApiMaintenanceAsset) {
   };
 }
 
-function getServiceRequestDetails(serviceRequest: string | ApiMaintenanceServiceRequest) {
+function getServiceRequestDetails(serviceRequest: ApiMaintenanceRecord["serviceRequest"]) {
+  if (!serviceRequest) {
+    return {
+      id: "",
+      ticket: "Unlinked request",
+      priority: "Medium" as MaintenancePriority,
+    };
+  }
+
   if (typeof serviceRequest === "string") {
     return {
       id: serviceRequest,
@@ -114,24 +129,44 @@ function getServiceRequestDetails(serviceRequest: string | ApiMaintenanceService
 }
 
 function getAssignmentDetails(assignment: ApiMaintenanceRecord["assignment"]): MaintenanceAssignment {
+  if (!assignment) {
+    return {
+      technicianId: "",
+      technician: "Unassigned technician",
+      team: "Maintenance Team",
+      shift: "",
+      eta: "",
+    };
+  }
+
   const technician = assignment.technician;
+
+  if (!technician) {
+    return {
+      technicianId: "",
+      technician: "Unassigned technician",
+      team: assignment.team ?? "Maintenance Team",
+      shift: assignment.shift ?? "",
+      eta: assignment.eta ?? "",
+    };
+  }
 
   if (typeof technician === "string") {
     return {
       technicianId: technician,
       technician: "Unassigned technician",
-      team: assignment.team,
-      shift: assignment.shift,
-      eta: assignment.eta,
+      team: assignment.team ?? "Maintenance Team",
+      shift: assignment.shift ?? "",
+      eta: assignment.eta ?? "",
     };
   }
 
   return {
     technicianId: technician._id,
     technician: getPersonName(technician),
-    team: assignment.team,
-    shift: assignment.shift,
-    eta: assignment.eta,
+    team: assignment.team ?? "Maintenance Team",
+    shift: assignment.shift ?? "",
+    eta: assignment.eta ?? "",
   };
 }
 
@@ -161,7 +196,7 @@ function mapApiMaintenanceToRecord(item: ApiMaintenanceRecord): MaintenanceRecor
     status: item.status,
     priority: serviceRequest.priority,
     assignedTeam: assignment.team || asset.team,
-    scheduledFor: item.assignment.eta,
+    scheduledFor: assignment.eta,
     diagnosisNotes: item.diagnosisNotes || "No diagnosis notes yet.",
     assignment,
     repairActions: (item.repairActions ?? []).map(mapRepairAction),

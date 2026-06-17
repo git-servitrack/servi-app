@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, LoaderCircle } from "lucide-react";
+import { AlertTriangle, ArrowRight, LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { sileo } from "sileo";
@@ -49,7 +49,7 @@ export function RequestForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted, touchedFields },
     reset,
     setError,
     setValue,
@@ -61,6 +61,10 @@ export function RequestForm({
   const { isSubmitting, error, run, clearFeedback } = useStandardFormSubmit();
   const isEditMode = Boolean(requestId);
   const selectedAssetId = useWatch({ control, name: "asset" });
+  const assetWarning =
+    !selectedAssetId && (isSubmitted || touchedFields.asset)
+      ? errors.asset?.message ?? "Select a related asset before creating this service request."
+      : undefined;
 
   useEffect(() => {
     reset(values);
@@ -151,8 +155,11 @@ export function RequestForm({
             ))}
           </select>
         </FieldShell>
-        <FieldShell label="Related Asset" error={errors.asset?.message}>
-          <select {...register("asset", { onChange: clearFeedback })} className={cn(selectClass, errors.asset && "border-destructive")}>
+        <FieldShell label="Related Asset" warning={assetWarning}>
+          <select
+            {...register("asset", { onChange: clearFeedback })}
+            className={cn(selectClass, assetWarning && "border-amber-400 bg-amber-50/70 focus-visible:border-amber-500 focus-visible:ring-amber-500/20 dark:border-amber-400/60 dark:bg-amber-400/10")}
+          >
             <option value="">Select related asset</option>
             {assets.map((asset) => (
               <option key={asset.id} value={asset.id}>
@@ -211,11 +218,27 @@ export function RequestForm({
   );
 }
 
-function FieldShell({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function FieldShell({
+  label,
+  error,
+  warning,
+  children,
+}: {
+  label: string;
+  error?: string;
+  warning?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="space-y-1.5">
       <span className="text-sm font-medium text-slate-700 dark:text-stone-300">{label}</span>
       {children}
+      {warning ? (
+        <p className="flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-300">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          {warning}
+        </p>
+      ) : null}
       {error ? <p className="text-xs font-medium text-destructive">{error}</p> : null}
     </label>
   );
