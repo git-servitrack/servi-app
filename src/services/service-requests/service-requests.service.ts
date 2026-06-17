@@ -10,7 +10,6 @@ import type { ApiResult, QueryParams } from "@/services/http/types";
 import { assetsService } from "@/services/assets/assets.service";
 import { userManagementService } from "@/services/user-management/user-management.service";
 import type {
-  ApiServiceRequestAsset,
   ApiServiceRequestPayload,
   ApiServiceRequestRecord,
   ApiServiceRequestUser,
@@ -49,7 +48,14 @@ function formatDateTime(value?: string) {
   return date.toISOString().slice(0, 16);
 }
 
-function getRequesterDetails(requester: string | ApiServiceRequestUser) {
+function getRequesterDetails(requester: ApiServiceRequestRecord["requester"]) {
+  if (!requester) {
+    return {
+      id: "",
+      name: "Unassigned requester",
+    };
+  }
+
   if (typeof requester === "string") {
     return {
       id: requester,
@@ -63,7 +69,16 @@ function getRequesterDetails(requester: string | ApiServiceRequestUser) {
   };
 }
 
-function getAssetDetails(asset: string | ApiServiceRequestAsset, fallbackSite: string) {
+function getAssetDetails(asset: ApiServiceRequestRecord["asset"], fallbackSite: string) {
+  if (!asset) {
+    return {
+      id: "",
+      name: "Unassigned asset",
+      category: "Uncategorized",
+      site: fallbackSite,
+    };
+  }
+
   if (typeof asset === "string") {
     return {
       id: asset,

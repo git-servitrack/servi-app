@@ -24,10 +24,10 @@ export type ApiMaintenanceServiceRequest = Pick<
 >;
 
 export interface ApiMaintenanceAssignment {
-  technician: string | ApiMaintenanceUser;
-  team: string;
-  shift: string;
-  eta: string;
+  technician?: string | ApiMaintenanceUser | null;
+  team?: string;
+  shift?: string;
+  eta?: string;
 }
 
 export interface ApiRepairAction {
@@ -56,11 +56,11 @@ export interface ApiMaintenanceCompletion {
 export interface ApiMaintenanceRecord {
   _id: string;
   workOrder: string;
-  asset: string | ApiMaintenanceAsset;
-  serviceRequest: string | ApiMaintenanceServiceRequest;
+  asset: string | ApiMaintenanceAsset | null;
+  serviceRequest: string | ApiMaintenanceServiceRequest | null;
   status: MaintenanceStatus;
   diagnosisNotes?: string;
-  assignment: ApiMaintenanceAssignment;
+  assignment?: ApiMaintenanceAssignment | null;
   repairActions?: ApiRepairAction[];
   timeline?: ApiMaintenanceTimelineEvent[];
   completion?: ApiMaintenanceCompletion;
